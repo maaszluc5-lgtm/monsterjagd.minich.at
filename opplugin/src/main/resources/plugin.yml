@@ -66,6 +66,10 @@ commands:
   jobtop:
     description: Top players for a job.
     usage: /jobtop [job]
+  trophies:
+    description: View your trophies.
+    usage: /trophies [player]
+    aliases: [pokale, pokal]
 
 permissions:
   opserver.giveitem:

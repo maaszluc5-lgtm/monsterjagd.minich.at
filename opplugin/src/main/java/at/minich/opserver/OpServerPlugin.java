@@ -17,6 +17,8 @@ import at.minich.opserver.ranks.RankManager;
 import at.minich.opserver.rewards.DailyRewardManager;
 import at.minich.opserver.salary.SalaryListener;
 import at.minich.opserver.salaryfarm.SalaryFarmManager;
+import at.minich.opserver.trophies.TrophyListener;
+import at.minich.opserver.trophies.TrophyManager;
 import at.minich.opserver.util.DataManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -47,6 +49,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private DailyRewardManager dailyRewardManager;
     private KitManager kitManager;
     private JobManager jobManager;
+    private TrophyManager trophyManager;
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
@@ -76,6 +79,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         dailyRewardManager = new DailyRewardManager(this);
         kitManager = new KitManager(this);
         jobManager = new JobManager(this);
+        trophyManager = new TrophyManager(this);
 
         // Register Vault economy
         registerVaultEconomy();
@@ -92,6 +96,10 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         JobGUI jobGUI = new JobGUI(this);
         getServer().getPluginManager().registerEvents(new JobListener(this), this);
         getServer().getPluginManager().registerEvents(new JobGUIListener(this, jobGUI), this);
+
+        // Trophies
+        getServer().getPluginManager().registerEvents(new TrophyListener(this), this);
+        getServer().getPluginManager().registerEvents(new TrophyGUIListener(), this);
 
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -115,6 +123,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("job").setExecutor(new JobCommand(this, jobGUI));
         getCommand("jobstats").setExecutor(new JobStatsCommand(this));
         getCommand("jobtop").setExecutor(new JobTopCommand(this));
+        getCommand("trophies").setExecutor(new TrophyCommand(this));
 
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);
@@ -271,5 +280,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public JobManager getJobManager() {
         return jobManager;
+    }
+
+    public TrophyManager getTrophyManager() {
+        return trophyManager;
     }
 }

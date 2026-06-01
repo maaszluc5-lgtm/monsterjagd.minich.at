@@ -1,5 +1,12 @@
 # OpServer Configuration
 
+# ---------------------------------------------------------------------------
+# Trophies / Pokale
+# ---------------------------------------------------------------------------
+trophies:
+  enabled: true
+  broadcast-on-award: true
+
 economy:
   default-balance: 500
   currency-name: "Coins"

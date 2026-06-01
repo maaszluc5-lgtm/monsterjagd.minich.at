@@ -227,6 +227,11 @@ public class JobManager {
                 Bukkit.broadcastMessage(finalMsg);
             }
         }
+
+        // Trophy check at level 100
+        if (newLevel >= 100 && player != null && job != null) {
+            plugin.getTrophyManager().checkAndGiveJobTrophy(player, job);
+        }
     }
 
     // -------------------------------------------------------------------------

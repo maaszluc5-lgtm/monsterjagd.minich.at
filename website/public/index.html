@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monsterjagd – Rang Shop</title>
+  <meta name="description" content="Kaufe exklusive Ränge für den Monsterjagd Minecraft-Server und unterstütze die Community.">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔</text></svg>">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <nav>
+      <a href="/" class="nav-logo"><span>⚔</span> MONSTERJAGD</a>
+      <div class="nav-links">
+        <a href="#ranks">Ränge</a>
+        <a href="#faq">FAQ</a>
+        <span class="server-ip" title="IP kopieren" onclick="copyIP(this)">play.monsterjagd.at</span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">⚔ Rang Shop</div>
+    <h1>Unterstütze den Server &amp;<br><em>erhalte exklusive Vorteile</em></h1>
+    <p>Kaufe einen Rang und erhalte sofort Zugang zu exklusiven Kits, mehr Grundstücken und besonderen Prefixes im Chat.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num">6</div>
+        <div class="label">Rang-Stufen</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">ab €4,99</div>
+        <div class="label">Einmalig</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">24/7</div>
+        <div class="label">Server Online</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RANKS -->
+  <main>
+    <div class="section-header" id="ranks">
+      <h2>Verfügbare Ränge</h2>
+      <p>Wähle einen Rang und unterstütze den Server. Alle Ränge sind dauerhaft!</p>
+    </div>
+
+    <div class="ranks-grid" id="ranksGrid">
+      <!-- Filled by script.js -->
+      <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
+        Ränge werden geladen…
+      </div>
+    </div>
+
+    <!-- INFO / FAQ -->
+    <div class="info-section" id="faq">
+      <div class="section-header">
+        <h2>Häufige Fragen</h2>
+        <p>Alles was du über Ränge wissen musst</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-card">
+          <span class="icon">⚡</span>
+          <h3>Aktivierung</h3>
+          <p>Dein Rang wird nach manueller Zahlungsbestätigung aktiviert – normalerweise innerhalb von 24 Stunden.</p>
+        </div>
+        <div class="info-card">
+          <span class="icon">♾</span>
+          <h3>Dauerhaft</h3>
+          <p>Alle Ränge sind dauerhaft und haben keine Ablaufzeit. Einmal kaufen, für immer behalten.</p>
+        </div>
+        <div class="info-card">
+          <span class="icon">💳</span>
+          <h3>Zahlung</h3>
+          <p>Zahlung per PayPal oder Banküberweisung möglich. Nach Eingang der Zahlung wird dein Rang aktiviert.</p>
+        </div>
+        <div class="info-card">
+          <span class="icon">🎮</span>
+          <h3>Kits</h3>
+          <p>Jeder Rang schaltet ein exklusives Kit frei, das du alle 24 Stunden verwenden kannst.</p>
+        </div>
+        <div class="info-card">
+          <span class="icon">🏠</span>
+          <h3>Grundstücke</h3>
+          <p>Höhere Ränge erlauben mehr Grundstücke – von 4 (VIP) bis hin zu unbegrenzt (GOD).</p>
+        </div>
+        <div class="info-card">
+          <span class="icon">❓</span>
+          <h3>Fragen?</h3>
+          <p>Tritt unserem Discord-Server bei oder schreibe uns eine E-Mail bei Problemen mit deiner Bestellung.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">⚔ MONSTERJAGD</div>
+      <div class="footer-ip">play.monsterjagd.at</div>
+      <div class="footer-links">
+        <a href="#ranks">Ränge</a>
+        <a href="#faq">FAQ</a>
+        <a href="/admin">Admin</a>
+      </div>
+      <div class="footer-copy">© 2024 Monsterjagd. Nicht verbunden mit Mojang oder Microsoft.</div>
+    </div>
+  </footer>
+
+  <script src="/script.js"></script>
+</body>
+</html>

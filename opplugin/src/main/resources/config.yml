@@ -98,3 +98,809 @@ ranks:
     required-hours: 200
     salary-multiplier: 5.0
     prefix: "§4§l[GOTT]"
+
+# ---------------------------------------------------------------------------
+# Jobs / Professions
+# ---------------------------------------------------------------------------
+jobs:
+  rewards:
+
+    # ---- GRAEBER ----
+    graeber:
+      r5:
+        level: 5
+        coins: 500
+        items:
+          - IRON_SHOVEL:1
+          - BREAD:16
+      r10:
+        level: 10
+        coins: 1000
+        items:
+          - DIAMOND_SHOVEL:1
+          - GOLDEN_APPLE:4
+      r15:
+        level: 15
+        coins: 2000
+        items:
+          - DIAMOND_SHOVEL:1
+          - GOLDEN_APPLE:8
+      r20:
+        level: 20
+        coins: 3500
+        items:
+          - DIAMOND_SHOVEL:1
+          - ENCHANTED_GOLDEN_APPLE:2
+      r25:
+        level: 25
+        coins: 5000
+        items:
+          - DIAMOND_SHOVEL:1
+          - ENCHANTED_GOLDEN_APPLE:4
+      r30:
+        level: 30
+        coins: 8000
+        items:
+          - NETHERITE_SHOVEL:1
+          - ENCHANTED_GOLDEN_APPLE:8
+      r35:
+        level: 35
+        coins: 12000
+        items:
+          - NETHERITE_SHOVEL:1
+          - GOLDEN_APPLE:32
+      r40:
+        level: 40
+        coins: 18000
+        items:
+          - NETHERITE_SHOVEL:1
+          - ENCHANTED_GOLDEN_APPLE:16
+      r45:
+        level: 45
+        coins: 25000
+        items:
+          - NETHERITE_SHOVEL:1
+          - DIAMOND:16
+      r50:
+        level: 50
+        coins: 40000
+        items:
+          - NETHERITE_SHOVEL:1
+          - DIAMOND:32
+        message: "§6<player> hat Gräber Level 50 erreicht!"
+      r55:
+        level: 55
+        coins: 60000
+        items:
+          - NETHERITE_SHOVEL:1
+          - DIAMOND:48
+      r60:
+        level: 60
+        coins: 80000
+        items:
+          - NETHERITE_SHOVEL:1
+          - NETHERITE_INGOT:4
+      r65:
+        level: 65
+        coins: 100000
+        items:
+          - NETHERITE_INGOT:8
+          - DIAMOND:32
+      r70:
+        level: 70
+        coins: 150000
+        items:
+          - NETHERITE_INGOT:16
+          - ENCHANTED_GOLDEN_APPLE:32
+      r75:
+        level: 75
+        coins: 200000
+        items:
+          - NETHERITE_INGOT:16
+          - ENCHANTED_GOLDEN_APPLE:64
+        message: "§6§l<player> hat Gräber Level 75 erreicht!"
+      r80:
+        level: 80
+        coins: 300000
+        items:
+          - NETHERITE_INGOT:32
+          - DIAMOND_BLOCK:8
+      r85:
+        level: 85
+        coins: 400000
+        items:
+          - NETHERITE_INGOT:32
+          - DIAMOND_BLOCK:16
+      r90:
+        level: 90
+        coins: 600000
+        items:
+          - NETHERITE_INGOT:64
+          - DIAMOND_BLOCK:32
+      r95:
+        level: 95
+        coins: 800000
+        items:
+          - NETHERITE_BLOCK:4
+          - ENCHANTED_GOLDEN_APPLE:64
+        custom-items:
+          - GOD_PICKAXE
+      r100:
+        level: 100
+        coins: 1000000
+        items:
+          - NETHERITE_BLOCK:8
+          - ENCHANTED_GOLDEN_APPLE:64
+        custom-items:
+          - GOD_SWORD
+          - GOD_ARMOR_SET
+        message: "§4§l<player> ist der ultimative Gräber!"
+
+    # ---- MIENENARBEITER ----
+    mienenarbeiter:
+      r5:
+        level: 5
+        coins: 500
+        items:
+          - IRON_PICKAXE:1
+          - COAL:32
+      r10:
+        level: 10
+        coins: 1000
+        items:
+          - DIAMOND_PICKAXE:1
+          - IRON_INGOT:32
+      r15:
+        level: 15
+        coins: 2000
+        items:
+          - DIAMOND_PICKAXE:1
+          - GOLD_INGOT:16
+      r20:
+        level: 20
+        coins: 3500
+        items:
+          - DIAMOND_PICKAXE:1
+          - DIAMOND:8
+      r25:
+        level: 25
+        coins: 5000
+        items:
+          - DIAMOND_PICKAXE:1
+          - DIAMOND:16
+      r30:
+        level: 30
+        coins: 8000
+        items:
+          - NETHERITE_PICKAXE:1
+          - DIAMOND:32
+      r35:
+        level: 35
+        coins: 12000
+        items:
+          - NETHERITE_PICKAXE:1
+          - EMERALD:16
+      r40:
+        level: 40
+        coins: 18000
+        items:
+          - NETHERITE_PICKAXE:1
+          - EMERALD:32
+      r45:
+        level: 45
+        coins: 25000
+        items:
+          - NETHERITE_PICKAXE:1
+          - NETHERITE_INGOT:4
+      r50:
+        level: 50
+        coins: 40000
+        items:
+          - NETHERITE_PICKAXE:1
+          - NETHERITE_INGOT:8
+        message: "§7<player> hat Minenarbeiter Level 50 erreicht!"
+      r55:
+        level: 55
+        coins: 60000
+        items:
+          - NETHERITE_INGOT:8
+          - DIAMOND_BLOCK:4
+      r60:
+        level: 60
+        coins: 80000
+        items:
+          - NETHERITE_INGOT:16
+          - DIAMOND_BLOCK:8
+      r65:
+        level: 65
+        coins: 100000
+        items:
+          - NETHERITE_INGOT:16
+          - DIAMOND_BLOCK:16
+      r70:
+        level: 70
+        coins: 150000
+        items:
+          - NETHERITE_INGOT:32
+          - EMERALD_BLOCK:8
+      r75:
+        level: 75
+        coins: 200000
+        items:
+          - NETHERITE_INGOT:32
+          - EMERALD_BLOCK:16
+        message: "§7§l<player> hat Minenarbeiter Level 75 erreicht!"
+      r80:
+        level: 80
+        coins: 300000
+        items:
+          - NETHERITE_INGOT:64
+          - DIAMOND_BLOCK:32
+      r85:
+        level: 85
+        coins: 400000
+        items:
+          - NETHERITE_BLOCK:4
+          - EMERALD_BLOCK:16
+      r90:
+        level: 90
+        coins: 600000
+        items:
+          - NETHERITE_BLOCK:8
+          - DIAMOND_BLOCK:64
+      r95:
+        level: 95
+        coins: 800000
+        items:
+          - NETHERITE_BLOCK:8
+          - ENCHANTED_GOLDEN_APPLE:32
+        custom-items:
+          - GOD_PICKAXE
+      r100:
+        level: 100
+        coins: 1000000
+        items:
+          - NETHERITE_BLOCK:16
+          - ENCHANTED_GOLDEN_APPLE:64
+        custom-items:
+          - GOD_PICKAXE
+          - GOD_ARMOR_SET
+        message: "§8§l<player> ist der ultimative Minenarbeiter!"
+
+    # ---- FARMER ----
+    farmer:
+      r5:
+        level: 5
+        coins: 500
+        items:
+          - WHEAT_SEEDS:64
+          - BREAD:32
+      r10:
+        level: 10
+        coins: 1000
+        items:
+          - CARROT:64
+          - POTATO:64
+      r15:
+        level: 15
+        coins: 2000
+        items:
+          - GOLDEN_CARROT:16
+          - BREAD:64
+      r20:
+        level: 20
+        coins: 3500
+        items:
+          - GOLDEN_CARROT:32
+          - GOLDEN_APPLE:8
+      r25:
+        level: 25
+        coins: 5000
+        items:
+          - GOLDEN_CARROT:64
+          - GOLDEN_APPLE:16
+      r30:
+        level: 30
+        coins: 8000
+        items:
+          - GOLDEN_CARROT:64
+          - ENCHANTED_GOLDEN_APPLE:4
+      r35:
+        level: 35
+        coins: 12000
+        items:
+          - MELON_SLICE:64
+          - ENCHANTED_GOLDEN_APPLE:8
+      r40:
+        level: 40
+        coins: 18000
+        items:
+          - GOLDEN_CARROT:64
+          - ENCHANTED_GOLDEN_APPLE:16
+      r45:
+        level: 45
+        coins: 25000
+        items:
+          - GOLDEN_CARROT:64
+          - DIAMOND:8
+      r50:
+        level: 50
+        coins: 40000
+        items:
+          - GOLDEN_CARROT:64
+          - DIAMOND:16
+        message: "§a<player> hat Farmer Level 50 erreicht!"
+      r55:
+        level: 55
+        coins: 60000
+        items:
+          - GOLDEN_CARROT:64
+          - DIAMOND:32
+      r60:
+        level: 60
+        coins: 80000
+        items:
+          - GOLDEN_CARROT:64
+          - NETHERITE_INGOT:4
+      r65:
+        level: 65
+        coins: 100000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:32
+          - NETHERITE_INGOT:8
+      r70:
+        level: 70
+        coins: 150000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_INGOT:16
+      r75:
+        level: 75
+        coins: 200000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_INGOT:16
+        message: "§a§l<player> hat Farmer Level 75 erreicht!"
+      r80:
+        level: 80
+        coins: 300000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_INGOT:32
+      r85:
+        level: 85
+        coins: 400000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_INGOT:64
+      r90:
+        level: 90
+        coins: 600000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:4
+      r95:
+        level: 95
+        coins: 800000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:8
+        custom-items:
+          - GOD_SWORD
+      r100:
+        level: 100
+        coins: 1000000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:16
+        custom-items:
+          - GOD_SWORD
+          - GOD_ARMOR_SET
+        message: "§2§l<player> ist der ultimative Farmer!"
+
+    # ---- FISHER ----
+    fisher:
+      r5:
+        level: 5
+        coins: 500
+        items:
+          - FISHING_ROD:1
+          - COD:32
+      r10:
+        level: 10
+        coins: 1000
+        items:
+          - FISHING_ROD:1
+          - SALMON:32
+      r15:
+        level: 15
+        coins: 2000
+        items:
+          - FISHING_ROD:1
+          - GOLDEN_APPLE:8
+      r20:
+        level: 20
+        coins: 3500
+        items:
+          - FISHING_ROD:1
+          - GOLDEN_APPLE:16
+      r25:
+        level: 25
+        coins: 5000
+        items:
+          - FISHING_ROD:1
+          - ENCHANTED_GOLDEN_APPLE:8
+      r30:
+        level: 30
+        coins: 8000
+        items:
+          - FISHING_ROD:1
+          - ENCHANTED_GOLDEN_APPLE:16
+      r35:
+        level: 35
+        coins: 12000
+        items:
+          - FISHING_ROD:1
+          - DIAMOND:16
+      r40:
+        level: 40
+        coins: 18000
+        items:
+          - FISHING_ROD:1
+          - DIAMOND:32
+      r45:
+        level: 45
+        coins: 25000
+        items:
+          - DIAMOND:32
+          - NETHERITE_INGOT:4
+      r50:
+        level: 50
+        coins: 40000
+        items:
+          - DIAMOND:64
+          - NETHERITE_INGOT:8
+        message: "§b<player> hat Fischer Level 50 erreicht!"
+      r55:
+        level: 55
+        coins: 60000
+        items:
+          - NETHERITE_INGOT:8
+          - ENCHANTED_GOLDEN_APPLE:16
+      r60:
+        level: 60
+        coins: 80000
+        items:
+          - NETHERITE_INGOT:16
+          - ENCHANTED_GOLDEN_APPLE:32
+      r65:
+        level: 65
+        coins: 100000
+        items:
+          - NETHERITE_INGOT:16
+          - DIAMOND_BLOCK:8
+      r70:
+        level: 70
+        coins: 150000
+        items:
+          - NETHERITE_INGOT:32
+          - DIAMOND_BLOCK:16
+      r75:
+        level: 75
+        coins: 200000
+        items:
+          - NETHERITE_INGOT:32
+          - DIAMOND_BLOCK:16
+        message: "§b§l<player> hat Fischer Level 75 erreicht!"
+      r80:
+        level: 80
+        coins: 300000
+        items:
+          - NETHERITE_INGOT:64
+          - ENCHANTED_GOLDEN_APPLE:64
+      r85:
+        level: 85
+        coins: 400000
+        items:
+          - NETHERITE_BLOCK:4
+          - ENCHANTED_GOLDEN_APPLE:64
+      r90:
+        level: 90
+        coins: 600000
+        items:
+          - NETHERITE_BLOCK:8
+          - DIAMOND_BLOCK:32
+      r95:
+        level: 95
+        coins: 800000
+        items:
+          - NETHERITE_BLOCK:8
+          - ENCHANTED_GOLDEN_APPLE:64
+        custom-items:
+          - GOD_SWORD
+      r100:
+        level: 100
+        coins: 1000000
+        items:
+          - NETHERITE_BLOCK:16
+          - ENCHANTED_GOLDEN_APPLE:64
+        custom-items:
+          - GOD_SWORD
+          - GOD_ARMOR_SET
+        message: "§3§l<player> ist der ultimative Fischer!"
+
+    # ---- JAEGER ----
+    jaeger:
+      r5:
+        level: 5
+        coins: 1000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+      r10:
+        level: 10
+        coins: 10000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+        custom-items:
+          - GOD_SWORD
+      r15:
+        level: 15
+        coins: 20000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - DIAMOND:16
+      r20:
+        level: 20
+        coins: 30000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - DIAMOND:32
+      r25:
+        level: 25
+        coins: 50000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_INGOT:8
+        custom-items:
+          - GOD_ARMOR_SET
+      r30:
+        level: 30
+        coins: 75000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_INGOT:16
+      r35:
+        level: 35
+        coins: 100000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_INGOT:32
+      r40:
+        level: 40
+        coins: 150000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_INGOT:64
+      r45:
+        level: 45
+        coins: 175000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:4
+      r50:
+        level: 50
+        coins: 200000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:8
+        message: "§c<player> hat Jäger Level 50 erreicht!"
+      r55:
+        level: 55
+        coins: 250000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:8
+        custom-items:
+          - GOD_SWORD
+      r60:
+        level: 60
+        coins: 300000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:16
+      r65:
+        level: 65
+        coins: 400000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:16
+        custom-items:
+          - GOD_SWORD
+      r70:
+        level: 70
+        coins: 500000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:32
+      r75:
+        level: 75
+        coins: 600000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:32
+        custom-items:
+          - GOD_ARMOR_SET
+        message: "§c§l<player> hat Jäger Level 75 erreicht!"
+      r80:
+        level: 80
+        coins: 700000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:64
+      r85:
+        level: 85
+        coins: 800000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:64
+        custom-items:
+          - GOD_SWORD
+      r90:
+        level: 90
+        coins: 900000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:64
+        custom-items:
+          - GOD_SWORD
+          - GOD_ARMOR_SET
+      r95:
+        level: 95
+        coins: 950000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:64
+        custom-items:
+          - GOD_SWORD
+          - GOD_ARMOR_SET
+      r100:
+        level: 100
+        coins: 1000000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:64
+        custom-items:
+          - GOD_SWORD
+          - GOD_ARMOR_SET
+        message: "§4§l<player> ist der ultimative Jäger!"
+
+    # ---- BUILDER ----
+    builder:
+      r5:
+        level: 5
+        coins: 500
+        items:
+          - OAK_PLANKS:64
+          - STONE_BRICKS:64
+      r10:
+        level: 10
+        coins: 1000
+        items:
+          - GLASS:64
+          - WHITE_CONCRETE:64
+      r15:
+        level: 15
+        coins: 2000
+        items:
+          - GOLDEN_APPLE:16
+          - WHITE_WOOL:64
+      r20:
+        level: 20
+        coins: 3500
+        items:
+          - GOLDEN_APPLE:32
+          - DIAMOND:8
+      r25:
+        level: 25
+        coins: 5000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:8
+          - DIAMOND:16
+      r30:
+        level: 30
+        coins: 8000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:16
+          - DIAMOND:32
+      r35:
+        level: 35
+        coins: 12000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:16
+          - NETHERITE_INGOT:4
+      r40:
+        level: 40
+        coins: 18000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:32
+          - NETHERITE_INGOT:8
+      r45:
+        level: 45
+        coins: 25000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:32
+          - NETHERITE_INGOT:16
+      r50:
+        level: 50
+        coins: 40000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_INGOT:16
+        message: "§e<player> hat Baumeister Level 50 erreicht!"
+      r55:
+        level: 55
+        coins: 60000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_INGOT:32
+      r60:
+        level: 60
+        coins: 80000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_INGOT:64
+      r65:
+        level: 65
+        coins: 100000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:4
+      r70:
+        level: 70
+        coins: 150000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:8
+      r75:
+        level: 75
+        coins: 200000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:8
+        message: "§e§l<player> hat Baumeister Level 75 erreicht!"
+      r80:
+        level: 80
+        coins: 300000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:16
+      r85:
+        level: 85
+        coins: 400000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:32
+      r90:
+        level: 90
+        coins: 600000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:64
+      r95:
+        level: 95
+        coins: 800000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:64
+        custom-items:
+          - GOD_PICKAXE
+      r100:
+        level: 100
+        coins: 1000000
+        items:
+          - ENCHANTED_GOLDEN_APPLE:64
+          - NETHERITE_BLOCK:64
+        custom-items:
+          - GOD_SWORD
+          - GOD_ARMOR_SET
+        message: "§e§l<player> ist der ultimative Baumeister!"

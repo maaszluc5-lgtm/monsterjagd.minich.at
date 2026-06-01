@@ -56,6 +56,16 @@ commands:
   stats:
     description: Show player statistics.
     usage: /stats [player]
+  job:
+    description: Manage your job/profession.
+    usage: /job [name]
+    aliases: [beruf, jobs]
+  jobstats:
+    description: Show job statistics.
+    usage: /jobstats [player]
+  jobtop:
+    description: Top players for a job.
+    usage: /jobtop [job]
 
 permissions:
   opserver.giveitem:
@@ -82,3 +92,6 @@ permissions:
       opserver.farmworld.reset: true
       opserver.kit.vip: true
       opserver.kit.god: true
+  opserver.job.switch:
+    description: Allow switching jobs.
+    default: true

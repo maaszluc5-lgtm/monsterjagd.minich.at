@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout – Monsterjagd Shop</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔</text></svg>">
+  <style>
+    .checkout-wrapper {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .checkout-wrapper { grid-template-columns: 1fr; }
+      .order-summary { order: -1; }
+    }
+
+    .checkout-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+
+    .checkout-card h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .order-summary .rank-name {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+    }
+
+    .order-summary .rank-tier {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1.25rem;
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .summary-line:last-child { border-bottom: none; }
+    .summary-line .val { color: var(--text); font-weight: 500; }
+
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0 0;
+      margin-top: 0.5rem;
+    }
+
+    .summary-total .label {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .summary-total .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .perk-list {
+      list-style: none;
+      margin: 1rem 0;
+    }
+
+    .perk-list li {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      padding: 0.3rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .perk-list li::before {
+      content: '✓';
+      color: var(--success);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--accent); }
+
+    .payment-note {
+      background: rgba(240,165,0,0.08);
+      border: 1px solid rgba(240,165,0,0.25);
+      border-radius: 8px;
+      padding: 0.875rem 1rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 1.25rem;
+    }
+
+    .payment-note strong { color: var(--accent); }
+
+    #paymentDetails {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      display: none;
+    }
+
+    #paymentDetails.visible { display: block; }
+    #paymentDetails strong { color: var(--text); display: block; margin-bottom: 0.25rem; }
+    #paymentDetails .detail-row { margin-bottom: 0.5rem; }
+    #paymentDetails .mono { font-family: 'Consolas', monospace; color: var(--accent); }
+
+    .progress-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 2rem;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+    }
+
+    .step .num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      background: var(--border);
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .step.active .num {
+      background: var(--accent);
+      color: #0d1117;
+    }
+
+    .step.done .num {
+      background: var(--success);
+      color: #0d1117;
+    }
+
+    .step .label {
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .step.active .label { color: var(--text); font-weight: 500; }
+
+    .step-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin: 0 0.5rem;
+    }
+
+    #globalError {
+      background: rgba(255,85,85,0.1);
+      border: 1px solid rgba(255,85,85,0.4);
+      border-radius: 8px;
+      color: #ff5555;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    #globalError.visible { display: block; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="/" class="nav-logo"><span>⚔</span> MONSTERJAGD</a>
+      <div class="nav-links">
+        <a href="/#ranks">Ränge</a>
+        <span class="server-ip">play.monsterjagd.at</span>
+      </div>
+    </nav>
+  </header>
+
+  <main style="padding-top: 2rem;">
+    <div style="max-width:960px;margin:0 auto;padding:0 1.5rem;">
+      <a href="/" class="back-link">← Zurück zum Shop</a>
+
+      <div class="progress-steps">
+        <div class="step done"><div class="num">✓</div><span class="label">Rang wählen</span></div>
+        <div class="step-line"></div>
+        <div class="step active"><div class="num">2</div><span class="label">Bestelldaten</span></div>
+        <div class="step-line"></div>
+        <div class="step"><div class="num">3</div><span class="label">Bestätigung</span></div>
+      </div>
+    </div>
+
+    <div class="checkout-wrapper">
+      <!-- LEFT: Form -->
+      <div>
+        <div class="checkout-card">
+          <h2>Bestelldaten eingeben</h2>
+          <div id="globalError"></div>
+          <form id="checkoutForm" novalidate>
+            <input type="hidden" id="rankInput" name="rank">
+
+            <div class="form-group">
+              <label for="username">Minecraft-Benutzername *</label>
+              <input type="text" id="username" name="username" placeholder="z.B. Steve123" autocomplete="off" spellcheck="false" required>
+              <div class="form-error" id="err-username">Bitte gib deinen Minecraft-Benutzernamen ein (3–16 Zeichen).</div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">E-Mail-Adresse *</label>
+              <input type="email" id="email" name="email" placeholder="deine@email.de" required>
+              <div class="form-error" id="err-email">Bitte gib eine gültige E-Mail-Adresse ein.</div>
+            </div>
+
+            <div class="form-group">
+              <label>Zahlungsmethode *</label>
+              <div class="payment-options">
+                <div class="payment-option">
+                  <input type="radio" id="pay-paypal" name="paymentMethod" value="paypal" required>
+                  <label for="pay-paypal"><span class="icon">💳</span> PayPal</label>
+                </div>
+                <div class="payment-option">
+                  <input type="radio" id="pay-bank" name="paymentMethod" value="bank">
+                  <label for="pay-bank"><span class="icon">🏦</span> Überweisung</label>
+                </div>
+              </div>
+              <div class="form-error" id="err-payment">Bitte wähle eine Zahlungsmethode.</div>
+            </div>
+
+            <div id="paymentDetails">
+              <!-- filled by JS based on selection -->
+            </div>
+
+            <div class="payment-note">
+              <strong>Hinweis:</strong> Deine Bestellung wird nach manueller Zahlungsbestätigung aktiviert.
+              Dies dauert normalerweise bis zu <strong>24 Stunden</strong>.
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn" style="margin-top:1.5rem;">
+              Jetzt bestellen →
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- RIGHT: Order summary -->
+      <div class="order-summary">
+        <div class="checkout-card" id="rankSummaryCard">
+          <h2>Bestellübersicht</h2>
+          <div id="rankSummary" style="color:var(--text-muted);text-align:center;padding:1rem 0;">
+            Lädt…
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const rankId = params.get('rank') || '';
+    document.getElementById('rankInput').value = rankId;
+
+    // Load rank data and populate summary
+    async function loadRankSummary() {
+      if (!rankId) { window.location.href = '/'; return; }
+
+      try {
+        const res = await fetch('/api/ranks/' + encodeURIComponent(rankId));
+        if (!res.ok) throw new Error('not found');
+        const rank = await res.json();
+
+        const summaryEl = document.getElementById('rankSummary');
+        const perksHtml = rank.perks.map(p => `<li>${esc(p)}</li>`).join('');
+        summaryEl.innerHTML = `
+          <div class="rank-name" style="color:${esc(rank.color)};text-shadow:0 0 20px ${esc(rank.color)}40">${esc(rank.name)}</div>
+          <div class="rank-tier">Einmaliger Kauf – Dauerhaft</div>
+          <ul class="perk-list">${perksHtml}</ul>
+          <hr style="border:none;border-top:1px solid var(--border);margin:1rem 0;">
+          <div class="summary-line">
+            <span>Rang</span>
+            <span class="val">${esc(rank.name)}</span>
+          </div>
+          <div class="summary-line">
+            <span>Laufzeit</span>
+            <span class="val">Dauerhaft</span>
+          </div>
+          <div class="summary-total">
+            <span class="label">Gesamtbetrag</span>
+            <span class="price">€${rank.price.toFixed(2).replace('.',',')}</span>
+          </div>
+        `;
+
+        // Update buy button color
+        document.getElementById('submitBtn').style.background = rank.color;
+
+        // Store rank for payment details
+        window._rank = rank;
+      } catch (e) {
+        window.location.href = '/';
+      }
+    }
+
+    loadRankSummary();
+
+    // Payment method details
+    const PAYMENT_DETAILS = {
+      paypal: `
+        <strong>PayPal-Anweisung:</strong>
+        <div class="detail-row">Sende den Betrag an: <span class="mono">shop@monsterjagd.at</span></div>
+        <div class="detail-row">Betreff: Deinen Minecraft-Benutzernamen und Rang angeben</div>
+        <div class="detail-row" style="margin-top:0.5rem;color:#f0a500;">Dein Rang wird nach Zahlungseingang aktiviert.</div>
+      `,
+      bank: `
+        <strong>Überweisungsdaten:</strong>
+        <div class="detail-row">IBAN: <span class="mono">AT12 3456 7890 1234 5678</span></div>
+        <div class="detail-row">BIC: <span class="mono">BKAUATWW</span></div>
+        <div class="detail-row">Empfänger: <span class="mono">Monsterjagd Server</span></div>
+        <div class="detail-row">Verwendungszweck: Deinen Minecraft-Benutzernamen und Rang angeben</div>
+        <div class="detail-row" style="margin-top:0.5rem;color:#f0a500;">Dein Rang wird nach Zahlungseingang aktiviert.</div>
+      `
+    };
+
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const details = document.getElementById('paymentDetails');
+        if (PAYMENT_DETAILS[radio.value]) {
+          details.innerHTML = PAYMENT_DETAILS[radio.value];
+          details.classList.add('visible');
+        } else {
+          details.classList.remove('visible');
+        }
+      });
+    });
+
+    // Form validation and submission
+    function esc(str) {
+      return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.textContent = msg || el.textContent;
+        el.classList.add('visible');
+      }
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.form-error').forEach(e => e.classList.remove('visible'));
+      document.getElementById('globalError').classList.remove('visible');
+    }
+
+    document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearErrors();
+
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+      const rank = rankId;
+
+      let valid = true;
+
+      if (!/^[a-zA-Z0-9_]{3,16}$/.test(username)) {
+        showError('err-username', 'Ungültiger Benutzername (3–16 Zeichen, nur Buchstaben, Ziffern und _).');
+        valid = false;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('err-email', 'Bitte gib eine gültige E-Mail-Adresse ein.');
+        valid = false;
+      }
+
+      if (!paymentMethod) {
+        showError('err-payment', 'Bitte wähle eine Zahlungsmethode aus.');
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Bestellung wird übermittelt…';
+
+      try {
+        const res = await fetch('/api/buy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rank, username, email, paymentMethod })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          window.location.href = '/success?rank=' + encodeURIComponent(rank) + '&user=' + encodeURIComponent(username) + '&method=' + encodeURIComponent(paymentMethod);
+        } else {
+          const errEl = document.getElementById('globalError');
+          errEl.textContent = data.error || 'Ein Fehler ist aufgetreten. Bitte versuche es erneut.';
+          errEl.classList.add('visible');
+          btn.disabled = false;
+          btn.textContent = 'Jetzt bestellen →';
+        }
+      } catch (err) {
+        const errEl = document.getElementById('globalError');
+        errEl.textContent = 'Netzwerkfehler. Bitte überprüfe deine Verbindung und versuche es erneut.';
+        errEl.classList.add('visible');
+        btn.disabled = false;
+        btn.textContent = 'Jetzt bestellen →';
+      }
+    });
+  </script>
+</body>
+</html>

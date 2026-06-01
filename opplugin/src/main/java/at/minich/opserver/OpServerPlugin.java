@@ -7,6 +7,10 @@ import at.minich.opserver.economy.*;
 import at.minich.opserver.enchants.EnchantListener;
 import at.minich.opserver.enchants.EnchantManager;
 import at.minich.opserver.farmworld.FarmWorldManager;
+import at.minich.opserver.jobs.JobGUI;
+import at.minich.opserver.jobs.JobGUIListener;
+import at.minich.opserver.jobs.JobListener;
+import at.minich.opserver.jobs.JobManager;
 import at.minich.opserver.kits.KitManager;
 import at.minich.opserver.listeners.StatsListener;
 import at.minich.opserver.ranks.RankManager;
@@ -42,6 +46,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private RankManager rankManager;
     private DailyRewardManager dailyRewardManager;
     private KitManager kitManager;
+    private JobManager jobManager;
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
@@ -70,6 +75,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         rankManager = new RankManager(this);
         dailyRewardManager = new DailyRewardManager(this);
         kitManager = new KitManager(this);
+        jobManager = new JobManager(this);
 
         // Register Vault economy
         registerVaultEconomy();
@@ -81,6 +87,11 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
         BankGUI bankGUI = new BankGUI(this);
         getServer().getPluginManager().registerEvents(new BankGUIListener(this, bankGUI), this);
+
+        // Jobs
+        JobGUI jobGUI = new JobGUI(this);
+        getServer().getPluginManager().registerEvents(new JobListener(this), this);
+        getServer().getPluginManager().registerEvents(new JobGUIListener(this, jobGUI), this);
 
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -101,6 +112,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("kitlist").setExecutor(new KitListCommand(this));
         getCommand("stats").setExecutor(new StatsCommand(this));
         getCommand("lohnfarm").setExecutor(new LohnFarmCommand(this));
+        getCommand("job").setExecutor(new JobCommand(this, jobGUI));
+        getCommand("jobstats").setExecutor(new JobStatsCommand(this));
+        getCommand("jobtop").setExecutor(new JobTopCommand(this));
 
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);
@@ -253,5 +267,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public KitManager getKitManager() {
         return kitManager;
+    }
+
+    public JobManager getJobManager() {
+        return jobManager;
     }
 }

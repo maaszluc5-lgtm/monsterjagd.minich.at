@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bestellung eingegangen – Monsterjagd Shop</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔</text></svg>">
+  <style>
+    .success-wrapper {
+      max-width: 600px;
+      margin: 5rem auto;
+      padding: 0 1.5rem;
+      text-align: center;
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(63, 185, 80, 0.15);
+      border: 2px solid var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.5rem;
+      animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    @keyframes pop {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.75rem;
+    }
+
+    .success-text {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+
+    .order-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      text-align: left;
+    }
+
+    .order-box h3 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .order-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .order-row:last-child { border-bottom: none; }
+    .order-row .key { color: var(--text-muted); }
+    .order-row .val { color: var(--text); font-weight: 500; }
+
+    .steps-list {
+      list-style: none;
+      margin: 1.5rem 0;
+      text-align: left;
+    }
+
+    .steps-list li {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    .steps-list li:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      background: var(--accent);
+      color: #0d1117;
+      font-weight: 700;
+      font-size: 0.75rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.1em;
+    }
+
+    .step-text strong { color: var(--text); }
+    .step-text span { color: var(--text-muted); display: block; font-size: 0.825rem; margin-top: 0.15rem; }
+
+    .btn-back {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: var(--accent);
+      color: #0d1117;
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: filter 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-back:hover { filter: brightness(1.1); }
+
+    .payment-instruction {
+      background: rgba(240,165,0,0.08);
+      border: 1px solid rgba(240,165,0,0.25);
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin: 1.5rem 0;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    .payment-instruction h4 {
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .payment-instruction .detail { color: var(--text-muted); margin-bottom: 0.4rem; }
+    .payment-instruction .mono { font-family: 'Consolas', monospace; color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="/" class="nav-logo"><span>⚔</span> MONSTERJAGD</a>
+      <div class="nav-links">
+        <a href="/">← Shop</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="success-wrapper">
+    <div class="success-icon">✓</div>
+    <h1>Bestellung eingegangen!</h1>
+    <p class="success-text">
+      Deine Bestellung wurde erfolgreich übermittelt.<br>
+      Nach Zahlungsbestätigung wird dein Rang aktiviert.
+    </p>
+
+    <div class="order-box">
+      <h3>Bestelldetails</h3>
+      <div id="orderDetails">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <div id="paymentInstructions">
+      <!-- filled by JS -->
+    </div>
+
+    <ul class="steps-list">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>Zahlung senden</strong>
+          <span>Überweise den Betrag über deine gewählte Zahlungsmethode an uns.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>Zahlung bestätigen</strong>
+          <span>Unser Team prüft den Zahlungseingang (in der Regel innerhalb von 24 Stunden).</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>Rang erhalten</strong>
+          <span>Dein Rang wird automatisch auf dem Server aktiviert. Du erhältst eine Benachrichtigung.</span>
+        </div>
+      </li>
+    </ul>
+
+    <a href="/" class="btn-back">← Zurück zum Shop</a>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const rankId = params.get('rank') || '';
+    const username = params.get('user') || '';
+    const method = params.get('method') || '';
+
+    const methodLabels = { paypal: 'PayPal', bank: 'Banküberweisung' };
+
+    async function fillDetails() {
+      const detailsEl = document.getElementById('orderDetails');
+
+      // Load rank details
+      try {
+        const res = await fetch('/api/ranks/' + encodeURIComponent(rankId));
+        if (!res.ok) throw new Error();
+        const rank = await res.json();
+
+        detailsEl.innerHTML = `
+          <div class="order-row"><span class="key">Rang</span><span class="val" style="color:${esc(rank.color)};font-weight:700">${esc(rank.name)}</span></div>
+          <div class="order-row"><span class="key">Spieler</span><span class="val">${esc(username)}</span></div>
+          <div class="order-row"><span class="key">Preis</span><span class="val">€${rank.price.toFixed(2).replace('.',',')}</span></div>
+          <div class="order-row"><span class="key">Zahlung</span><span class="val">${esc(methodLabels[method] || method)}</span></div>
+          <div class="order-row"><span class="key">Status</span><span class="val" style="color:#f0a500">⏳ Ausstehend</span></div>
+        `;
+
+        // Payment instructions
+        const instrEl = document.getElementById('paymentInstructions');
+        if (method === 'paypal') {
+          instrEl.innerHTML = `
+            <div class="payment-instruction">
+              <h4>💳 PayPal-Zahlung</h4>
+              <div class="detail">Sende <strong>€${rank.price.toFixed(2).replace('.',',')}</strong> an:</div>
+              <div class="detail"><span class="mono">shop@monsterjagd.at</span></div>
+              <div class="detail" style="margin-top:0.5rem;">Betreff: <span class="mono">${esc(username)} - ${esc(rank.name)}</span></div>
+            </div>`;
+        } else if (method === 'bank') {
+          instrEl.innerHTML = `
+            <div class="payment-instruction">
+              <h4>🏦 Banküberweisung</h4>
+              <div class="detail">IBAN: <span class="mono">AT12 3456 7890 1234 5678</span></div>
+              <div class="detail">BIC: <span class="mono">BKAUATWW</span></div>
+              <div class="detail">Empfänger: <span class="mono">Monsterjagd Server</span></div>
+              <div class="detail">Betrag: <strong>€${rank.price.toFixed(2).replace('.',',')}</strong></div>
+              <div class="detail">Verwendungszweck: <span class="mono">${esc(username)} - ${esc(rank.name)}</span></div>
+            </div>`;
+        }
+      } catch (e) {
+        detailsEl.innerHTML = `
+          <div class="order-row"><span class="key">Rang</span><span class="val">${esc(rankId.toUpperCase())}</span></div>
+          <div class="order-row"><span class="key">Spieler</span><span class="val">${esc(username)}</span></div>
+          <div class="order-row"><span class="key">Zahlung</span><span class="val">${esc(methodLabels[method] || method)}</span></div>
+          <div class="order-row"><span class="key">Status</span><span class="val" style="color:#f0a500">⏳ Ausstehend</span></div>
+        `;
+      }
+    }
+
+    function esc(str) {
+      return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    fillDetails();
+  </script>
+</body>
+</html>

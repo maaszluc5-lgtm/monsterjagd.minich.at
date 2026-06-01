@@ -1,0 +1,66 @@
+configuration_version: 1
+
+worlds:
+  plots:
+    # --- Schematic / generator settings ---
+    generator:
+      plugin: PlotSquared
+      init_height: 62
+
+    # --- Plot dimensions ---
+    plot:
+      size: 32
+      height: 64
+      filling: DIRT
+      floor: GRASS_BLOCK
+      wall:
+        block: STONE_SLAB
+        block_claimed: SANDSTONE_SLAB
+        height: 65
+        plotting: false
+
+    # --- Road settings ---
+    road:
+      width: 7
+      height: 64
+      block: OAK_PLANKS
+
+    # --- Border / corner ---
+    border: true
+
+    # --- World defaults ---
+    world:
+      max_plot_members: 4
+      min_create_distance: 1
+      default_biome: PLAINS
+
+    # --- Flags applied to every newly created plot ---
+    flags:
+      pvp: false
+      mob-spawning: false
+      explosion: false
+      animal-spawn: false
+      hostile-spawn: false
+      tnt-explode: false
+      fire-spread: false
+
+    # --- Schematic on claim ---
+    schematic:
+      on_claim: false
+      specify_on_claim: false
+      file: ""
+
+    # --- Economy ---
+    economy:
+      use_economy: true
+      plot_price: 500.0
+      sell_price: 250.0
+      merge_price: 100.0
+
+    # --- Merge limit ---
+    merge:
+      max_auto_per_player: 4
+
+    # --- Chat ---
+    chat:
+      enabled: false

@@ -1,0 +1,45 @@
+# LWC Extended Core Configuration
+
+core:
+  # Auto-protect blocks on placement
+  autoRegister:
+    enabled: true
+    protectionTypes:
+      CHEST: private
+      TRAPPED_CHEST: private
+      FURNACE: private
+      BLAST_FURNACE: private
+      SMOKER: private
+      BARREL: private
+      HOPPER: private
+      DROPPER: private
+      DISPENSER: private
+
+  # Allow shop chests to remain accessible to buyers
+  # (QuickShop handles access itself; we skip auto-protect for shop chests)
+  denyProtections:
+    blockList: []
+
+  # Maximum protections a player can own
+  protectionLimits:
+    default: 100
+    # Permission-based overrides (higher permissions override default)
+    opserver.lwc.unlimited: -1  # unlimited
+
+  # Notifications
+  showRegistrationMessage: true
+
+  # Allow admins to bypass all protections
+  adminBypass: true
+  adminBypassPermission: "lwc.admin"
+
+  # Localization
+  locale: "en"
+
+  # Magnet mode (hoppers pull from protected containers of owner)
+  hopper:
+    filterOwner: true
+
+  # Drop transfer (transfer items on drop to protection owner)
+  dropTransfer:
+    enabled: false

@@ -1,0 +1,59 @@
+# QuickShop-Hikari Configuration
+
+# Economy provider
+economy-type: 0  # 0 = Vault
+
+# Shop creation
+shop-creation-requires-chest: true
+allow-shop-creation: true
+shop-creation-cost: 50.0
+free-shop-under-perm: "quickshop.create.free"
+maximum-shop-in-one-chunk: -1
+
+# Per-player shop limit
+max-shops-per-player: 10
+max-shops-unlimited-permission: "quickshop.unlimited"
+
+# Admin shop (OP only)
+allow-admin-shop: true
+admin-shop-permission: "quickshop.create.admin"
+
+# Tax
+tax: 0.05   # 5%
+tax-account: "server"
+
+# Currency display
+currency: ""   # empty = use Vault default (Coins)
+show-currency: true
+
+# Signs
+display-items-on-signs: true
+shop-sign-lines:
+  - "{shop_owner}"
+  - "{item_name}"
+  - "B {buy_price} | S {sell_price}"
+  - "{shop_type}"
+
+# Pricing
+price-change-requires-owner: true
+allow-free-shops: false
+
+# Misc
+enable-log-purchase: true
+allow-stacks: false
+send-alert-on-broken: true
+shop-infinite-stock-for-admin-shop: true
+allow-economy-loan: false
+currency-format: "###,##0.00"
+
+# Chat notification
+show-purchase-message-for-seller: true
+show-purchase-message-for-buyer: true
+
+# Hologram display
+enable-display-item: true
+display-type: 0  # 0 = floating item
+
+# Protection
+lock-shop-while-owner-offline: false
+protect-shop-from-explo: true

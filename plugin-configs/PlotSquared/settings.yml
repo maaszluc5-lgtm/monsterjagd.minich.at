@@ -1,0 +1,46 @@
+configuration_version: 1
+
+settings:
+  debug: false
+  chat:
+    console_info: true
+  uuid:
+    use_sqluuidhandler: false
+  auto_clear:
+    enabled: false
+    days: 90
+    confirmation: true
+  done:
+    required_for_download: false
+    counts_towards_limit: true
+    restrict_building: false
+    required_for_ratings: false
+  ratings:
+    use_likes: false
+  teleport:
+    on_login: false
+    per_world_visit_cooldown: 0
+  titles:
+    enabled: true
+  max_plots_connected_per_user: 4
+  command_line_syntax: "-"
+  default_language: "en"
+
+economy:
+  use-vault: true
+  plot-price: 500.0
+  sell-price: 250.0
+  title-require-plots: 1
+
+limit:
+  max-auto-per-player: 2
+
+chunk-processor:
+  enabled: false
+  max-blockstates: 4096
+  max-entities: 512
+  disable-physics: false
+
+web:
+  url: "https://empcraft.com/plots/?"
+  server_ip: "your.server.ip"

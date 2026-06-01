@@ -35,6 +35,21 @@ commands:
   farmworld:
     description: Teleport to the farm world.
     usage: /farmworld [reset]
+  daily:
+    description: Claim your daily reward.
+    usage: /daily
+  rank:
+    description: Show your rank.
+    usage: /rank [player]
+  kit:
+    description: Claim a kit.
+    usage: /kit <name>
+  kitlist:
+    description: List available kits.
+    usage: /kitlist
+  stats:
+    description: Show player statistics.
+    usage: /stats [player]
 
 permissions:
   opserver.giveitem:
@@ -46,6 +61,12 @@ permissions:
   opserver.farmworld.reset:
     description: Allows resetting the farm world.
     default: op
+  opserver.kit.vip:
+    description: Access to the VIP kit.
+    default: false
+  opserver.kit.god:
+    description: Access to the GOD kit.
+    default: op
   opserver.admin:
     description: Full admin access.
     default: op
@@ -53,3 +74,5 @@ permissions:
       opserver.giveitem: true
       opserver.enchant: true
       opserver.farmworld.reset: true
+      opserver.kit.vip: true
+      opserver.kit.god: true

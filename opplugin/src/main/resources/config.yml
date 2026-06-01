@@ -6,7 +6,7 @@ economy:
   currency-symbol: "¢"
 
 salary:
-  # Coins paid per minute for being online
+  # Base coins paid per minute for being online (multiplied by rank)
   coins-per-minute: 10
 
 bank:
@@ -23,3 +23,78 @@ messages:
   prefix: "§8[§6OpServer§8] §r"
   no-permission: "§cYou don't have permission to do that."
   player-not-found: "§cPlayer not found."
+
+# ---------------------------------------------------------------------------
+# Daily Reward
+# ---------------------------------------------------------------------------
+daily-reward:
+  base-coins: 500
+  streak-7-bonus: 2000
+
+# ---------------------------------------------------------------------------
+# Kits
+# ---------------------------------------------------------------------------
+kits:
+  starter:
+    cooldown-hours: 1
+    items:
+      - IRON_SWORD:1
+      - IRON_HELMET:1
+      - IRON_CHESTPLATE:1
+      - IRON_LEGGINGS:1
+      - IRON_BOOTS:1
+      - BREAD:32
+    coins: 500
+  daily:
+    cooldown-hours: 24
+    items:
+      - DIAMOND_SWORD:1
+      - GOLDEN_APPLE:5
+    coins: 1000
+  vip:
+    permission: opserver.kit.vip
+    cooldown-hours: 12
+    items:
+      - DIAMOND_SWORD:1
+      - DIAMOND_HELMET:1
+      - DIAMOND_CHESTPLATE:1
+      - DIAMOND_LEGGINGS:1
+      - DIAMOND_BOOTS:1
+    coins: 2000
+  god:
+    permission: opserver.kit.god
+    cooldown-hours: 24
+    items: []
+    coins: 5000
+    custom-items:
+      - GOD_SWORD
+      - GOD_ARMOR_SET
+
+# ---------------------------------------------------------------------------
+# Ranks  (sorted by required-hours ascending)
+# ---------------------------------------------------------------------------
+ranks:
+  neuling:
+    required-hours: 0
+    salary-multiplier: 1.0
+    prefix: "§7[Neuling]"
+  spieler:
+    required-hours: 5
+    salary-multiplier: 1.2
+    prefix: "§a[Spieler]"
+  veteran:
+    required-hours: 20
+    salary-multiplier: 1.5
+    prefix: "§b[Veteran]"
+  elite:
+    required-hours: 50
+    salary-multiplier: 2.0
+    prefix: "§6[Elite]"
+  legende:
+    required-hours: 100
+    salary-multiplier: 3.0
+    prefix: "§c[Legende]"
+  gott:
+    required-hours: 200
+    salary-multiplier: 5.0
+    prefix: "§4§l[GOTT]"

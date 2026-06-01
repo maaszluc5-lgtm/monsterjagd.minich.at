@@ -5,6 +5,10 @@ import at.minich.opserver.economy.*;
 import at.minich.opserver.enchants.EnchantListener;
 import at.minich.opserver.enchants.EnchantManager;
 import at.minich.opserver.farmworld.FarmWorldManager;
+import at.minich.opserver.kits.KitManager;
+import at.minich.opserver.listeners.StatsListener;
+import at.minich.opserver.ranks.RankManager;
+import at.minich.opserver.rewards.DailyRewardManager;
 import at.minich.opserver.util.DataManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -18,6 +22,8 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class OpServerPlugin extends JavaPlugin implements Listener {
@@ -28,6 +34,12 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private BankManager bankManager;
     private FarmWorldManager farmWorldManager;
     private CoinsEconomy coinsEconomy;
+    private RankManager rankManager;
+    private DailyRewardManager dailyRewardManager;
+    private KitManager kitManager;
+
+    // Track login times to compute playtime on quit
+    private final Map<UUID, Long> loginTimes = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -45,11 +57,17 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         farmWorldManager = new FarmWorldManager(farmWorldName);
         farmWorldManager.initialize();
 
+        // Rank, daily-reward, and kit managers (depend on economyManager/dataManager)
+        rankManager = new RankManager(this);
+        dailyRewardManager = new DailyRewardManager(this);
+        kitManager = new KitManager(this);
+
         // Register Vault economy
         registerVaultEconomy();
 
         // Register event listeners
         getServer().getPluginManager().registerEvents(new EnchantListener(this), this);
+        getServer().getPluginManager().registerEvents(new StatsListener(this), this);
         getServer().getPluginManager().registerEvents(this, this);
 
         // Register commands
@@ -62,10 +80,15 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("enchant").setExecutor(new EnchantCommand(this));
         getCommand("enchantlist").setExecutor(new EnchantListCommand(this));
         getCommand("farmworld").setExecutor(new FarmWorldCommand(this));
+        getCommand("daily").setExecutor(new DailyCommand(this));
+        getCommand("rank").setExecutor(new RankCommand(this));
+        getCommand("kit").setExecutor(new KitCommand(this));
+        getCommand("kitlist").setExecutor(new KitListCommand(this));
+        getCommand("stats").setExecutor(new StatsCommand(this));
 
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);
-        new SalaryTask(economyManager, coinsPerMinute)
+        new SalaryTask(economyManager, rankManager, coinsPerMinute)
                 .runTaskTimer(this, 20L * 60, 20L * 60); // every 60 seconds
 
         double interestRate = getConfig().getDouble("bank.interest-rate-percent", 1.0);
@@ -92,6 +115,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 
+        // Track login time for playtime calculation
+        loginTimes.put(uuid, System.currentTimeMillis());
+
         // Init economy accounts for new players
         economyManager.initPlayer(uuid);
         bankManager.initPlayer(uuid);
@@ -108,6 +134,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         cfg.set("name", player.getName());
         cfg.set("last-seen", Instant.now().toString());
         dataManager.saveYaml(cfg, path);
+
+        // Apply rank prefix
+        rankManager.applyRankPrefix(player);
     }
 
     @EventHandler
@@ -119,14 +148,17 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         economyManager.save();
         bankManager.save();
 
-        // Update playtime in player file
+        // Accumulate playtime
         String path = "players/" + uuid + ".yml";
         YamlConfiguration cfg = dataManager.loadYaml(path);
-        long currentPlaytimeSeconds = cfg.getLong("playtime-seconds", 0);
-        // Approximate: we don't store join time precisely here, but we can accumulate on quit
-        // For a real system you'd store login time. Here we record last-seen.
+        long loginTime = loginTimes.getOrDefault(uuid, System.currentTimeMillis());
+        long sessionSeconds = (System.currentTimeMillis() - loginTime) / 1000;
+        long currentPlaytime = cfg.getLong("playtime-seconds", 0);
+        cfg.set("playtime-seconds", currentPlaytime + sessionSeconds);
         cfg.set("last-seen", Instant.now().toString());
         dataManager.saveYaml(cfg, path);
+
+        loginTimes.remove(uuid);
     }
 
     // -------------------------------------------------------------------------
@@ -149,11 +181,20 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     private void savePlayerData() {
         dataManager.ensureDir("players");
+        long now = System.currentTimeMillis();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            String path = "players/" + player.getUniqueId() + ".yml";
+            UUID uuid = player.getUniqueId();
+            String path = "players/" + uuid + ".yml";
             YamlConfiguration cfg = dataManager.loadYaml(path);
             cfg.set("last-seen", Instant.now().toString());
             cfg.set("name", player.getName());
+
+            // Flush playtime for online players on shutdown
+            long loginTime = loginTimes.getOrDefault(uuid, now);
+            long sessionSeconds = (now - loginTime) / 1000;
+            long currentPlaytime = cfg.getLong("playtime-seconds", 0);
+            cfg.set("playtime-seconds", currentPlaytime + sessionSeconds);
+
             dataManager.saveYaml(cfg, path);
         }
     }
@@ -180,5 +221,17 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public FarmWorldManager getFarmWorldManager() {
         return farmWorldManager;
+    }
+
+    public RankManager getRankManager() {
+        return rankManager;
+    }
+
+    public DailyRewardManager getDailyRewardManager() {
+        return dailyRewardManager;
+    }
+
+    public KitManager getKitManager() {
+        return kitManager;
     }
 }

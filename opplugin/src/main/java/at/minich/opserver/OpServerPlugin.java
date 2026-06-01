@@ -1,0 +1,184 @@
+package at.minich.opserver;
+
+import at.minich.opserver.commands.*;
+import at.minich.opserver.economy.*;
+import at.minich.opserver.enchants.EnchantListener;
+import at.minich.opserver.enchants.EnchantManager;
+import at.minich.opserver.farmworld.FarmWorldManager;
+import at.minich.opserver.util.DataManager;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.ServicePriority;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.time.Instant;
+import java.util.UUID;
+
+public class OpServerPlugin extends JavaPlugin implements Listener {
+
+    private DataManager dataManager;
+    private EnchantManager enchantManager;
+    private EconomyManager economyManager;
+    private BankManager bankManager;
+    private FarmWorldManager farmWorldManager;
+    private CoinsEconomy coinsEconomy;
+
+    @Override
+    public void onEnable() {
+        // Save default config
+        saveDefaultConfig();
+
+        // Initialise managers
+        dataManager = new DataManager(this);
+        enchantManager = new EnchantManager(this);
+        economyManager = new EconomyManager(dataManager);
+        bankManager = new BankManager(dataManager);
+
+        // Farm world
+        String farmWorldName = getConfig().getString("farmworld.world-name", "farmworld");
+        farmWorldManager = new FarmWorldManager(farmWorldName);
+        farmWorldManager.initialize();
+
+        // Register Vault economy
+        registerVaultEconomy();
+
+        // Register event listeners
+        getServer().getPluginManager().registerEvents(new EnchantListener(this), this);
+        getServer().getPluginManager().registerEvents(this, this);
+
+        // Register commands
+        getCommand("bal").setExecutor(new BalCommand(this));
+        getCommand("baltop").setExecutor(new BaltopCommand(this));
+        getCommand("pay").setExecutor(new PayCommand(this));
+        getCommand("bank").setExecutor(new BankCommand(this));
+        getCommand("salary").setExecutor(new SalaryCommand(this));
+        getCommand("giveitem").setExecutor(new GiveItemCommand(this));
+        getCommand("enchant").setExecutor(new EnchantCommand(this));
+        getCommand("enchantlist").setExecutor(new EnchantListCommand(this));
+        getCommand("farmworld").setExecutor(new FarmWorldCommand(this));
+
+        // Scheduled tasks
+        double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);
+        new SalaryTask(economyManager, coinsPerMinute)
+                .runTaskTimer(this, 20L * 60, 20L * 60); // every 60 seconds
+
+        double interestRate = getConfig().getDouble("bank.interest-rate-percent", 1.0);
+        new BankInterestTask(bankManager, interestRate)
+                .runTaskTimer(this, 20L * 3600, 20L * 3600); // every hour
+
+        getLogger().info("OpServer plugin enabled!");
+    }
+
+    @Override
+    public void onDisable() {
+        if (economyManager != null) economyManager.save();
+        if (bankManager != null) bankManager.save();
+        savePlayerData();
+        getLogger().info("OpServer plugin disabled. Data saved.");
+    }
+
+    // -------------------------------------------------------------------------
+    // Player lifecycle events
+    // -------------------------------------------------------------------------
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+
+        // Init economy accounts for new players
+        economyManager.initPlayer(uuid);
+        bankManager.initPlayer(uuid);
+
+        // Load/create player data file
+        String path = "players/" + uuid + ".yml";
+        YamlConfiguration cfg = dataManager.loadYaml(path);
+        if (!cfg.contains("join-date")) {
+            cfg.set("join-date", Instant.now().toString());
+            cfg.set("name", player.getName());
+            dataManager.saveYaml(cfg, path);
+        }
+        // Update name in case it changed
+        cfg.set("name", player.getName());
+        cfg.set("last-seen", Instant.now().toString());
+        dataManager.saveYaml(cfg, path);
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+
+        // Persist economy data on quit
+        economyManager.save();
+        bankManager.save();
+
+        // Update playtime in player file
+        String path = "players/" + uuid + ".yml";
+        YamlConfiguration cfg = dataManager.loadYaml(path);
+        long currentPlaytimeSeconds = cfg.getLong("playtime-seconds", 0);
+        // Approximate: we don't store join time precisely here, but we can accumulate on quit
+        // For a real system you'd store login time. Here we record last-seen.
+        cfg.set("last-seen", Instant.now().toString());
+        dataManager.saveYaml(cfg, path);
+    }
+
+    // -------------------------------------------------------------------------
+    // Vault registration
+    // -------------------------------------------------------------------------
+
+    private void registerVaultEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            getLogger().warning("Vault not found! Economy features may not work with other plugins.");
+            return;
+        }
+        coinsEconomy = new CoinsEconomy(economyManager);
+        getServer().getServicesManager().register(Economy.class, coinsEconomy, this, ServicePriority.Highest);
+        getLogger().info("CoinsEconomy registered with Vault.");
+    }
+
+    // -------------------------------------------------------------------------
+    // Save all player data
+    // -------------------------------------------------------------------------
+
+    private void savePlayerData() {
+        dataManager.ensureDir("players");
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            String path = "players/" + player.getUniqueId() + ".yml";
+            YamlConfiguration cfg = dataManager.loadYaml(path);
+            cfg.set("last-seen", Instant.now().toString());
+            cfg.set("name", player.getName());
+            dataManager.saveYaml(cfg, path);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Getters
+    // -------------------------------------------------------------------------
+
+    public DataManager getDataManager() {
+        return dataManager;
+    }
+
+    public EnchantManager getEnchantManager() {
+        return enchantManager;
+    }
+
+    public EconomyManager getEconomyManager() {
+        return economyManager;
+    }
+
+    public BankManager getBankManager() {
+        return bankManager;
+    }
+
+    public FarmWorldManager getFarmWorldManager() {
+        return farmWorldManager;
+    }
+}

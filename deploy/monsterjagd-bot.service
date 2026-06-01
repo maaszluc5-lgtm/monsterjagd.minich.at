@@ -1,0 +1,18 @@
+[Unit]
+Description=Monsterjagd Discord+Minecraft Bot
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mcbot
+WorkingDirectory=/opt/monsterjagd
+ExecStart=/usr/bin/node /opt/monsterjagd/index.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+EnvironmentFile=/opt/monsterjagd/.env
+
+[Install]
+WantedBy=multi-user.target

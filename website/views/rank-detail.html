@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rang – Monsterjagd Shop</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔</text></svg>">
+  <style>
+    .detail-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--accent); }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 680px) {
+      .detail-grid { grid-template-columns: 1fr; }
+      .buy-panel { order: -1; }
+    }
+
+    .rank-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .rank-header .name {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .rank-header .tagline {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      margin-top: 2rem;
+    }
+
+    .section-title:first-of-type { margin-top: 0; }
+
+    .perks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .perk-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.875rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .perk-item::before {
+      content: '✓';
+      color: var(--success);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .permissions-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .permission-tag {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.8rem;
+      font-family: 'Consolas', monospace;
+      color: var(--text-muted);
+    }
+
+    .buy-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      position: sticky;
+      top: 80px;
+    }
+
+    .buy-panel .price {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .buy-panel .price-note {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .buy-panel .btn-buy {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      font-size: 1rem;
+    }
+
+    .trust-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .trust-item .icon { font-size: 1rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="/" class="nav-logo"><span>⚔</span> MONSTERJAGD</a>
+      <div class="nav-links">
+        <a href="/">← Shop</a>
+        <span class="server-ip">play.monsterjagd.at</span>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="detail-wrapper">
+      <a href="/" class="back-link">← Alle Ränge</a>
+
+      <div id="content" style="color:var(--text-muted);text-align:center;padding:3rem 0;">
+        Lädt…
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function esc(str) {
+      return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    // Get rank ID from URL
+    const pathParts = window.location.pathname.split('/');
+    const rankId = pathParts[pathParts.length - 1];
+
+    async function loadRank() {
+      const content = document.getElementById('content');
+      try {
+        const res = await fetch('/api/ranks/' + encodeURIComponent(rankId));
+        if (!res.ok) throw new Error('not found');
+        const rank = await res.json();
+
+        document.title = rank.name + ' Rang – Monsterjagd Shop';
+
+        const perksHtml = rank.perks.map(p => `<div class="perk-item">${esc(p)}</div>`).join('');
+        const permsHtml = rank.permissions.map(p => `<span class="permission-tag">${esc(p)}</span>`).join('');
+        const maxPlots = rank.maxPlots === -1 ? 'Unbegrenzt' : rank.maxPlots;
+
+        content.innerHTML = `
+          <div class="detail-grid">
+            <div>
+              <div class="rank-header">
+                <div class="name" style="color:${esc(rank.color)};text-shadow:0 0 40px ${esc(rank.color)}40">
+                  ${esc(rank.name)}
+                </div>
+                <div class="tagline">Rang für den Monsterjagd Minecraft-Server</div>
+              </div>
+
+              <div class="section-title">Vorteile</div>
+              <div class="perks-grid">${perksHtml}</div>
+
+              <div class="section-title">Maximale Grundstücke</div>
+              <div style="font-size:1.5rem;font-weight:700;color:${esc(rank.color)};margin-bottom:1.5rem;">${esc(String(maxPlots))}</div>
+
+              <div class="section-title">Berechtigungen</div>
+              <div class="permissions-list">${permsHtml}</div>
+
+              <div class="section-title">Chat-Prefix</div>
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem 1rem;font-family:'Consolas',monospace;font-size:1rem;color:${esc(rank.color)};display:inline-block;margin-bottom:1rem;">
+                [${esc(rank.name)}] Spielername
+              </div>
+            </div>
+
+            <div class="buy-panel">
+              <div style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:0.75rem;">Preis</div>
+              <div class="price">€${rank.price.toFixed(2).replace('.',',')}</div>
+              <div class="price-note">Einmalig · Dauerhaft</div>
+              <a href="/checkout?rank=${esc(rank.id)}" class="btn-buy" style="background:${esc(rank.color)};color:#0d1117;display:block;text-decoration:none;text-align:center;padding:1rem;border-radius:8px;font-weight:700;font-size:1rem;transition:filter 0.2s;">
+                Jetzt kaufen →
+              </a>
+              <div class="trust-items">
+                <div class="trust-item"><span class="icon">✓</span> Dauerhafter Rang</div>
+                <div class="trust-item"><span class="icon">⚡</span> Aktivierung in &lt;24h</div>
+                <div class="trust-item"><span class="icon">💳</span> PayPal &amp; Überweisung</div>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        content.innerHTML = '<div style="color:#ff5555;text-align:center;padding:3rem;">Rang nicht gefunden. <a href="/" style="color:var(--accent)">Zurück zum Shop</a></div>';
+      }
+    }
+
+    loadRank();
+  </script>
+</body>
+</html>

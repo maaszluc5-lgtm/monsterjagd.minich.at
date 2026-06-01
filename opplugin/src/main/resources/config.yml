@@ -1,0 +1,25 @@
+# OpServer Configuration
+
+economy:
+  default-balance: 500
+  currency-name: "Coins"
+  currency-symbol: "¢"
+
+salary:
+  # Coins paid per minute for being online
+  coins-per-minute: 10
+
+bank:
+  # Interest rate applied every hour (in percent)
+  interest-rate-percent: 1.0
+
+farmworld:
+  world-name: "farmworld"
+  spawn-x: 0
+  spawn-y: 64
+  spawn-z: 0
+
+messages:
+  prefix: "§8[§6OpServer§8] §r"
+  no-permission: "§cYou don't have permission to do that."
+  player-not-found: "§cPlayer not found."

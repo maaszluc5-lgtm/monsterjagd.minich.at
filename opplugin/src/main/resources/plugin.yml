@@ -1,0 +1,55 @@
+name: OpServer
+version: 1.0.0
+main: at.minich.opserver.OpServerPlugin
+api-version: '1.21'
+depend: [Vault]
+
+commands:
+  bal:
+    description: Show your or another player's balance.
+    usage: /bal [player]
+    aliases: [balance, money]
+  baltop:
+    description: Show the top 10 richest players.
+    usage: /baltop
+  pay:
+    description: Pay another player coins.
+    usage: /pay <player> <amount>
+  bank:
+    description: Manage your bank account.
+    usage: /bank <deposit|withdraw|balance> [amount]
+  salary:
+    description: Show your current salary rate.
+    usage: /salary
+  giveitem:
+    description: Give a custom OP item to a player.
+    usage: /giveitem <player> <item>
+    permission: opserver.giveitem
+  enchant:
+    description: Apply a custom enchant to the held item.
+    usage: /enchant <enchant_name> <level>
+    permission: opserver.enchant
+  enchantlist:
+    description: List all custom enchants.
+    usage: /enchantlist
+  farmworld:
+    description: Teleport to the farm world.
+    usage: /farmworld [reset]
+
+permissions:
+  opserver.giveitem:
+    description: Allows giving custom items.
+    default: op
+  opserver.enchant:
+    description: Allows applying custom enchants.
+    default: op
+  opserver.farmworld.reset:
+    description: Allows resetting the farm world.
+    default: op
+  opserver.admin:
+    description: Full admin access.
+    default: op
+    children:
+      opserver.giveitem: true
+      opserver.enchant: true
+      opserver.farmworld.reset: true

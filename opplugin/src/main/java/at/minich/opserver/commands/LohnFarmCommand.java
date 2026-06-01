@@ -1,21 +1,21 @@
 package at.minich.opserver.commands;
 
 import at.minich.opserver.OpServerPlugin;
-import at.minich.opserver.salary.SalaryGUI;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class SalaryCommand implements CommandExecutor {
+/**
+ * /lohnfarm — teleports the player to the salary farm world.
+ */
+public class LohnFarmCommand implements CommandExecutor {
 
     private final OpServerPlugin plugin;
-    private final SalaryGUI salaryGUI;
 
-    public SalaryCommand(OpServerPlugin plugin) {
+    public LohnFarmCommand(OpServerPlugin plugin) {
         this.plugin = plugin;
-        this.salaryGUI = new SalaryGUI(plugin);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class SalaryCommand implements CommandExecutor {
             return true;
         }
 
-        salaryGUI.open(player);
+        plugin.getSalaryFarmManager().teleportPlayer(player);
         return true;
     }
 }

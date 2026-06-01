@@ -16,11 +16,17 @@ commands:
     description: Pay another player coins.
     usage: /pay <player> <amount>
   bank:
-    description: Manage your bank account.
-    usage: /bank <deposit|withdraw|balance> [amount]
+    description: Öffnet das Bank-GUI. Verwalte bis zu 5 Bankkonten.
+    usage: /bank [balance]
   salary:
-    description: Show your current salary rate.
+    description: Öffnet das Lohn-GUI mit deinen Verdienstinfos.
     usage: /salary
+  lohn:
+    description: Öffnet das Lohn-GUI mit deinen Verdienstinfos.
+    usage: /lohn
+  lohnfarm:
+    description: Teleportiert dich zur Lohnfarm (3x Lohn-Bonus).
+    usage: /lohnfarm
   giveitem:
     description: Give a custom OP item to a player.
     usage: /giveitem <player> <item>

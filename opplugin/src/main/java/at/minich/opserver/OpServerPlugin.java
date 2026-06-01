@@ -1,5 +1,7 @@
 package at.minich.opserver;
 
+import at.minich.opserver.bank.BankGUI;
+import at.minich.opserver.bank.BankGUIListener;
 import at.minich.opserver.commands.*;
 import at.minich.opserver.economy.*;
 import at.minich.opserver.enchants.EnchantListener;
@@ -9,6 +11,8 @@ import at.minich.opserver.kits.KitManager;
 import at.minich.opserver.listeners.StatsListener;
 import at.minich.opserver.ranks.RankManager;
 import at.minich.opserver.rewards.DailyRewardManager;
+import at.minich.opserver.salary.SalaryListener;
+import at.minich.opserver.salaryfarm.SalaryFarmManager;
 import at.minich.opserver.util.DataManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -33,6 +37,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private EconomyManager economyManager;
     private BankManager bankManager;
     private FarmWorldManager farmWorldManager;
+    private SalaryFarmManager salaryFarmManager;
     private CoinsEconomy coinsEconomy;
     private RankManager rankManager;
     private DailyRewardManager dailyRewardManager;
@@ -52,10 +57,14 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         economyManager = new EconomyManager(dataManager);
         bankManager = new BankManager(dataManager);
 
-        // Farm world
+        // Farm world (regular)
         String farmWorldName = getConfig().getString("farmworld.world-name", "farmworld");
         farmWorldManager = new FarmWorldManager(farmWorldName);
         farmWorldManager.initialize();
+
+        // Salary farm world
+        salaryFarmManager = new SalaryFarmManager(this);
+        salaryFarmManager.initialize();
 
         // Rank, daily-reward, and kit managers (depend on economyManager/dataManager)
         rankManager = new RankManager(this);
@@ -68,6 +77,11 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         // Register event listeners
         getServer().getPluginManager().registerEvents(new EnchantListener(this), this);
         getServer().getPluginManager().registerEvents(new StatsListener(this), this);
+        getServer().getPluginManager().registerEvents(new SalaryListener(), this);
+
+        BankGUI bankGUI = new BankGUI(this);
+        getServer().getPluginManager().registerEvents(new BankGUIListener(this, bankGUI), this);
+
         getServer().getPluginManager().registerEvents(this, this);
 
         // Register commands
@@ -76,6 +90,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("pay").setExecutor(new PayCommand(this));
         getCommand("bank").setExecutor(new BankCommand(this));
         getCommand("salary").setExecutor(new SalaryCommand(this));
+        getCommand("lohn").setExecutor(new SalaryCommand(this));
         getCommand("giveitem").setExecutor(new GiveItemCommand(this));
         getCommand("enchant").setExecutor(new EnchantCommand(this));
         getCommand("enchantlist").setExecutor(new EnchantListCommand(this));
@@ -85,10 +100,11 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("kit").setExecutor(new KitCommand(this));
         getCommand("kitlist").setExecutor(new KitListCommand(this));
         getCommand("stats").setExecutor(new StatsCommand(this));
+        getCommand("lohnfarm").setExecutor(new LohnFarmCommand(this));
 
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);
-        new SalaryTask(economyManager, rankManager, coinsPerMinute)
+        new SalaryTask(economyManager, rankManager, dataManager, coinsPerMinute)
                 .runTaskTimer(this, 20L * 60, 20L * 60); // every 60 seconds
 
         double interestRate = getConfig().getDouble("bank.interest-rate-percent", 1.0);
@@ -221,6 +237,10 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public FarmWorldManager getFarmWorldManager() {
         return farmWorldManager;
+    }
+
+    public SalaryFarmManager getSalaryFarmManager() {
+        return salaryFarmManager;
     }
 
     public RankManager getRankManager() {

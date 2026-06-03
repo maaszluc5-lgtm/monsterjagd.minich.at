@@ -300,7 +300,7 @@ public enum CustomItems {
                 applyVanillaEnchant(item, Enchantment.UNBREAKING, 10);
                 item = em.setEnchant(item, CustomEnchant.VEINMINER, 5);
                 setLore(item,
-                    "§7Baut eine §c7x7 §7Fläche ab (§6/mining 7§7)",
+                    "§7Baut eine §c5x5 §7Fläche ab (§6/mining 5§7)",
                     "§7Effizienz X | Glück III | Haltbarkeit X",
                     "§7Veinminer V",
                     "",

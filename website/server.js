@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const shopRoutes = require('./routes/shop');
 const purchaseRoutes = require('./routes/purchase');
 const adminRoutes = require('./routes/admin');
+const voteRoutes = require('./routes/vote');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', shopRoutes);
 app.use('/', purchaseRoutes);
 app.use('/admin', adminRoutes);
+app.use('/', voteRoutes);
 
 // 404
 app.use((req, res) => {

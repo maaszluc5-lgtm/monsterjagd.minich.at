@@ -1234,6 +1234,6 @@ crates:
         custom-item-id: WAENDEZERSTOERER
         amount: 1
         weight: 1
-        display: "§4§l⚡ WÄNDEZERSTÖRER §4§l★★★"
+        display: "§4§l⚡ WÄNDEZERSTÖRER (5x5) §4§l★★★"
         display-material: NETHERITE_PICKAXE
         display-material: GOLD_BLOCK

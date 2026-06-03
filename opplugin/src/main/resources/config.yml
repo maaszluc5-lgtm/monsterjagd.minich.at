@@ -1,6 +1,17 @@
 # OpServer Configuration
 
 # ---------------------------------------------------------------------------
+# Auktionshaus / Auction House
+# ---------------------------------------------------------------------------
+ah:
+  max-auctions-per-player: 5
+  min-duration-hours: 1
+  max-duration-hours: 72
+  default-duration-hours: 24
+  min-bid-increment: 100.0
+  listing-fee-percent: 2.0
+
+# ---------------------------------------------------------------------------
 # Markt / Player Market
 # ---------------------------------------------------------------------------
 markt:

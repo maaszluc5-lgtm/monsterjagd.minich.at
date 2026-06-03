@@ -1,5 +1,8 @@
 package at.minich.opserver;
 
+import at.minich.opserver.ah.AuctionGUI;
+import at.minich.opserver.ah.AuctionGUIListener;
+import at.minich.opserver.ah.AuctionManager;
 import at.minich.opserver.bank.BankGUI;
 import at.minich.opserver.bank.BankGUIListener;
 import at.minich.opserver.commands.*;
@@ -55,6 +58,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private TrophyManager trophyManager;
     private AreaMineManager areaMineManager;
     private MarktManager marktManager;
+    private AuctionManager auctionManager;
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
@@ -87,6 +91,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         trophyManager = new TrophyManager(this);
         areaMineManager = new AreaMineManager();
         marktManager = new MarktManager(this);
+        auctionManager = new AuctionManager(this);
 
         // Register Vault economy
         registerVaultEconomy();
@@ -115,6 +120,11 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         MarktGUIListener marktGUIListener = new MarktGUIListener(this, marktGUI, marktSellGUI);
         getServer().getPluginManager().registerEvents(marktGUIListener, this);
 
+        // Auktionshaus
+        AuctionGUI auctionGUI = new AuctionGUI(this);
+        AuctionGUIListener auctionGUIListener = new AuctionGUIListener(this, auctionGUI);
+        getServer().getPluginManager().registerEvents(auctionGUIListener, this);
+
         getServer().getPluginManager().registerEvents(this, this);
 
         // Register commands
@@ -139,6 +149,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("jobtop").setExecutor(new JobTopCommand(this));
         getCommand("trophies").setExecutor(new TrophyCommand(this));
         getCommand("markt").setExecutor(new MarktCommand(this, marktGUIListener));
+        getCommand("ah").setExecutor(new AhCommand(this, auctionGUIListener));
 
         MiningCommand miningCommand = new MiningCommand(this);
         getCommand("mining").setExecutor(miningCommand);
@@ -152,6 +163,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         double interestRate = getConfig().getDouble("bank.interest-rate-percent", 1.0);
         new BankInterestTask(bankManager, interestRate)
                 .runTaskTimer(this, 20L * 3600, 20L * 3600); // every hour
+
+        // Auction finalization — every 30 seconds
+        getServer().getScheduler().runTaskTimer(this, () -> auctionManager.finalizeAuctions(), 20L * 30, 20L * 30);
 
         getLogger().info("OpServer plugin enabled!");
     }
@@ -314,5 +328,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public MarktManager getMarktManager() {
         return marktManager;
+    }
+
+    public AuctionManager getAuctionManager() {
+        return auctionManager;
     }
 }

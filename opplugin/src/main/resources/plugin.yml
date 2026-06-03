@@ -78,6 +78,10 @@ commands:
     description: Spieler-Markt zum Kaufen und Verkaufen.
     usage: /markt [sell|remove|list|search]
     aliases: [market, shop]
+  ah:
+    description: Auktionshaus - biete auf Items von anderen Spielern.
+    usage: /ah [sell|cancel|list|collect]
+    aliases: [auktion, auktionshaus]
 
 permissions:
   opserver.giveitem:

@@ -298,10 +298,11 @@ public enum CustomItems {
                 applyVanillaEnchant(item, Enchantment.EFFICIENCY, 10);
                 applyVanillaEnchant(item, Enchantment.FORTUNE, 3);
                 applyVanillaEnchant(item, Enchantment.UNBREAKING, 10);
+                applyVanillaEnchant(item, Enchantment.MENDING, 1);
                 item = em.setEnchant(item, CustomEnchant.VEINMINER, 5);
                 setLore(item,
                     "§7Baut eine §c5x5 §7Fläche ab (§6/mining 5§7)",
-                    "§7Effizienz X | Glück III | Haltbarkeit X",
+                    "§7Effizienz X | Glück III | Haltbarkeit X | Reparatur",
                     "§7Veinminer V",
                     "",
                     "§cHauptgewinn der §6Legendären Kiste§c!"

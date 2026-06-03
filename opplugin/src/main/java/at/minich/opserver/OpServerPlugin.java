@@ -5,7 +5,10 @@ import at.minich.opserver.ah.AuctionGUIListener;
 import at.minich.opserver.ah.AuctionManager;
 import at.minich.opserver.bank.BankGUI;
 import at.minich.opserver.bank.BankGUIListener;
+import at.minich.opserver.clan.ClanManager;
 import at.minich.opserver.commands.*;
+import at.minich.opserver.listeners.ClanChatListener;
+import at.minich.opserver.listeners.DuelListener;
 import at.minich.opserver.markt.*;
 import at.minich.opserver.economy.*;
 import at.minich.opserver.enchants.EnchantListener;
@@ -27,6 +30,9 @@ import at.minich.opserver.ranks.RankManager;
 import at.minich.opserver.rewards.DailyRewardManager;
 import at.minich.opserver.salary.SalaryListener;
 import at.minich.opserver.salaryfarm.SalaryFarmManager;
+import at.minich.opserver.tasks.JackpotTask;
+import at.minich.opserver.trade.TradeGUI;
+import at.minich.opserver.trade.TradeGUIListener;
 import at.minich.opserver.trophies.TrophyListener;
 import at.minich.opserver.trophies.TrophyManager;
 import at.minich.opserver.util.DataManager;
@@ -68,6 +74,8 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private AreaMineManager areaMineManager;
     private MarktManager marktManager;
     private AuctionManager auctionManager;
+    private ClanManager clanManager;
+    private JackpotTask jackpotTask;
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
@@ -112,6 +120,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         areaMineManager = new AreaMineManager();
         marktManager = new MarktManager(this);
         auctionManager = new AuctionManager(this);
+        clanManager = new ClanManager(this);
 
         // Register Vault economy
         registerVaultEconomy();

@@ -207,4 +207,16 @@ public class RankManager {
         cfg.set("playtime-seconds", current + seconds);
         dataManager.saveYaml(cfg, path);
     }
+
+    public int getRankIndex(RankInfo rank) {
+        if (rank == null) return 0;
+        for (int i = 0; i < ranks.size(); i++) {
+            if (ranks.get(i).key.equalsIgnoreCase(rank.key)) return i;
+        }
+        return 0;
+    }
+
+    public List<RankInfo> getRanks() {
+        return Collections.unmodifiableList(ranks);
+    }
 }

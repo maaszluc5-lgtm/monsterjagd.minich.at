@@ -26,6 +26,8 @@ import at.minich.opserver.listeners.TrashListener;
 import at.minich.opserver.listeners.VanishListener;
 import at.minich.opserver.mining.AreaMineListener;
 import at.minich.opserver.mining.AreaMineManager;
+import at.minich.opserver.items.AbilityItem;
+import at.minich.opserver.items.AbilityItemListener;
 import at.minich.opserver.ranks.RankManager;
 import at.minich.opserver.rewards.DailyRewardManager;
 import at.minich.opserver.salary.SalaryListener;
@@ -135,6 +137,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
         getServer().getPluginManager().registerEvents(new TrashListener(this), this);
 
+        AbilityItemListener abilityItemListener = new AbilityItemListener(this);
+        getServer().getPluginManager().registerEvents(abilityItemListener, this);
+
         // Duel listener (shared state with DuelCommand)
         DuelListener duelListener = new DuelListener(this);
         getServer().getPluginManager().registerEvents(duelListener, this);
@@ -179,6 +184,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("salary").setExecutor(new SalaryCommand(this));
         getCommand("lohn").setExecutor(new SalaryCommand(this));
         getCommand("giveitem").setExecutor(new GiveItemCommand(this));
+        getCommand("giveabilityitem").setExecutor(new GiveAbilityItemCommand(this, abilityItemListener));
         getCommand("enchant").setExecutor(new EnchantCommand(this));
         getCommand("enchantlist").setExecutor(new EnchantListCommand(this));
         getCommand("farmworld").setExecutor(new FarmWorldCommand(this));

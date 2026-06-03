@@ -31,6 +31,10 @@ commands:
     description: Give a custom item to a player.
     usage: /giveitem <player> <item>
     permission: opserver.giveitem
+  giveabilityitem:
+    description: Gibt einem Spieler ein Ability Item (fly/heal/speed/god).
+    usage: /giveabilityitem <player> <fly|heal|speed|god>
+    permission: opserver.admin
   enchant:
     description: Apply a custom enchant to the held item.
     usage: /enchant <enchant_name> <level>

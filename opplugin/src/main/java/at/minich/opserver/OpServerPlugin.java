@@ -3,6 +3,7 @@ package at.minich.opserver;
 import at.minich.opserver.bank.BankGUI;
 import at.minich.opserver.bank.BankGUIListener;
 import at.minich.opserver.commands.*;
+import at.minich.opserver.markt.*;
 import at.minich.opserver.economy.*;
 import at.minich.opserver.enchants.EnchantListener;
 import at.minich.opserver.enchants.EnchantManager;
@@ -53,6 +54,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private JobManager jobManager;
     private TrophyManager trophyManager;
     private AreaMineManager areaMineManager;
+    private MarktManager marktManager;
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
@@ -84,6 +86,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         jobManager = new JobManager(this);
         trophyManager = new TrophyManager(this);
         areaMineManager = new AreaMineManager();
+        marktManager = new MarktManager(this);
 
         // Register Vault economy
         registerVaultEconomy();
@@ -105,6 +108,12 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         // Trophies
         getServer().getPluginManager().registerEvents(new TrophyListener(this), this);
         getServer().getPluginManager().registerEvents(new TrophyGUIListener(), this);
+
+        // Markt
+        MarktGUI marktGUI = new MarktGUI(this);
+        MarktSellGUI marktSellGUI = new MarktSellGUI(this);
+        MarktGUIListener marktGUIListener = new MarktGUIListener(this, marktGUI, marktSellGUI);
+        getServer().getPluginManager().registerEvents(marktGUIListener, this);
 
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -129,6 +138,8 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("jobstats").setExecutor(new JobStatsCommand(this));
         getCommand("jobtop").setExecutor(new JobTopCommand(this));
         getCommand("trophies").setExecutor(new TrophyCommand(this));
+        getCommand("markt").setExecutor(new MarktCommand(this, marktGUIListener));
+
         MiningCommand miningCommand = new MiningCommand(this);
         getCommand("mining").setExecutor(miningCommand);
         getCommand("mining").setTabCompleter(miningCommand);
@@ -299,5 +310,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public AreaMineManager getAreaMineManager() {
         return areaMineManager;
+    }
+
+    public MarktManager getMarktManager() {
+        return marktManager;
     }
 }

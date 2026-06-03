@@ -74,6 +74,10 @@ commands:
     description: Set your area mining size (1x1 to 7x7).
     usage: /mining [1|3|5|7]
     aliases: [mine, abbau]
+  markt:
+    description: Spieler-Markt zum Kaufen und Verkaufen.
+    usage: /markt [sell|remove|list|search]
+    aliases: [market, shop]
 
 permissions:
   opserver.giveitem:

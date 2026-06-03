@@ -8,8 +8,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -22,15 +24,35 @@ public class AbilityItemListener implements Listener {
 
     private final OpServerPlugin plugin;
     private final NamespacedKey abilityKey;
+    private final NamespacedKey expiryKey;
     private final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
 
     public AbilityItemListener(OpServerPlugin plugin) {
         this.plugin = plugin;
         this.abilityKey = new NamespacedKey(plugin, "ability_item");
+        this.expiryKey  = new NamespacedKey(plugin, "ability_expiry");
     }
 
-    public NamespacedKey getAbilityKey() {
-        return abilityKey;
+    public NamespacedKey getAbilityKey() { return abilityKey; }
+    public NamespacedKey getExpiryKey()  { return expiryKey; }
+
+    // On login: remove any expired ability items and disable fly if needed
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        boolean hadFlyItem = false;
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (isExpired(item)) {
+                String id = getAbilityId(item);
+                if ("fly".equals(id)) hadFlyItem = true;
+                item.setAmount(0); // remove
+            }
+        }
+        if (hadFlyItem && !player.isOp()) {
+            player.setAllowFlight(false);
+            player.setFlying(false);
+            player.sendMessage("§c✦ Dein Flug-Kristall ist abgelaufen und wurde entfernt.");
+        }
     }
 
     @EventHandler
@@ -43,11 +65,22 @@ public class AbilityItemListener implements Listener {
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || !item.hasItemMeta()) return;
 
-        String abilityId = item.getItemMeta().getPersistentDataContainer()
-                .get(abilityKey, PersistentDataType.STRING);
+        String abilityId = getAbilityId(item);
         if (abilityId == null) return;
 
         event.setCancelled(true);
+
+        // Expiry check
+        if (isExpired(item)) {
+            String id = abilityId;
+            item.setAmount(0);
+            if ("fly".equals(id) && !player.isOp()) {
+                player.setAllowFlight(false);
+                player.setFlying(false);
+            }
+            player.sendMessage("§c✦ Dieses Ability Item ist abgelaufen und wurde entfernt!");
+            return;
+        }
 
         AbilityItem ability = AbilityItem.fromId(abilityId);
         if (ability == null) return;
@@ -79,8 +112,6 @@ public class AbilityItemListener implements Listener {
                 player.setAllowFlight(flying);
                 if (!flying) player.setFlying(false);
                 player.sendMessage(flying ? "§b✦ Fliegen §aaktiviert!" : "§b✦ Fliegen §cdeaktiviert!");
-                // No cooldown for toggle
-                return;
             }
             case "heal" -> {
                 player.setHealth(player.getMaxHealth());
@@ -103,12 +134,26 @@ public class AbilityItemListener implements Listener {
         }
     }
 
+    private String getAbilityId(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return null;
+        return item.getItemMeta().getPersistentDataContainer()
+                .get(abilityKey, PersistentDataType.STRING);
+    }
+
+    private boolean isExpired(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
+        PersistentDataContainer pdc = item.getItemMeta().getPersistentDataContainer();
+        if (!pdc.has(expiryKey, PersistentDataType.LONG)) return false;
+        long expiresAt = pdc.get(expiryKey, PersistentDataType.LONG);
+        return System.currentTimeMillis() > expiresAt;
+    }
+
     private long getCooldownMs(String abilityId) {
         return switch (abilityId) {
-            case "heal" -> 30_000L;
+            case "heal"  -> 30_000L;
             case "speed" -> 45_000L;
-            case "god" -> 120_000L;
-            default -> 0L;
+            case "god"   -> 120_000L;
+            default      -> 0L;
         };
     }
 }

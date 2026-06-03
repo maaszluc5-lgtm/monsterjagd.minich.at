@@ -36,7 +36,7 @@ public class GiveAbilityItemCommand implements CommandExecutor {
             sender.sendMessage("§cUnbekanntes Ability Item. Optionen: fly, heal, speed, god");
             return true;
         }
-        ItemStack item = ability.build(listener.getAbilityKey());
+        ItemStack item = ability.build(listener.getAbilityKey(), listener.getExpiryKey());
         target.getInventory().addItem(item);
         sender.sendMessage("§a✦ " + ability.displayName + " §aan §f" + target.getName() + " §agegeben.");
         target.sendMessage("§a✦ Du hast §f" + ability.displayName + " §aerhalten!");

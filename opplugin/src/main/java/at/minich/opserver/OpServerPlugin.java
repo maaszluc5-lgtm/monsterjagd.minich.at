@@ -16,6 +16,7 @@ import at.minich.opserver.jobs.JobGUIListener;
 import at.minich.opserver.jobs.JobListener;
 import at.minich.opserver.jobs.JobManager;
 import at.minich.opserver.kits.KitManager;
+import at.minich.opserver.listeners.BackListener;
 import at.minich.opserver.listeners.StatsListener;
 import at.minich.opserver.mining.AreaMineListener;
 import at.minich.opserver.mining.AreaMineManager;
@@ -28,6 +29,7 @@ import at.minich.opserver.trophies.TrophyManager;
 import at.minich.opserver.util.DataManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,6 +64,11 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
+
+    // Teleport / navigation state (in-memory)
+    private final Map<UUID, UUID> tpaPendingRequests = new HashMap<>();
+    private final Map<UUID, Integer> tpaExpiryTasks = new HashMap<>();
+    private final Map<UUID, Location> backLocations = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -101,6 +108,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new StatsListener(this), this);
         getServer().getPluginManager().registerEvents(new SalaryListener(), this);
         getServer().getPluginManager().registerEvents(new AreaMineListener(this), this);
+        getServer().getPluginManager().registerEvents(new BackListener(backLocations), this);
 
         BankGUI bankGUI = new BankGUI(this);
         getServer().getPluginManager().registerEvents(new BankGUIListener(this, bankGUI), this);
@@ -154,6 +162,30 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         MiningCommand miningCommand = new MiningCommand(this);
         getCommand("mining").setExecutor(miningCommand);
         getCommand("mining").setTabCompleter(miningCommand);
+
+        // Navigation commands
+        HomeCommand homeCommand = new HomeCommand(this);
+        getCommand("home").setExecutor(homeCommand);
+        getCommand("sethome").setExecutor(homeCommand);
+        getCommand("delhome").setExecutor(homeCommand);
+
+        SpawnCommand spawnCommand = new SpawnCommand(this);
+        getCommand("spawn").setExecutor(spawnCommand);
+        getCommand("setspawn").setExecutor(spawnCommand);
+
+        WarpCommand warpCommand = new WarpCommand(this);
+        getCommand("warp").setExecutor(warpCommand);
+        getCommand("setwarp").setExecutor(warpCommand);
+        getCommand("delwarp").setExecutor(warpCommand);
+
+        getCommand("pwarp").setExecutor(new PwarpCommand(this));
+
+        TpaCommand tpaCommand = new TpaCommand(this, tpaPendingRequests, tpaExpiryTasks);
+        getCommand("tpa").setExecutor(tpaCommand);
+        getCommand("tpaccept").setExecutor(new TpAcceptCommand(this, tpaPendingRequests, tpaExpiryTasks));
+        getCommand("tpdeny").setExecutor(new TpDenyCommand(this, tpaPendingRequests, tpaExpiryTasks));
+
+        getCommand("back").setExecutor(new BackCommand(this, backLocations));
 
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);

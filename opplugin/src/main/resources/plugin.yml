@@ -82,6 +82,53 @@ commands:
     description: Auktionshaus - biete auf Items von anderen Spielern.
     usage: /ah [sell|cancel|list|collect]
     aliases: [auktion, auktionshaus]
+  home:
+    description: Teleportiere zu deinem Home.
+    usage: /home [name]
+    aliases: [h]
+  sethome:
+    description: Setze ein Home.
+    usage: /sethome [name]
+  delhome:
+    description: Lösche ein Home.
+    usage: /delhome [name]
+  spawn:
+    description: Teleportiere zum Spawn.
+    usage: /spawn
+  setspawn:
+    description: Setze den Spawn.
+    usage: /setspawn
+    permission: opserver.admin
+  warp:
+    description: Teleportiere zu einem Warp.
+    usage: /warp [name]
+    aliases: [warps]
+  setwarp:
+    description: Setze einen Warp.
+    usage: /setwarp <name>
+    permission: opserver.admin
+  delwarp:
+    description: Lösche einen Warp.
+    usage: /delwarp <name>
+    permission: opserver.admin
+  pwarp:
+    description: Player-Warps verwalten und nutzen.
+    usage: /pwarp [set|del|list|name]
+  tpa:
+    description: Sende eine Teleport-Anfrage.
+    usage: /tpa <player>
+  tpaccept:
+    description: Akzeptiere eine Teleport-Anfrage.
+    usage: /tpaccept
+    aliases: [tpyes]
+  tpdeny:
+    description: Lehne eine Teleport-Anfrage ab.
+    usage: /tpdeny
+    aliases: [tpno]
+  back:
+    description: Teleportiere zum letzten Standort.
+    usage: /back
+    aliases: [b]
 
 permissions:
   opserver.giveitem:

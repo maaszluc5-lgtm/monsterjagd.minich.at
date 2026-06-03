@@ -18,13 +18,32 @@ import java.util.UUID;
 /**
  * Opens the multi-bank GUI for a player.
  * Title: §9§lDeine Banken (54 slots)
+ *
+ * Layout (top row):
+ *   Slot 0 → Bank 1
+ *   Slot 2 → Bank 2
+ *   Slot 4 → Zinsen-Konto (gold block, center)
+ *   Slot 6 → Bank 3
+ *   Slot 8 → Bank 4
+ *
+ * Bank 5 is accessible but displayed in the overview / still switchable via
+ * the active-bank concept; the GUI shows only 4 banks in the top row to make
+ * room for the Zinsen-Konto.  Banks 1-4 occupy slots 0,2,6,8; Bank 5 is shown
+ * in the Konto-Übersicht and players can still activate it by command.
  */
 public class BankGUI {
 
     public static final String GUI_TITLE = "§9§lDeine Banken";
 
-    /** Slots where the 5 bank panels are displayed (row 0, every other slot). */
-    private static final int[] BANK_SLOTS = {0, 2, 4, 6, 8};
+    /**
+     * GUI slots for banks 1-4 (bank 5 is not shown as a top-row button
+     * to keep the Zinsen-Konto centred at slot 4).
+     * Index 0 → bank 1, index 1 → bank 2, index 2 → bank 3, index 3 → bank 4.
+     */
+    private static final int[] BANK_SLOTS = {0, 2, 6, 8};
+
+    /** Inventory slot for the Zinsen-Konto. */
+    public static final int ZINSEN_SLOT = 4;
 
     private final OpServerPlugin plugin;
 
@@ -45,9 +64,9 @@ public class BankGUI {
         BankManager bm = plugin.getBankManager();
         EconomyManager em = plugin.getEconomyManager();
 
-        // --- 5 bank slots (row 1, slots 0/2/4/6/8) ---
+        // --- Banks 1-4 in slots 0,2,6,8 ---
         int activeSlot = bm.getActiveBank(uuid);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 4; i++) {
             int bankNum = i + 1;
             int guiSlot = BANK_SLOTS[i];
             boolean unlocked = bm.isBankUnlocked(uuid, bankNum);
@@ -69,21 +88,43 @@ public class BankGUI {
             }
         }
 
+        // --- Bank 5 shown separately at slot 9 (second row, leftmost) ---
+        {
+            int bankNum = 5;
+            boolean unlocked = bm.isBankUnlocked(uuid, bankNum);
+            double balance = bm.getBankBalance(uuid, bankNum);
+            if (unlocked) {
+                List<String> lore = new ArrayList<>();
+                lore.add("§7Guthaben: §a" + String.format("%.2f", balance) + " Coins");
+                if (bankNum == activeSlot) lore.add("§7(Aktiv)");
+                else lore.add("§7Klicken zum Aktivieren");
+                inv.setItem(9, makeItem(Material.BLUE_STAINED_GLASS, "§9Bank 5", lore));
+            } else {
+                inv.setItem(9, makeItem(Material.RED_STAINED_GLASS,
+                        "§cBank 5 §7[Gesperrt]",
+                        Arrays.asList(
+                                "§7Freischalten für §6250.000 Coins",
+                                "§7Klicken zum Freischalten"
+                        )));
+            }
+        }
+
+        // --- Slot 4 (centre of top row): Zinsen-Konto ---
+        double zinsenBalance = bm.getZinsen(uuid);
+        inv.setItem(ZINSEN_SLOT, makeItem(Material.GOLD_BLOCK,
+                "§6§lZinsen-Konto",
+                Arrays.asList(
+                        "§7Gesammelte Zinsen: §6" + String.format("%.2f", zinsenBalance) + " Coins",
+                        "§aLinksklick: Abholen"
+                )));
+
         // --- Slot 22: Einzahlen ---
-        inv.setItem(22, makeItem(Material.GOLD_BLOCK, "§6Einzahlen",
+        inv.setItem(22, makeItem(Material.EMERALD_BLOCK, "§6Einzahlen",
                 Arrays.asList("§7Linksklick: Betrag eingeben")));
 
         // --- Slot 23: Auszahlen ---
         inv.setItem(23, makeItem(Material.RED_CONCRETE, "§cAuszahlen",
                 Arrays.asList("§7Linksklick: Betrag eingeben")));
-
-        // --- Slot 31: Zinsen ---
-        double totalInterest = bm.getTotalInterest(uuid);
-        inv.setItem(31, makeItem(Material.EMERALD, "§aZinsen",
-                Arrays.asList(
-                        "§7Aktueller Zinssatz: §61% pro Stunde",
-                        "§7Gesamtzinsen erhalten: §f" + String.format("%.2f", totalInterest) + " Coins"
-                )));
 
         // --- Slot 40: Konto-Übersicht ---
         List<String> overviewLore = new ArrayList<>();
@@ -98,7 +139,8 @@ public class BankGUI {
                 overviewLore.add("§7Bank " + i + ": §8[Gesperrt]");
             }
         }
-        overviewLore.add("§7Gesamt: §a" + String.format("%.2f", total) + " Coins");
+        overviewLore.add("§7Zinsen-Konto: §6" + String.format("%.2f", zinsenBalance) + " Coins");
+        overviewLore.add("§7Gesamt (Banken): §a" + String.format("%.2f", total) + " Coins");
         inv.setItem(40, makeItem(Material.PAPER, "§eKonto-Übersicht", overviewLore));
 
         // --- Slot 49: Schließen ---

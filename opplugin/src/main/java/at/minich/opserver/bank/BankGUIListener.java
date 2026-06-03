@@ -57,28 +57,33 @@ public class BankGUIListener implements Listener {
         UUID uuid = player.getUniqueId();
         String prefix = plugin.getConfig().getString("messages.prefix", "§8[§6OpServer§8] §r");
 
-        // --- Bank slots (0, 2, 4, 6, 8) ---
-        for (int i = 0; i < 5; i++) {
-            if (slot == i * 2) {
+        // --- Zinsen-Konto (slot 4) ---
+        if (slot == BankGUI.ZINSEN_SLOT) {
+            double collected = bm.collectZinsen(uuid);
+            if (collected > 0) {
+                player.sendMessage(prefix + "§6" + String.format("%.2f", collected)
+                        + " Coins §7Zinsen wurden auf §9Bank " + bm.getActiveBank(uuid) + " §7übertragen.");
+                bankGUI.open(player); // refresh
+            } else {
+                player.sendMessage(prefix + "§7Keine Zinsen zum Abholen.");
+            }
+            return;
+        }
+
+        // --- Bank slots 0,2,6,8 → banks 1-4 ---
+        int[] bankGuiSlots = {0, 2, 6, 8};
+        for (int i = 0; i < bankGuiSlots.length; i++) {
+            if (slot == bankGuiSlots[i]) {
                 int bankNum = i + 1;
-                if (bm.isBankUnlocked(uuid, bankNum)) {
-                    bm.setActiveBank(uuid, bankNum);
-                    player.sendMessage(prefix + "§aBank " + bankNum + " ist jetzt deine aktive Bank.");
-                    bankGUI.open(player); // refresh
-                } else {
-                    // Try to unlock
-                    if (em.has(uuid, BankManager.UNLOCK_COST)) {
-                        em.withdraw(uuid, BankManager.UNLOCK_COST);
-                        bm.unlockBank(uuid, bankNum);
-                        player.sendMessage(prefix + "§aBank " + bankNum
-                                + " wurde freigeschaltet! §7(-§6250.000 Coins§7)");
-                        bankGUI.open(player); // refresh
-                    } else {
-                        player.sendMessage(prefix + "§cNicht genug Coins! Benötigt: §6250.000 Coins§c.");
-                    }
-                }
+                handleBankClick(player, uuid, bankNum, bm, em, prefix);
                 return;
             }
+        }
+
+        // --- Bank 5 at slot 9 ---
+        if (slot == 9) {
+            handleBankClick(player, uuid, 5, bm, em, prefix);
+            return;
         }
 
         // --- Einzahlen (slot 22) ---
@@ -100,6 +105,26 @@ public class BankGUIListener implements Listener {
         // --- Schließen (slot 49) ---
         if (slot == 49) {
             player.closeInventory();
+        }
+    }
+
+    private void handleBankClick(Player player, UUID uuid, int bankNum,
+                                  BankManager bm, EconomyManager em, String prefix) {
+        if (bm.isBankUnlocked(uuid, bankNum)) {
+            bm.setActiveBank(uuid, bankNum);
+            player.sendMessage(prefix + "§aBank " + bankNum + " ist jetzt deine aktive Bank.");
+            bankGUI.open(player); // refresh
+        } else {
+            // Try to unlock
+            if (em.has(uuid, BankManager.UNLOCK_COST)) {
+                em.withdraw(uuid, BankManager.UNLOCK_COST);
+                bm.unlockBank(uuid, bankNum);
+                player.sendMessage(prefix + "§aBank " + bankNum
+                        + " wurde freigeschaltet! §7(-§6250.000 Coins§7)");
+                bankGUI.open(player); // refresh
+            } else {
+                player.sendMessage(prefix + "§cNicht genug Coins! Benötigt: §6250.000 Coins§c.");
+            }
         }
     }
 

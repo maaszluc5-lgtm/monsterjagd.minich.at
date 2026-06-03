@@ -7,9 +7,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.util.*;
 
 /**
- * Multi-bank manager. Each player can own 1-5 bank slots.
- * Slot 1 is always unlocked. Slots 2-5 cost 250,000 coins to unlock.
- * Persists to bank.yml under players.<uuid>.banks.<slot>.
+ * Multi-bank manager. Each player can own 1-5 bank slots plus one special
+ * Zinsen-Konto that accumulates interest from all banks.
+ * Slot 1-5 are regular banks. The Zinsen-Konto is separate (not a numbered slot).
+ * Persists to bank.yml under players.<uuid>.
  */
 public class BankManager {
 
@@ -25,8 +26,8 @@ public class BankManager {
     private final Map<UUID, Map<Integer, Boolean>> unlocked = new HashMap<>();
     // uuid -> active bank slot
     private final Map<UUID, Integer> activeBank = new HashMap<>();
-    // uuid -> total interest received (for GUI display)
-    private final Map<UUID, Double> totalInterest = new HashMap<>();
+    // uuid -> accumulated interest (Zinsen-Konto)
+    private final Map<UUID, Double> zinsen = new HashMap<>();
 
     public BankManager(DataManager dataManager) {
         this.dataManager = dataManager;
@@ -41,7 +42,7 @@ public class BankManager {
         balances.clear();
         unlocked.clear();
         activeBank.clear();
-        totalInterest.clear();
+        zinsen.clear();
 
         YamlConfiguration cfg = dataManager.loadYaml(FILE);
         ConfigurationSection players = cfg.getConfigurationSection("players");
@@ -63,7 +64,7 @@ public class BankManager {
             balances.put(uuid, bal);
             unlocked.put(uuid, unl);
             activeBank.put(uuid, pSec.getInt("active-bank", 1));
-            totalInterest.put(uuid, pSec.getDouble("total-interest", 0.0));
+            zinsen.put(uuid, pSec.getDouble("zinsen", 0.0));
         }
     }
 
@@ -78,7 +79,7 @@ public class BankManager {
                 cfg.set(base + ".banks." + i + ".unlocked", unl.getOrDefault(i, i == 1));
             }
             cfg.set(base + ".active-bank", activeBank.getOrDefault(uuid, 1));
-            cfg.set(base + ".total-interest", totalInterest.getOrDefault(uuid, 0.0));
+            cfg.set(base + ".zinsen", zinsen.getOrDefault(uuid, 0.0));
         }
         dataManager.saveYaml(cfg, FILE);
     }
@@ -99,7 +100,7 @@ public class BankManager {
             return m;
         });
         activeBank.putIfAbsent(uuid, 1);
-        totalInterest.putIfAbsent(uuid, 0.0);
+        zinsen.putIfAbsent(uuid, 0.0);
     }
 
     // -------------------------------------------------------------------------
@@ -163,12 +164,45 @@ public class BankManager {
         return activeBank.getOrDefault(uuid, 1);
     }
 
-    public double getTotalInterest(UUID uuid) {
+    // -------------------------------------------------------------------------
+    // Zinsen-Konto methods
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the current Zinsen-Konto balance for a player.
+     */
+    public double getZinsen(UUID uuid) {
         initPlayer(uuid);
-        return totalInterest.getOrDefault(uuid, 0.0);
+        return zinsen.getOrDefault(uuid, 0.0);
     }
 
-    /** Apply interest to all unlocked bank slots for all players. Called hourly. */
+    /**
+     * Adds interest to the Zinsen-Konto (called by BankInterestTask).
+     */
+    public void addZinsen(UUID uuid, double amount) {
+        initPlayer(uuid);
+        zinsen.merge(uuid, amount, Double::sum);
+    }
+
+    /**
+     * Moves all Zinsen to the player's active bank slot.
+     * Returns the amount collected, or 0.0 if nothing to collect.
+     */
+    public double collectZinsen(UUID uuid) {
+        initPlayer(uuid);
+        double amount = zinsen.getOrDefault(uuid, 0.0);
+        if (amount <= 0) return 0.0;
+        int slot = getActiveBank(uuid);
+        if (!isBankUnlocked(uuid, slot)) return 0.0;
+        balances.get(uuid).merge(slot, amount, Double::sum);
+        zinsen.put(uuid, 0.0);
+        return amount;
+    }
+
+    /**
+     * Apply interest to all unlocked bank slots for all players,
+     * routing all interest to the Zinsen-Konto. Called hourly.
+     */
     public void applyInterest(double ratePercent) {
         double multiplier = ratePercent / 100.0;
         for (UUID uuid : balances.keySet()) {
@@ -178,11 +212,12 @@ public class BankManager {
             for (int i = 1; i <= MAX_BANKS; i++) {
                 if (unl.getOrDefault(i, i == 1)) {
                     double interest = bal.getOrDefault(i, 0.0) * multiplier;
-                    bal.merge(i, interest, Double::sum);
                     totalGained += interest;
                 }
             }
-            totalInterest.merge(uuid, totalGained, Double::sum);
+            if (totalGained > 0) {
+                addZinsen(uuid, totalGained);
+            }
         }
     }
 
@@ -203,5 +238,13 @@ public class BankManager {
     /** Balance of the active bank slot. */
     public double getBalance(UUID uuid) {
         return getBankBalance(uuid, getActiveBank(uuid));
+    }
+
+    /**
+     * @deprecated Use {@link #getZinsen(UUID)} instead.
+     */
+    @Deprecated
+    public double getTotalInterest(UUID uuid) {
+        return getZinsen(uuid);
     }
 }

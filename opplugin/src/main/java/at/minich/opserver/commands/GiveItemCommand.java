@@ -6,14 +6,27 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class GiveItemCommand implements CommandExecutor {
+public class GiveItemCommand implements CommandExecutor, TabCompleter {
+
+    /** Armor-set pseudo-names that expand to 4 pieces each. */
+    private static final List<String> ARMOR_SETS = List.of(
+        "GOD_ARMOR_SET",
+        "SHADOW_ARMOR_SET",
+        "DRAGON_ARMOR_SET",
+        "BERSERKER_ARMOR_SET",
+        "SPEED_ARMOR_SET"
+    );
+
+    private static final String STARTER_KIT_NAME = "STARTER_KIT";
 
     private final OpServerPlugin plugin;
 
@@ -45,27 +58,45 @@ public class GiveItemCommand implements CommandExecutor {
 
         String itemName = args[1].toUpperCase();
 
-        // Special case: GOD_ARMOR_SET and STARTER_KIT
-        if (itemName.equals("GOD_ARMOR_SET")) {
-            ItemStack[] armor = CustomItems.buildGodArmorSet(plugin.getEnchantManager());
-            for (ItemStack piece : armor) {
-                target.getInventory().addItem(piece);
+        // ------------------------------------------------------------------
+        // Armor sets (give all 4 pieces at once)
+        // ------------------------------------------------------------------
+        switch (itemName) {
+            case "GOD_ARMOR_SET" -> {
+                giveAll(target, Arrays.asList(CustomItems.buildGodArmorSet(plugin.getEnchantManager())));
+                notify(sender, target, prefix, "God Armor Set");
+                return true;
             }
-            sender.sendMessage(prefix + "§aGave §6God Armor Set §ato §e" + target.getName());
-            target.sendMessage(prefix + "§aYou received §6God Armor Set§a!");
-            return true;
+            case "SHADOW_ARMOR_SET" -> {
+                giveAll(target, CustomItems.buildShadowArmorSet(plugin.getEnchantManager()));
+                notify(sender, target, prefix, "Shadow Armor Set");
+                return true;
+            }
+            case "DRAGON_ARMOR_SET" -> {
+                giveAll(target, CustomItems.buildDragonArmorSet(plugin.getEnchantManager()));
+                notify(sender, target, prefix, "Dragon Armor Set");
+                return true;
+            }
+            case "BERSERKER_ARMOR_SET" -> {
+                giveAll(target, CustomItems.buildBerserkerArmorSet(plugin.getEnchantManager()));
+                notify(sender, target, prefix, "Berserker Armor Set");
+                return true;
+            }
+            case "SPEED_ARMOR_SET" -> {
+                giveAll(target, CustomItems.buildSpeedArmorSet(plugin.getEnchantManager()));
+                notify(sender, target, prefix, "Speed Armor Set");
+                return true;
+            }
+            case STARTER_KIT_NAME -> {
+                giveAll(target, Arrays.asList(CustomItems.buildStarterKit(plugin.getEnchantManager())));
+                notify(sender, target, prefix, "Starter Kit");
+                return true;
+            }
         }
 
-        if (itemName.equals("STARTER_KIT")) {
-            ItemStack[] kit = CustomItems.buildStarterKit(plugin.getEnchantManager());
-            for (ItemStack item : kit) {
-                target.getInventory().addItem(item);
-            }
-            sender.sendMessage(prefix + "§aGave §6Starter Kit §ato §e" + target.getName());
-            target.sendMessage(prefix + "§aYou received §6Starter Kit§a!");
-            return true;
-        }
-
+        // ------------------------------------------------------------------
+        // Single custom item
+        // ------------------------------------------------------------------
         CustomItems ci = CustomItems.fromString(itemName);
         if (ci == null) {
             sender.sendMessage(prefix + "§cUnknown item: §f" + args[1]);
@@ -80,10 +111,49 @@ public class GiveItemCommand implements CommandExecutor {
         return true;
     }
 
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
+                                                @NotNull String label, @NotNull String[] args) {
+        if (args.length == 1) {
+            return Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .filter(n -> n.toLowerCase().startsWith(args[0].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+        if (args.length == 2) {
+            List<String> all = new ArrayList<>();
+            for (CustomItems ci : CustomItems.values()) all.add(ci.name());
+            all.addAll(ARMOR_SETS);
+            all.add(STARTER_KIT_NAME);
+            String partial = args[1].toUpperCase();
+            return all.stream()
+                    .filter(n -> n.startsWith(partial))
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    private void giveAll(Player target, List<ItemStack> items) {
+        for (ItemStack item : items) {
+            if (item != null) target.getInventory().addItem(item);
+        }
+    }
+
+    private void notify(CommandSender sender, Player target, String prefix, String name) {
+        sender.sendMessage(prefix + "§aGave §6" + name + " §ato §e" + target.getName());
+        target.sendMessage(prefix + "§aYou received §6" + name + "§a!");
+    }
+
     private void listItems(CommandSender sender, String prefix) {
         String items = Arrays.stream(CustomItems.values())
                 .map(CustomItems::name)
                 .collect(Collectors.joining(", "));
-        sender.sendMessage(prefix + "§7Available items: §f" + items + ", GOD_ARMOR_SET, STARTER_KIT");
+        String sets = String.join(", ", ARMOR_SETS);
+        sender.sendMessage(prefix + "§7Items: §f" + items);
+        sender.sendMessage(prefix + "§7Sets: §f" + sets + ", " + STARTER_KIT_NAME);
     }
 }

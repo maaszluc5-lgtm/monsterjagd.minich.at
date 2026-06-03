@@ -13,6 +13,8 @@ import at.minich.opserver.jobs.JobListener;
 import at.minich.opserver.jobs.JobManager;
 import at.minich.opserver.kits.KitManager;
 import at.minich.opserver.listeners.StatsListener;
+import at.minich.opserver.mining.AreaMineListener;
+import at.minich.opserver.mining.AreaMineManager;
 import at.minich.opserver.ranks.RankManager;
 import at.minich.opserver.rewards.DailyRewardManager;
 import at.minich.opserver.salary.SalaryListener;
@@ -50,6 +52,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private KitManager kitManager;
     private JobManager jobManager;
     private TrophyManager trophyManager;
+    private AreaMineManager areaMineManager;
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
@@ -80,6 +83,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         kitManager = new KitManager(this);
         jobManager = new JobManager(this);
         trophyManager = new TrophyManager(this);
+        areaMineManager = new AreaMineManager();
 
         // Register Vault economy
         registerVaultEconomy();
@@ -88,6 +92,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new EnchantListener(this), this);
         getServer().getPluginManager().registerEvents(new StatsListener(this), this);
         getServer().getPluginManager().registerEvents(new SalaryListener(), this);
+        getServer().getPluginManager().registerEvents(new AreaMineListener(this), this);
 
         BankGUI bankGUI = new BankGUI(this);
         getServer().getPluginManager().registerEvents(new BankGUIListener(this, bankGUI), this);
@@ -124,6 +129,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("jobstats").setExecutor(new JobStatsCommand(this));
         getCommand("jobtop").setExecutor(new JobTopCommand(this));
         getCommand("trophies").setExecutor(new TrophyCommand(this));
+        MiningCommand miningCommand = new MiningCommand(this);
+        getCommand("mining").setExecutor(miningCommand);
+        getCommand("mining").setTabCompleter(miningCommand);
 
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);
@@ -198,6 +206,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         dataManager.saveYaml(cfg, path);
 
         loginTimes.remove(uuid);
+
+        // Free area mine data (resets on logout by design)
+        areaMineManager.remove(uuid);
     }
 
     // -------------------------------------------------------------------------
@@ -284,5 +295,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public TrophyManager getTrophyManager() {
         return trophyManager;
+    }
+
+    public AreaMineManager getAreaMineManager() {
+        return areaMineManager;
     }
 }

@@ -129,6 +129,55 @@ commands:
     description: Teleportiere zum letzten Standort.
     usage: /back
     aliases: [b]
+  repair:
+    description: Repair the item in your hand or all items in inventory.
+    usage: /repair [all]
+    permission: opserver.admin
+  hat:
+    description: Wear the item in your hand as a helmet.
+    usage: /hat
+  feed:
+    description: Fill your hunger bar, or another player's.
+    usage: /feed [player]
+  heal:
+    description: Restore your health to maximum, or another player's.
+    usage: /heal [player]
+  fly:
+    description: Toggle flight mode for yourself or another player.
+    usage: /fly [player]
+  speed:
+    description: Set walk or fly speed on a 1-10 scale.
+    usage: /speed <1-10> [player]
+  god:
+    description: Toggle god mode (invincibility) for yourself or another player.
+    usage: /god [player]
+    permission: opserver.admin
+  vanish:
+    description: Toggle vanish (invisible to other players).
+    usage: /vanish [player]
+    aliases: [v]
+    permission: opserver.admin
+  nick:
+    description: Set or reset your display name. Use & for color codes.
+    usage: /nick <name|off>
+  seen:
+    description: Show when a player was last online.
+    usage: /seen <player>
+  ping:
+    description: Show your ping or another player's ping in ms.
+    usage: /ping [player]
+  trash:
+    description: Open a trash can inventory (items are deleted on close).
+    usage: /trash
+    aliases: [muelleimer]
+  msg:
+    description: Send a private message to another player.
+    usage: /msg <player> <message>
+    aliases: [tell, pm, dm]
+  r:
+    description: Reply to the last private message you received.
+    usage: /r <message>
+    aliases: [reply]
 
 permissions:
   opserver.giveitem:

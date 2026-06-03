@@ -178,6 +178,34 @@ commands:
     description: Reply to the last private message you received.
     usage: /r <message>
     aliases: [reply]
+  cf:
+    description: Setze Coins beim Münzwurf.
+    usage: /cf <amount>
+    aliases: [coinflip, muenzwurf]
+  jackpot:
+    description: Beteilige dich am Jackpot oder zeige Infos.
+    usage: /jackpot <amount>
+  duel:
+    description: Fordere einen Spieler zum Duell heraus.
+    usage: /duel <player> [amount]
+  trade:
+    description: Starte einen Handel mit einem Spieler.
+    usage: /trade <player>
+  report:
+    description: Melde einen Spieler.
+    usage: /report <player> <reason>
+  helpop:
+    description: Sende eine Nachricht an alle OPs.
+    usage: /helpop <message>
+    aliases: [ac]
+  clan:
+    description: Clan-System verwalten.
+    usage: /clan <create|invite|join|leave|kick|disband|info|list|chat>
+    aliases: [clans, guild]
+  cc:
+    description: Schreibe im Clan-Chat.
+    usage: /cc <message>
+    aliases: [clanchat]
 
 permissions:
   opserver.giveitem:

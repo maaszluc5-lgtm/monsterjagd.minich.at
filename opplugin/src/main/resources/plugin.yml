@@ -137,19 +137,23 @@ commands:
     description: Wear the item in your hand as a helmet.
     usage: /hat
   feed:
-    description: Fill your hunger bar, or another player's.
+    description: Fill your hunger bar.
     usage: /feed [player]
+    permission: opserver.admin
   heal:
-    description: Restore your health to maximum, or another player's.
+    description: Restore your health to maximum.
     usage: /heal [player]
+    permission: opserver.admin
   fly:
-    description: Toggle flight mode for yourself or another player.
+    description: Toggle flight mode.
     usage: /fly [player]
+    permission: opserver.admin
   speed:
     description: Set walk or fly speed on a 1-10 scale.
     usage: /speed <1-10> [player]
+    permission: opserver.admin
   god:
-    description: Toggle god mode (invincibility) for yourself or another player.
+    description: Toggle god mode (invincibility).
     usage: /god [player]
     permission: opserver.admin
   vanish:
@@ -160,6 +164,7 @@ commands:
   nick:
     description: Set or reset your display name. Use & for color codes.
     usage: /nick <name|off>
+    permission: opserver.admin
   seen:
     description: Show when a player was last online.
     usage: /seen <player>

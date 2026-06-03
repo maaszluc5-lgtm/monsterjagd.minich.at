@@ -110,31 +110,31 @@ kits:
       - GOD_ARMOR_SET
 
 # ---------------------------------------------------------------------------
-# Ranks  (sorted by required-hours ascending)
+# Ranks  (purchase-based — sorted by price ascending)
 # ---------------------------------------------------------------------------
 ranks:
   neuling:
-    required-hours: 0
+    price: 0
     salary-multiplier: 1.0
     prefix: "§7[Neuling]"
   spieler:
-    required-hours: 5
+    price: 10000
     salary-multiplier: 1.2
     prefix: "§a[Spieler]"
   veteran:
-    required-hours: 20
+    price: 50000
     salary-multiplier: 1.5
     prefix: "§b[Veteran]"
   elite:
-    required-hours: 50
+    price: 200000
     salary-multiplier: 2.0
     prefix: "§6[Elite]"
   legende:
-    required-hours: 100
+    price: 1000000
     salary-multiplier: 3.0
     prefix: "§c[Legende]"
   gott:
-    required-hours: 200
+    price: 10000000
     salary-multiplier: 5.0
     prefix: "§4§l[GOTT]"
 

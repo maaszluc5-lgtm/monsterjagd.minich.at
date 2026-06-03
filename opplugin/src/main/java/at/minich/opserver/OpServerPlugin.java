@@ -39,12 +39,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class OpServerPlugin extends JavaPlugin implements Listener {
@@ -72,6 +76,12 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private final Map<UUID, UUID> tpaPendingRequests = new HashMap<>();
     private final Map<UUID, Integer> tpaExpiryTasks = new HashMap<>();
     private final Map<UUID, Location> backLocations = new HashMap<>();
+
+    // Utility command state
+    private final Set<UUID> godPlayers = new HashSet<>();
+    private final Set<UUID> vanishPlayers = new HashSet<>();
+    private final Set<Inventory> trashInventories = Collections.newSetFromMap(new java.util.WeakHashMap<>());
+    private final Map<UUID, UUID> lastMessagePartners = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -112,6 +122,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new SalaryListener(), this);
         getServer().getPluginManager().registerEvents(new AreaMineListener(this), this);
         getServer().getPluginManager().registerEvents(new BackListener(backLocations), this);
+        getServer().getPluginManager().registerEvents(new GodListener(this), this);
+        getServer().getPluginManager().registerEvents(new VanishListener(this), this);
+        getServer().getPluginManager().registerEvents(new TrashListener(this), this);
 
         BankGUI bankGUI = new BankGUI(this);
         getServer().getPluginManager().registerEvents(new BankGUIListener(this, bankGUI), this);
@@ -189,6 +202,23 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("tpdeny").setExecutor(new TpDenyCommand(this, tpaPendingRequests, tpaExpiryTasks));
 
         getCommand("back").setExecutor(new BackCommand(this, backLocations));
+
+        // Utility commands
+        getCommand("repair").setExecutor(new RepairCommand(this));
+        getCommand("hat").setExecutor(new HatCommand(this));
+        getCommand("feed").setExecutor(new FeedCommand(this));
+        getCommand("heal").setExecutor(new HealCommand(this));
+        getCommand("fly").setExecutor(new FlyCommand(this));
+        getCommand("speed").setExecutor(new SpeedCommand(this));
+        getCommand("god").setExecutor(new GodCommand(this));
+        getCommand("vanish").setExecutor(new VanishCommand(this));
+        getCommand("nick").setExecutor(new NickCommand(this));
+        getCommand("seen").setExecutor(new SeenCommand(this));
+        getCommand("ping").setExecutor(new PingCommand(this));
+        getCommand("trash").setExecutor(new TrashCommand(this));
+        MsgCommand msgCommand = new MsgCommand(this);
+        getCommand("msg").setExecutor(msgCommand);
+        getCommand("r").setExecutor(new ReplyCommand(this));
 
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);
@@ -367,5 +397,84 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public AuctionManager getAuctionManager() {
         return auctionManager;
+    }
+
+    // -------------------------------------------------------------------------
+    // God mode
+    // -------------------------------------------------------------------------
+
+    public boolean toggleGodMode(UUID uuid) {
+        if (godPlayers.contains(uuid)) {
+            godPlayers.remove(uuid);
+            return false;
+        } else {
+            godPlayers.add(uuid);
+            return true;
+        }
+    }
+
+    public boolean isGodMode(UUID uuid) {
+        return godPlayers.contains(uuid);
+    }
+
+    // -------------------------------------------------------------------------
+    // Vanish
+    // -------------------------------------------------------------------------
+
+    public boolean toggleVanish(Player player) {
+        UUID uuid = player.getUniqueId();
+        if (vanishPlayers.contains(uuid)) {
+            vanishPlayers.remove(uuid);
+            // Show player to everyone
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                online.showPlayer(this, player);
+            }
+            return false;
+        } else {
+            vanishPlayers.add(uuid);
+            // Hide player from non-ops
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                if (!online.equals(player) && !online.isOp() && !online.hasPermission("opserver.admin")) {
+                    online.hidePlayer(this, player);
+                }
+            }
+            return true;
+        }
+    }
+
+    public boolean isVanished(UUID uuid) {
+        return vanishPlayers.contains(uuid);
+    }
+
+    // -------------------------------------------------------------------------
+    // Trash
+    // -------------------------------------------------------------------------
+
+    public void registerTrashInventory(Inventory inventory) {
+        trashInventories.add(inventory);
+    }
+
+    public boolean isTrashInventory(Inventory inventory) {
+        return trashInventories.contains(inventory);
+    }
+
+    public void unregisterTrashInventory(Inventory inventory) {
+        trashInventories.remove(inventory);
+    }
+
+    // -------------------------------------------------------------------------
+    // Private messages
+    // -------------------------------------------------------------------------
+
+    public void setLastMessagePartner(UUID player, UUID partner) {
+        if (partner == null) {
+            lastMessagePartners.remove(player);
+        } else {
+            lastMessagePartners.put(player, partner);
+        }
+    }
+
+    public UUID getLastMessagePartner(UUID player) {
+        return lastMessagePartners.get(player);
     }
 }

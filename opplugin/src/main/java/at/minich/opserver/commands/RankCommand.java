@@ -12,6 +12,11 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
+/**
+ * /rank              → show your current rank and price to next rank
+ * /rank buy          → purchase the next rank up
+ * /rank [player]     → view another player's rank
+ */
 public class RankCommand implements CommandExecutor {
 
     private final OpServerPlugin plugin;
@@ -24,6 +29,39 @@ public class RankCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        String prefix = plugin.getConfig().getString("messages.prefix", "§8[§6OpServer§8] §r");
+
+        // /rank buy
+        if (args.length >= 1 && args[0].equalsIgnoreCase("buy")) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage("§cDieser Befehl kann nur von Spielern verwendet werden.");
+                return true;
+            }
+            UUID uuid = player.getUniqueId();
+            RankInfo next = rankManager.getNextRank(uuid);
+            if (next == null) {
+                player.sendMessage(prefix + "§6Du hast bereits den höchsten Rang!");
+                return true;
+            }
+            double balance = plugin.getEconomyManager().getBalance(uuid);
+            if (balance < next.price) {
+                player.sendMessage(prefix + "§cNicht genug Coins! Benötigt: §6"
+                        + String.format("%.0f", next.price) + " Coins §c(du hast §6"
+                        + String.format("%.2f", balance) + " Coins§c).");
+                return true;
+            }
+            boolean success = rankManager.purchaseRank(player);
+            if (success) {
+                RankInfo current = rankManager.getRank(uuid);
+                player.sendMessage(prefix + "§aGlückwunsch! Du hast den Rang "
+                        + (current != null ? current.prefix : "") + " §akauft!");
+            } else {
+                player.sendMessage(prefix + "§cRangkauf fehlgeschlagen.");
+            }
+            return true;
+        }
+
+        // /rank [player]
         UUID targetUUID;
         String targetName;
 
@@ -31,14 +69,14 @@ public class RankCommand implements CommandExecutor {
             @SuppressWarnings("deprecation")
             OfflinePlayer op = Bukkit.getOfflinePlayer(args[0]);
             if (op == null || (!op.hasPlayedBefore() && !op.isOnline())) {
-                sender.sendMessage("§cPlayer not found: " + args[0]);
+                sender.sendMessage(prefix + "§cSpieler nicht gefunden: " + args[0]);
                 return true;
             }
             targetUUID = op.getUniqueId();
             targetName = op.getName() != null ? op.getName() : args[0];
         } else {
             if (!(sender instanceof Player)) {
-                sender.sendMessage("§cUsage: /rank <player>");
+                sender.sendMessage("§cUsage: /rank [buy|player]");
                 return true;
             }
             Player p = (Player) sender;
@@ -48,21 +86,31 @@ public class RankCommand implements CommandExecutor {
 
         RankInfo current = rankManager.getRank(targetUUID);
         RankInfo next = rankManager.getNextRank(targetUUID);
-        long hours = rankManager.getPlaytimeHours(targetUUID);
 
-        sender.sendMessage("§8=== §6Rank: " + targetName + " §8===");
+        sender.sendMessage("§8=== §6Rang: " + targetName + " §8===");
         if (current != null) {
-            sender.sendMessage("§7Current rank: " + current.prefix + " §7(" + current.key + ")");
-            sender.sendMessage("§7Playtime: §e" + hours + "h");
+            sender.sendMessage("§7Aktueller Rang: " + current.prefix);
+            sender.sendMessage("§7Lohn-Multiplikator: §a" + current.salaryMultiplier + "x");
             if (next != null) {
-                long needed = next.requiredHours - hours;
-                sender.sendMessage("§7Next rank: §b" + next.prefix + " §7(in §e" + needed + "h§7)");
+                sender.sendMessage("§7Nächster Rang: §b" + next.prefix
+                        + " §7(Preis: §6" + String.format("%.0f", next.price) + " Coins§7)");
+                // If sender is the target player show their balance too
+                if (sender instanceof Player player && player.getUniqueId().equals(targetUUID)) {
+                    double balance = plugin.getEconomyManager().getBalance(targetUUID);
+                    double missing = next.price - balance;
+                    if (missing > 0) {
+                        sender.sendMessage("§7Dein Guthaben: §c" + String.format("%.2f", balance)
+                                + " Coins §7(noch §c" + String.format("%.0f", missing) + " Coins§7 benötigt)");
+                    } else {
+                        sender.sendMessage("§7Dein Guthaben: §a" + String.format("%.2f", balance)
+                                + " Coins §7— §a/rank buy §7zum Kaufen!");
+                    }
+                }
             } else {
-                sender.sendMessage("§7You have reached the §4§lhighest rank§7!");
+                sender.sendMessage("§7Du hast den §4§lhöchsten Rang §7erreicht!");
             }
-            sender.sendMessage("§7Salary multiplier: §a" + current.salaryMultiplier + "x");
         } else {
-            sender.sendMessage("§7No rank data found.");
+            sender.sendMessage("§7Keine Rangdaten gefunden.");
         }
         return true;
     }

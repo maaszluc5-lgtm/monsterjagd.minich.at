@@ -45,8 +45,8 @@ commands:
     description: Claim your daily reward.
     usage: /daily
   rank:
-    description: Show your rank.
-    usage: /rank [player]
+    description: Show your rank or purchase the next rank up.
+    usage: /rank [buy|player]
   kit:
     description: Claim a kit.
     usage: /kit <name>

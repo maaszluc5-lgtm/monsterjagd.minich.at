@@ -147,9 +147,9 @@ public class MarktManager {
             return false;
         }
 
-        // Atomic: withdraw from buyer, give to seller
+        // Atomic: withdraw from buyer, credit seller's Markt-Bank
         plugin.getEconomyManager().withdraw(buyer.getUniqueId(), price);
-        plugin.getEconomyManager().deposit(listing.getSellerUuid(), price);
+        plugin.getBankManager().addMarktBalance(listing.getSellerUuid(), price);
 
         // Give item to buyer
         ItemStack give = listing.getItem().clone();
@@ -167,7 +167,7 @@ public class MarktManager {
         if (seller != null && seller.isOnline()) {
             seller.sendMessage("§a" + buyer.getName() + " §ahat dein Angebot gekauft: §e"
                     + listing.getAmount() + "x §f" + itemDisplayName(listing.getItem())
-                    + " §afür §6" + formatCoins(price) + " Coins§a.");
+                    + " §afür §6" + formatCoins(price) + " Coins§a. §7(→ Markt-Bank in §6/bank§7)");
         }
         return true;
     }

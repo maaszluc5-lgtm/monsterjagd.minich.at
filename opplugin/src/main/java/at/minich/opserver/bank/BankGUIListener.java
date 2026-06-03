@@ -16,10 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Handles all click events inside the Bank GUI and chat-input prompts for
- * deposit / withdrawal amounts.
- */
 public class BankGUIListener implements Listener {
 
     private enum InputMode { DEPOSIT, WITHDRAW }
@@ -27,69 +23,88 @@ public class BankGUIListener implements Listener {
     private final OpServerPlugin plugin;
     private final BankGUI bankGUI;
 
-    /** Players currently waiting to type a deposit or withdrawal amount. */
     private final Map<UUID, InputMode> pendingInput = new HashMap<>();
+    // page state per player (for admin paging)
+    private final Map<UUID, Integer> playerPage = new HashMap<>();
 
     public BankGUIListener(OpServerPlugin plugin, BankGUI bankGUI) {
         this.plugin = plugin;
         this.bankGUI = bankGUI;
     }
 
-    // -------------------------------------------------------------------------
-    // Inventory click handling
-    // -------------------------------------------------------------------------
-
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         Inventory inv = event.getInventory();
-        if (!BankGUI.GUI_TITLE.equals(inv.getTitle())) return;
+        String title = inv.getTitle();
+        boolean isPage1 = BankGUI.GUI_TITLE.equals(title);
+        boolean isPage2 = BankGUI.GUI_TITLE_P2.equals(title);
+        if (!isPage1 && !isPage2) return;
 
         event.setCancelled(true);
-
-        if (event.getCurrentItem() == null
-                || event.getCurrentItem().getType() == Material.AIR) return;
+        if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
 
         int slot = event.getRawSlot();
+        int page = isPage2 ? 2 : 1;
         BankManager bm = plugin.getBankManager();
         EconomyManager em = plugin.getEconomyManager();
         UUID uuid = player.getUniqueId();
         String prefix = plugin.getConfig().getString("messages.prefix", "§8[§6OpServer§8] §r");
+        int maxBanks = bm.getMaxBanks(player);
 
-        // --- Zinsen-Konto (slot 4) ---
-        if (slot == BankGUI.ZINSEN_SLOT) {
+        // --- Page navigation ---
+        if (slot == 45 && page == 2) { bankGUI.open(player, 1); return; }
+        if (slot == 53 && page == 1 && maxBanks > 5) { bankGUI.open(player, 2); return; }
+
+        // --- Zinsen-Konto (slot 4, page 1 only) ---
+        if (slot == BankGUI.ZINSEN_SLOT && page == 1) {
             double collected = bm.collectZinsen(uuid);
             if (collected > 0) {
-                player.sendMessage(prefix + "§6" + String.format("%.2f", collected)
-                        + " Coins §7Zinsen wurden auf §9Bank " + bm.getActiveBank(uuid) + " §7übertragen.");
-                bankGUI.open(player); // refresh
+                player.sendMessage(prefix + "§6" + fmt(collected)
+                        + " Coins §7Zinsen auf §9Bank " + bm.getActiveBank(uuid) + " §7übertragen.");
+                bankGUI.open(player, 1);
             } else {
                 player.sendMessage(prefix + "§7Keine Zinsen zum Abholen.");
             }
             return;
         }
 
-        // --- Bank slots 0,2,6,8 → banks 1-4 ---
-        int[] bankGuiSlots = {0, 2, 6, 8};
-        for (int i = 0; i < bankGuiSlots.length; i++) {
-            if (slot == bankGuiSlots[i]) {
-                int bankNum = i + 1;
-                handleBankClick(player, uuid, bankNum, bm, em, prefix);
-                return;
+        // --- Markt-Bank (slot 13) ---
+        if (slot == 13) {
+            double collected = bm.collectMarktBalance(uuid);
+            if (collected > 0) {
+                player.sendMessage(prefix + "§6" + fmt(collected)
+                        + " Coins §7aus der Markt-Bank auf §9Bank " + bm.getActiveBank(uuid) + " §7übertragen.");
+                bankGUI.open(player, page);
+            } else {
+                player.sendMessage(prefix + "§7Keine Einnahmen in der Markt-Bank.");
             }
+            return;
         }
 
-        // --- Bank 5 at slot 9 ---
-        if (slot == 9) {
-            handleBankClick(player, uuid, 5, bm, em, prefix);
-            return;
+        // --- Bank slots ---
+        int banksPerPage = maxBanks <= 5 ? 5 : 10;
+        int startBank    = (page - 1) * banksPerPage + 1;
+        // slots used for banks on each page
+        int[] slotsPage1 = {0, 1, 2, 3, 5, 6, 7, 8, 9, 10};
+        int[] slotsPage2 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        int[] bankSlots  = page == 1 ? slotsPage1 : slotsPage2;
+
+        for (int i = 0; i < bankSlots.length; i++) {
+            if (slot == bankSlots[i]) {
+                int bankNum = startBank + i;
+                if (bankNum > maxBanks) break;
+                handleBankClick(player, uuid, bankNum, bm, em, prefix, page);
+                return;
+            }
         }
 
         // --- Einzahlen (slot 22) ---
         if (slot == 22) {
             player.closeInventory();
             pendingInput.put(uuid, InputMode.DEPOSIT);
+            playerPage.put(uuid, page);
             player.sendMessage(prefix + "§6Einzahlen §7— Schreibe den Betrag in den Chat:");
             return;
         }
@@ -98,39 +113,32 @@ public class BankGUIListener implements Listener {
         if (slot == 23) {
             player.closeInventory();
             pendingInput.put(uuid, InputMode.WITHDRAW);
+            playerPage.put(uuid, page);
             player.sendMessage(prefix + "§cAuszahlen §7— Schreibe den Betrag in den Chat:");
             return;
         }
 
         // --- Schließen (slot 49) ---
-        if (slot == 49) {
-            player.closeInventory();
-        }
+        if (slot == 49) { player.closeInventory(); }
     }
 
     private void handleBankClick(Player player, UUID uuid, int bankNum,
-                                  BankManager bm, EconomyManager em, String prefix) {
+                                  BankManager bm, EconomyManager em, String prefix, int page) {
         if (bm.isBankUnlocked(uuid, bankNum)) {
             bm.setActiveBank(uuid, bankNum);
             player.sendMessage(prefix + "§aBank " + bankNum + " ist jetzt deine aktive Bank.");
-            bankGUI.open(player); // refresh
+            bankGUI.open(player, page);
         } else {
-            // Try to unlock
             if (em.has(uuid, BankManager.UNLOCK_COST)) {
                 em.withdraw(uuid, BankManager.UNLOCK_COST);
                 bm.unlockBank(uuid, bankNum);
-                player.sendMessage(prefix + "§aBank " + bankNum
-                        + " wurde freigeschaltet! §7(-§6250.000 Coins§7)");
-                bankGUI.open(player); // refresh
+                player.sendMessage(prefix + "§aBank " + bankNum + " freigeschaltet! §7(-§6250.000 Coins§7)");
+                bankGUI.open(player, page);
             } else {
                 player.sendMessage(prefix + "§cNicht genug Coins! Benötigt: §6250.000 Coins§c.");
             }
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Chat input for deposit / withdraw amount
-    // -------------------------------------------------------------------------
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
@@ -139,6 +147,7 @@ public class BankGUIListener implements Listener {
 
         InputMode mode = pendingInput.remove(uuid);
         if (mode == null) return;
+        int page = playerPage.getOrDefault(uuid, 1);
 
         event.setCancelled(true);
 
@@ -159,25 +168,28 @@ public class BankGUIListener implements Listener {
         BankManager bm = plugin.getBankManager();
         EconomyManager em = plugin.getEconomyManager();
         int activeSlot = bm.getActiveBank(uuid);
-
-        // Run on the main thread because economy touches non-thread-safe maps
         final double finalAmount = amount;
+
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             if (mode == InputMode.DEPOSIT) {
                 if (bm.depositToBank(uuid, activeSlot, finalAmount, em)) {
-                    player.sendMessage(prefix + "§a" + String.format("%.2f", finalAmount)
-                            + " Coins §7wurden auf §9Bank " + activeSlot + " §7eingezahlt.");
+                    player.sendMessage(prefix + "§a" + fmt(finalAmount)
+                            + " Coins §7auf §9Bank " + activeSlot + " §7eingezahlt.");
+                    bankGUI.open(player, page);
                 } else {
                     player.sendMessage(prefix + "§cEinzahlung fehlgeschlagen. Nicht genug Wallet-Guthaben?");
                 }
             } else {
                 if (bm.withdrawFromBank(uuid, activeSlot, finalAmount, em)) {
-                    player.sendMessage(prefix + "§a" + String.format("%.2f", finalAmount)
-                            + " Coins §7wurden von §9Bank " + activeSlot + " §7abgehoben.");
+                    player.sendMessage(prefix + "§a" + fmt(finalAmount)
+                            + " Coins §7von §9Bank " + activeSlot + " §7abgehoben.");
+                    bankGUI.open(player, page);
                 } else {
                     player.sendMessage(prefix + "§cAuszahlung fehlgeschlagen. Nicht genug Bankguthaben?");
                 }
             }
         });
     }
+
+    private String fmt(double v) { return String.format("%.2f", v); }
 }

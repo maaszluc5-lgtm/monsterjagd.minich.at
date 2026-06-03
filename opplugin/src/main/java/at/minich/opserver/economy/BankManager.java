@@ -17,6 +17,7 @@ public class BankManager {
     private static final String FILE = "bank.yml";
     public static final double UNLOCK_COST = 250_000.0;
     public static final int MAX_BANKS = 5;
+    public static final int MAX_BANKS_ADMIN = 20;
 
     private final DataManager dataManager;
 
@@ -28,6 +29,8 @@ public class BankManager {
     private final Map<UUID, Integer> activeBank = new HashMap<>();
     // uuid -> accumulated interest (Zinsen-Konto)
     private final Map<UUID, Double> zinsen = new HashMap<>();
+    // uuid -> markt bank balance
+    private final Map<UUID, Double> marktBalance = new HashMap<>();
 
     public BankManager(DataManager dataManager) {
         this.dataManager = dataManager;
@@ -43,6 +46,7 @@ public class BankManager {
         unlocked.clear();
         activeBank.clear();
         zinsen.clear();
+        marktBalance.clear();
 
         YamlConfiguration cfg = dataManager.loadYaml(FILE);
         ConfigurationSection players = cfg.getConfigurationSection("players");
@@ -57,7 +61,7 @@ public class BankManager {
 
             Map<Integer, Double> bal = new HashMap<>();
             Map<Integer, Boolean> unl = new HashMap<>();
-            for (int i = 1; i <= MAX_BANKS; i++) {
+            for (int i = 1; i <= MAX_BANKS_ADMIN; i++) {
                 bal.put(i, pSec.getDouble("banks." + i + ".balance", 0.0));
                 unl.put(i, pSec.getBoolean("banks." + i + ".unlocked", i == 1));
             }
@@ -65,6 +69,7 @@ public class BankManager {
             unlocked.put(uuid, unl);
             activeBank.put(uuid, pSec.getInt("active-bank", 1));
             zinsen.put(uuid, pSec.getDouble("zinsen", 0.0));
+            marktBalance.put(uuid, pSec.getDouble("markt-balance", 0.0));
         }
     }
 
@@ -74,12 +79,13 @@ public class BankManager {
             String base = "players." + uuid;
             Map<Integer, Double> bal = balances.get(uuid);
             Map<Integer, Boolean> unl = unlocked.get(uuid);
-            for (int i = 1; i <= MAX_BANKS; i++) {
+            for (int i = 1; i <= MAX_BANKS_ADMIN; i++) {
                 cfg.set(base + ".banks." + i + ".balance", bal.getOrDefault(i, 0.0));
                 cfg.set(base + ".banks." + i + ".unlocked", unl.getOrDefault(i, i == 1));
             }
             cfg.set(base + ".active-bank", activeBank.getOrDefault(uuid, 1));
             cfg.set(base + ".zinsen", zinsen.getOrDefault(uuid, 0.0));
+            cfg.set(base + ".markt-balance", marktBalance.getOrDefault(uuid, 0.0));
         }
         dataManager.saveYaml(cfg, FILE);
     }
@@ -91,21 +97,53 @@ public class BankManager {
     public void initPlayer(UUID uuid) {
         balances.computeIfAbsent(uuid, k -> {
             Map<Integer, Double> m = new HashMap<>();
-            for (int i = 1; i <= MAX_BANKS; i++) m.put(i, 0.0);
+            for (int i = 1; i <= MAX_BANKS_ADMIN; i++) m.put(i, 0.0);
             return m;
         });
         unlocked.computeIfAbsent(uuid, k -> {
             Map<Integer, Boolean> m = new HashMap<>();
-            for (int i = 1; i <= MAX_BANKS; i++) m.put(i, i == 1);
+            for (int i = 1; i <= MAX_BANKS_ADMIN; i++) m.put(i, i == 1);
             return m;
         });
         activeBank.putIfAbsent(uuid, 1);
         zinsen.putIfAbsent(uuid, 0.0);
+        marktBalance.putIfAbsent(uuid, 0.0);
+    }
+
+    // -------------------------------------------------------------------------
+    // Markt-Bank
+    // -------------------------------------------------------------------------
+
+    public double getMarktBalance(UUID uuid) {
+        initPlayer(uuid);
+        return marktBalance.getOrDefault(uuid, 0.0);
+    }
+
+    public void addMarktBalance(UUID uuid, double amount) {
+        initPlayer(uuid);
+        marktBalance.merge(uuid, amount, Double::sum);
+    }
+
+    /** Transfers markt balance to the player's active bank. Returns amount transferred. */
+    public double collectMarktBalance(UUID uuid) {
+        initPlayer(uuid);
+        double amount = marktBalance.getOrDefault(uuid, 0.0);
+        if (amount <= 0) return 0.0;
+        int slot = getActiveBank(uuid);
+        if (!isBankUnlocked(uuid, slot)) return 0.0;
+        balances.get(uuid).merge(slot, amount, Double::sum);
+        marktBalance.put(uuid, 0.0);
+        return amount;
     }
 
     // -------------------------------------------------------------------------
     // Bank slot methods
     // -------------------------------------------------------------------------
+
+    /** Returns the maximum number of banks a player can unlock (20 for OP, 5 for others). */
+    public int getMaxBanks(org.bukkit.entity.Player player) {
+        return player.isOp() ? MAX_BANKS_ADMIN : MAX_BANKS;
+    }
 
     public boolean isBankUnlocked(UUID uuid, int slot) {
         initPlayer(uuid);

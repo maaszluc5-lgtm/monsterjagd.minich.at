@@ -16,34 +16,16 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Opens the multi-bank GUI for a player.
- * Title: §9§lDeine Banken (54 slots)
- *
- * Layout (top row):
- *   Slot 0 → Bank 1
- *   Slot 2 → Bank 2
- *   Slot 4 → Zinsen-Konto (gold block, center)
- *   Slot 6 → Bank 3
- *   Slot 8 → Bank 4
- *
- * Bank 5 is accessible but displayed in the overview / still switchable via
- * the active-bank concept; the GUI shows only 4 banks in the top row to make
- * room for the Zinsen-Konto.  Banks 1-4 occupy slots 0,2,6,8; Bank 5 is shown
- * in the Konto-Übersicht and players can still activate it by command.
+ * Multi-bank GUI.
+ * Normal players: 5 banks (54-slot GUI, rows 1-2)
+ * Admin/OP: 20 banks (double-page or scrollable via page system)
+ * Markt-Bank always shown as a special gold slot.
  */
 public class BankGUI {
 
-    public static final String GUI_TITLE = "§9§lDeine Banken";
-
-    /**
-     * GUI slots for banks 1-4 (bank 5 is not shown as a top-row button
-     * to keep the Zinsen-Konto centred at slot 4).
-     * Index 0 → bank 1, index 1 → bank 2, index 2 → bank 3, index 3 → bank 4.
-     */
-    private static final int[] BANK_SLOTS = {0, 2, 6, 8};
-
-    /** Inventory slot for the Zinsen-Konto. */
-    public static final int ZINSEN_SLOT = 4;
+    public static final String GUI_TITLE       = "§9§lDeine Banken";
+    public static final String GUI_TITLE_P2    = "§9§lDeine Banken §7(Seite 2)";
+    public static final int    ZINSEN_SLOT     = 4;
 
     private final OpServerPlugin plugin;
 
@@ -52,105 +34,119 @@ public class BankGUI {
     }
 
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 54, GUI_TITLE);
+        open(player, 1);
+    }
 
-        // Fill with light blue stained glass panes
+    public void open(Player player, int page) {
+        int maxBanks = plugin.getBankManager().getMaxBanks(player);
+        // Page 1 shows banks 1-10 (or 1-5 for normal players), page 2 shows 11-20
+        int banksPerPage = maxBanks <= 5 ? 5 : 10;
+        int startBank = (page - 1) * banksPerPage + 1;
+        int endBank   = Math.min(startBank + banksPerPage - 1, maxBanks);
+
+        String title = page == 1 ? GUI_TITLE : GUI_TITLE_P2;
+        Inventory inv = Bukkit.createInventory(null, 54, title);
+
         ItemStack filler = makeItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, " ", null);
-        for (int i = 0; i < 54; i++) {
-            inv.setItem(i, filler);
-        }
+        for (int i = 0; i < 54; i++) inv.setItem(i, filler);
 
         UUID uuid = player.getUniqueId();
         BankManager bm = plugin.getBankManager();
-        EconomyManager em = plugin.getEconomyManager();
-
-        // --- Banks 1-4 in slots 0,2,6,8 ---
         int activeSlot = bm.getActiveBank(uuid);
-        for (int i = 0; i < 4; i++) {
-            int bankNum = i + 1;
-            int guiSlot = BANK_SLOTS[i];
-            boolean unlocked = bm.isBankUnlocked(uuid, bankNum);
-            double balance = bm.getBankBalance(uuid, bankNum);
 
-            if (unlocked) {
-                List<String> lore = new ArrayList<>();
-                lore.add("§7Guthaben: §a" + String.format("%.2f", balance) + " Coins");
-                if (bankNum == activeSlot) lore.add("§7(Aktiv)");
-                else lore.add("§7Klicken zum Aktivieren");
-                inv.setItem(guiSlot, makeItem(Material.BLUE_STAINED_GLASS, "§9Bank " + bankNum, lore));
-            } else {
-                inv.setItem(guiSlot, makeItem(Material.RED_STAINED_GLASS,
-                        "§cBank " + bankNum + " §7[Gesperrt]",
-                        Arrays.asList(
-                                "§7Freischalten für §6250.000 Coins",
-                                "§7Klicken zum Freischalten"
-                        )));
-            }
+        // Row 0 (slots 0-8): banks in this page — up to 8 per row with Zinsen at slot 4
+        // For page 1: slots 0,1,2,3 | Zinsen=4 | slots 5,6,7,8  → up to 8 banks
+        // We lay banks in slots: 0,1,2,3,5,6,7,8 (skip slot 4 for Zinsen on page 1)
+        int[] bankGuiSlots = page == 1
+                ? new int[]{0, 1, 2, 3, 5, 6, 7, 8, 9, 10}   // 10 slots available
+                : new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};    // all 10 for page 2
+
+        int slotIdx = 0;
+        for (int bankNum = startBank; bankNum <= endBank && slotIdx < bankGuiSlots.length; bankNum++, slotIdx++) {
+            int guiSlot = bankGuiSlots[slotIdx];
+            renderBank(inv, uuid, bm, bankNum, guiSlot, activeSlot);
         }
 
-        // --- Bank 5 shown separately at slot 9 (second row, leftmost) ---
-        {
-            int bankNum = 5;
-            boolean unlocked = bm.isBankUnlocked(uuid, bankNum);
-            double balance = bm.getBankBalance(uuid, bankNum);
-            if (unlocked) {
-                List<String> lore = new ArrayList<>();
-                lore.add("§7Guthaben: §a" + String.format("%.2f", balance) + " Coins");
-                if (bankNum == activeSlot) lore.add("§7(Aktiv)");
-                else lore.add("§7Klicken zum Aktivieren");
-                inv.setItem(9, makeItem(Material.BLUE_STAINED_GLASS, "§9Bank 5", lore));
-            } else {
-                inv.setItem(9, makeItem(Material.RED_STAINED_GLASS,
-                        "§cBank 5 §7[Gesperrt]",
-                        Arrays.asList(
-                                "§7Freischalten für §6250.000 Coins",
-                                "§7Klicken zum Freischalten"
-                        )));
-            }
+        // Zinsen-Konto (page 1 only, slot 4)
+        if (page == 1) {
+            double zinsenBalance = bm.getZinsen(uuid);
+            inv.setItem(ZINSEN_SLOT, makeItem(Material.GOLD_BLOCK,
+                    "§6§lZinsen-Konto",
+                    Arrays.asList(
+                            "§7Gesammelte Zinsen: §6" + fmt(zinsenBalance) + " Coins",
+                            "§aLinksklick: Abholen"
+                    )));
         }
 
-        // --- Slot 4 (centre of top row): Zinsen-Konto ---
-        double zinsenBalance = bm.getZinsen(uuid);
-        inv.setItem(ZINSEN_SLOT, makeItem(Material.GOLD_BLOCK,
-                "§6§lZinsen-Konto",
+        // Markt-Bank (always shown, slot 13 on page 1 / slot 13 on page 2)
+        double marktBal = bm.getMarktBalance(uuid);
+        inv.setItem(13, makeItem(Material.ORANGE_STAINED_GLASS,
+                "§6§l🏪 Markt-Bank",
                 Arrays.asList(
-                        "§7Gesammelte Zinsen: §6" + String.format("%.2f", zinsenBalance) + " Coins",
-                        "§aLinksklick: Abholen"
+                        "§7Einnahmen aus §6/markt §7Verkäufen",
+                        "§7Guthaben: §a" + fmt(marktBal) + " Coins",
+                        "",
+                        "§aLinksklick: Auf aktive Bank übertragen"
                 )));
 
-        // --- Slot 22: Einzahlen ---
+        // Einzahlen / Auszahlen (row 3)
         inv.setItem(22, makeItem(Material.EMERALD_BLOCK, "§6Einzahlen",
                 Arrays.asList("§7Linksklick: Betrag eingeben")));
-
-        // --- Slot 23: Auszahlen ---
         inv.setItem(23, makeItem(Material.RED_CONCRETE, "§cAuszahlen",
                 Arrays.asList("§7Linksklick: Betrag eingeben")));
 
-        // --- Slot 40: Konto-Übersicht ---
+        // Overview (slot 40)
         List<String> overviewLore = new ArrayList<>();
         double total = 0;
-        for (int i = 1; i <= BankManager.MAX_BANKS; i++) {
+        for (int i = 1; i <= maxBanks; i++) {
             if (bm.isBankUnlocked(uuid, i)) {
                 double b = bm.getBankBalance(uuid, i);
                 total += b;
-                overviewLore.add("§7Bank " + i + ": §a" + String.format("%.2f", b) + " Coins"
-                        + (i == activeSlot ? " §e(Aktiv)" : ""));
+                overviewLore.add("§7Bank " + i + ": §a" + fmt(b) + (i == activeSlot ? " §e(Aktiv)" : ""));
             } else {
                 overviewLore.add("§7Bank " + i + ": §8[Gesperrt]");
             }
         }
-        overviewLore.add("§7Zinsen-Konto: §6" + String.format("%.2f", zinsenBalance) + " Coins");
-        overviewLore.add("§7Gesamt (Banken): §a" + String.format("%.2f", total) + " Coins");
+        overviewLore.add("§7Zinsen-Konto: §6" + fmt(bm.getZinsen(uuid)));
+        overviewLore.add("§7Markt-Bank: §6" + fmt(bm.getMarktBalance(uuid)));
+        overviewLore.add("§7Gesamt: §a" + fmt(total));
         inv.setItem(40, makeItem(Material.PAPER, "§eKonto-Übersicht", overviewLore));
 
-        // --- Slot 49: Schließen ---
-        inv.setItem(49, makeItem(Material.BARRIER, "§cSchließen",
-                Arrays.asList("§7Klicken zum Schließen")));
+        // Page navigation for admin
+        if (maxBanks > 5) {
+            if (page > 1) {
+                inv.setItem(45, makeItem(Material.ARROW, "§7◀ Seite 1", null));
+            }
+            if (endBank < maxBanks) {
+                inv.setItem(53, makeItem(Material.ARROW, "§7Seite 2 ▶", null));
+            }
+        }
+
+        // Close button
+        inv.setItem(49, makeItem(Material.BARRIER, "§cSchließen", null));
 
         player.openInventory(inv);
     }
 
-    // -------------------------------------------------------------------------
+    private void renderBank(Inventory inv, UUID uuid, BankManager bm, int bankNum, int guiSlot, int activeSlot) {
+        boolean unlocked = bm.isBankUnlocked(uuid, bankNum);
+        double balance   = bm.getBankBalance(uuid, bankNum);
+
+        if (unlocked) {
+            List<String> lore = new ArrayList<>();
+            lore.add("§7Guthaben: §a" + fmt(balance) + " Coins");
+            lore.add(bankNum == activeSlot ? "§e(Aktiv)" : "§7Klicken zum Aktivieren");
+            inv.setItem(guiSlot, makeItem(Material.BLUE_STAINED_GLASS, "§9Bank " + bankNum, lore));
+        } else {
+            inv.setItem(guiSlot, makeItem(Material.RED_STAINED_GLASS,
+                    "§cBank " + bankNum + " §7[Gesperrt]",
+                    Arrays.asList("§7Freischalten für §6250.000 Coins", "§7Klicken zum Freischalten")));
+        }
+    }
+
+    private String fmt(double v) {
+        return String.format("%.2f", v);
+    }
 
     private ItemStack makeItem(Material material, String name, List<String> lore) {
         ItemStack item = new ItemStack(material);

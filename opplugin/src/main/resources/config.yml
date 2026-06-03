@@ -951,88 +951,289 @@ crates:
   common:
     rewards:
       - type: COINS
+        amount: 100
+        weight: 20
+        display: "§7100 Coins"
+        display-material: IRON_NUGGET
+      - type: COINS
+        amount: 250
+        weight: 18
+        display: "§7250 Coins"
+        display-material: IRON_INGOT
+      - type: COINS
         amount: 500
-        weight: 40
+        weight: 15
         display: "§e500 Coins"
         display-material: GOLD_NUGGET
       - type: COINS
         amount: 1000
-        weight: 25
+        weight: 12
         display: "§e1.000 Coins"
         display-material: GOLD_INGOT
+      - type: COINS
+        amount: 2500
+        weight: 8
+        display: "§e2.500 Coins"
+        display-material: GOLD_BLOCK
+      - type: CRYSTALS
+        amount: 1
+        weight: 10
+        display: "§b1 Kristall"
+        display-material: PRISMARINE_CRYSTALS
+      - type: CRYSTALS
+        amount: 3
+        weight: 7
+        display: "§b3 Kristalle"
+        display-material: PRISMARINE_SHARD
       - type: CRYSTALS
         amount: 5
-        weight: 20
+        weight: 4
         display: "§b5 Kristalle"
-        display-material: PRISMARINE_CRYSTALS
-      - type: COINS
-        amount: 100
-        weight: 15
-        display: "§7100 Coins §8(Pech)"
-        display-material: IRON_NUGGET
+        display-material: HEART_OF_THE_SEA
+      - type: ITEM
+        material: GOLDEN_APPLE
+        amount: 3
+        weight: 4
+        display: "§63x Goldener Apfel"
+        display-material: GOLDEN_APPLE
+      - type: ITEM
+        material: EXPERIENCE_BOTTLE
+        amount: 16
+        weight: 2
+        display: "§516x Erfahrungsflasche"
+        display-material: EXPERIENCE_BOTTLE
   rare:
     rewards:
       - type: COINS
+        amount: 1000
+        weight: 18
+        display: "§71.000 Coins"
+        display-material: IRON_BLOCK
+      - type: COINS
+        amount: 3000
+        weight: 15
+        display: "§e3.000 Coins"
+        display-material: GOLD_INGOT
+      - type: COINS
         amount: 5000
-        weight: 35
+        weight: 13
         display: "§e5.000 Coins"
         display-material: GOLD_BLOCK
-      - type: CRYSTALS
-        amount: 25
-        weight: 30
-        display: "§b25 Kristalle"
-        display-material: PRISMARINE_CRYSTALS
       - type: COINS
         amount: 10000
-        weight: 20
+        weight: 9
         display: "§610.000 Coins"
         display-material: EMERALD
       - type: COINS
-        amount: 500
-        weight: 15
-        display: "§7500 Coins §8(Pech)"
-        display-material: IRON_INGOT
+        amount: 20000
+        weight: 5
+        display: "§620.000 Coins"
+        display-material: EMERALD_BLOCK
+      - type: CRYSTALS
+        amount: 5
+        weight: 12
+        display: "§b5 Kristalle"
+        display-material: PRISMARINE_CRYSTALS
+      - type: CRYSTALS
+        amount: 15
+        weight: 8
+        display: "§b15 Kristalle"
+        display-material: PRISMARINE_SHARD
+      - type: CRYSTALS
+        amount: 30
+        weight: 4
+        display: "§b30 Kristalle"
+        display-material: HEART_OF_THE_SEA
+      - type: ITEM
+        material: ENCHANTED_GOLDEN_APPLE
+        amount: 1
+        weight: 5
+        display: "§61x Verzauberter Apfel"
+        display-material: ENCHANTED_GOLDEN_APPLE
+      - type: ITEM
+        material: DIAMOND
+        amount: 5
+        weight: 6
+        display: "§b5x Diamant"
+        display-material: DIAMOND
+      - type: ITEM
+        material: NETHERITE_SCRAP
+        amount: 2
+        weight: 3
+        display: "§82x Netherite-Schrott"
+        display-material: NETHERITE_SCRAP
+      - type: ITEM
+        material: TOTEM_OF_UNDYING
+        amount: 1
+        weight: 2
+        display: "§61x Totem der Unsterblichkeit"
+        display-material: TOTEM_OF_UNDYING
   epic:
     rewards:
       - type: COINS
-        amount: 25000
-        weight: 30
-        display: "§e25.000 Coins"
-        display-material: EMERALD_BLOCK
-      - type: CRYSTALS
-        amount: 100
-        weight: 30
-        display: "§b100 Kristalle"
-        display-material: PRISMARINE_CRYSTALS
+        amount: 5000
+        weight: 16
+        display: "§75.000 Coins"
+        display-material: IRON_BLOCK
+      - type: COINS
+        amount: 15000
+        weight: 13
+        display: "§e15.000 Coins"
+        display-material: GOLD_BLOCK
+      - type: COINS
+        amount: 30000
+        weight: 10
+        display: "§e30.000 Coins"
+        display-material: EMERALD
       - type: COINS
         amount: 50000
-        weight: 20
+        weight: 7
         display: "§650.000 Coins"
-        display-material: DIAMOND
+        display-material: EMERALD_BLOCK
       - type: COINS
-        amount: 5000
-        weight: 20
-        display: "§75.000 Coins §8(Pech)"
-        display-material: IRON_BLOCK
+        amount: 100000
+        weight: 3
+        display: "§6100.000 Coins §l★"
+        display-material: DIAMOND_BLOCK
+      - type: CRYSTALS
+        amount: 20
+        weight: 12
+        display: "§b20 Kristalle"
+        display-material: PRISMARINE_CRYSTALS
+      - type: CRYSTALS
+        amount: 50
+        weight: 8
+        display: "§b50 Kristalle"
+        display-material: HEART_OF_THE_SEA
+      - type: CRYSTALS
+        amount: 100
+        weight: 4
+        display: "§b100 Kristalle §l★"
+        display-material: CONDUIT
+      - type: ITEM
+        material: ENCHANTED_GOLDEN_APPLE
+        amount: 3
+        weight: 6
+        display: "§63x Verzauberter Apfel"
+        display-material: ENCHANTED_GOLDEN_APPLE
+      - type: ITEM
+        material: NETHERITE_INGOT
+        amount: 2
+        weight: 5
+        display: "§82x Netherite-Barren"
+        display-material: NETHERITE_INGOT
+      - type: ITEM
+        material: ELYTRA
+        amount: 1
+        weight: 4
+        display: "§51x Elytra"
+        display-material: ELYTRA
+      - type: CUSTOM_ITEM
+        custom-item-id: GOD_SWORD
+        amount: 1
+        weight: 5
+        display: "§c§lGod Sword"
+        display-material: DIAMOND_SWORD
+      - type: CUSTOM_ITEM
+        custom-item-id: GOD_PICKAXE
+        amount: 1
+        weight: 5
+        display: "§a§lGod Pickaxe"
+        display-material: DIAMOND_PICKAXE
+      - type: ITEM
+        material: BEACON
+        amount: 1
+        weight: 2
+        display: "§e1x Leuchtfeuer"
+        display-material: BEACON
   legendary:
     rewards:
       - type: COINS
+        amount: 10000
+        weight: 14
+        display: "§710.000 Coins"
+        display-material: IRON_BLOCK
+      - type: COINS
+        amount: 50000
+        weight: 11
+        display: "§e50.000 Coins"
+        display-material: GOLD_BLOCK
+      - type: COINS
         amount: 100000
-        weight: 25
+        weight: 8
         display: "§6100.000 Coins"
-        display-material: DIAMOND_BLOCK
-      - type: CRYSTALS
-        amount: 500
-        weight: 25
-        display: "§b500 Kristalle"
-        display-material: PRISMARINE_CRYSTALS
+        display-material: EMERALD_BLOCK
       - type: COINS
         amount: 250000
-        weight: 20
+        weight: 5
         display: "§c250.000 Coins §l★"
-        display-material: NETHERITE_INGOT
+        display-material: DIAMOND_BLOCK
       - type: COINS
-        amount: 10000
-        weight: 30
-        display: "§710.000 Coins §8(Pech)"
+        amount: 500000
+        weight: 2
+        display: "§4§l500.000 Coins §l★★"
+        display-material: NETHERITE_BLOCK
+      - type: CRYSTALS
+        amount: 50
+        weight: 10
+        display: "§b50 Kristalle"
+        display-material: PRISMARINE_CRYSTALS
+      - type: CRYSTALS
+        amount: 150
+        weight: 7
+        display: "§b150 Kristalle §l★"
+        display-material: HEART_OF_THE_SEA
+      - type: CRYSTALS
+        amount: 500
+        weight: 3
+        display: "§3§l500 Kristalle §l★★"
+        display-material: CONDUIT
+      - type: ITEM
+        material: ENCHANTED_GOLDEN_APPLE
+        amount: 8
+        weight: 6
+        display: "§68x Verzauberter Apfel"
+        display-material: ENCHANTED_GOLDEN_APPLE
+      - type: ITEM
+        material: NETHERITE_INGOT
+        amount: 5
+        weight: 5
+        display: "§85x Netherite-Barren"
+        display-material: NETHERITE_INGOT
+      - type: CUSTOM_ITEM
+        custom-item-id: SHADOW_BLADE
+        amount: 1
+        weight: 5
+        display: "§8§lSchattenschwert"
+        display-material: NETHERITE_SWORD
+      - type: CUSTOM_ITEM
+        custom-item-id: DRAGON_SWORD
+        amount: 1
+        weight: 4
+        display: "§4§lDrachenschwert"
+        display-material: NETHERITE_SWORD
+      - type: CUSTOM_ITEM
+        custom-item-id: INFERNO_BLADE
+        amount: 1
+        weight: 4
+        display: "§6§lHöllenschwert"
+        display-material: NETHERITE_SWORD
+      - type: CUSTOM_ITEM
+        custom-item-id: MINING_KING
+        amount: 1
+        weight: 4
+        display: "§6§lMining King"
+        display-material: NETHERITE_PICKAXE
+      - type: ITEM
+        material: DRAGON_EGG
+        amount: 1
+        weight: 3
+        display: "§5§l1x Drachenei"
+        display-material: DRAGON_EGG
+      - type: CUSTOM_ITEM
+        custom-item-id: WAENDEZERSTOERER
+        amount: 1
+        weight: 1
+        display: "§4§l⚡ WÄNDEZERSTÖRER §4§l★★★"
+        display-material: NETHERITE_PICKAXE
         display-material: GOLD_BLOCK

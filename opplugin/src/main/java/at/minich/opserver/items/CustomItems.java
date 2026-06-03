@@ -84,6 +84,7 @@ public enum CustomItems {
     LUCKY_TOTEM("§6§lGlückstotem", Material.TOTEM_OF_UNDYING),
     HEALING_WAND("§a§lHeilstab", Material.BLAZE_ROD),
     XP_BOTTLE_STACK("§5§lXP-Paket", Material.EXPERIENCE_BOTTLE),
+    WAENDEZERSTOERER("§4§l⚡ Wändezerstörer", Material.NETHERITE_PICKAXE),
 
     // -------------------------------------------------------------------------
     // Starter kit items
@@ -293,6 +294,19 @@ public enum CustomItems {
             case LUCKY_TOTEM -> setLore(item, "§7Schützt dich vor dem Tod");
             case HEALING_WAND -> setLore(item, "§7/heal um dich zu heilen");
             case XP_BOTTLE_STACK -> setLore(item, "§7Massenhaft Erfahrung");
+            case WAENDEZERSTOERER -> {
+                applyVanillaEnchant(item, Enchantment.EFFICIENCY, 10);
+                applyVanillaEnchant(item, Enchantment.FORTUNE, 3);
+                applyVanillaEnchant(item, Enchantment.UNBREAKING, 10);
+                item = em.setEnchant(item, CustomEnchant.VEINMINER, 5);
+                setLore(item,
+                    "§7Baut eine §c7x7 §7Fläche ab (§6/mining 7§7)",
+                    "§7Effizienz X | Glück III | Haltbarkeit X",
+                    "§7Veinminer V",
+                    "",
+                    "§cHauptgewinn der §6Legendären Kiste§c!"
+                );
+            }
 
             // -----------------------------------------------------------------
             // Starter kit

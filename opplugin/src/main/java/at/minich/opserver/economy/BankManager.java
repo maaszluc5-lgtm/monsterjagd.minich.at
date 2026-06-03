@@ -124,6 +124,19 @@ public class BankManager {
         marktBalance.merge(uuid, amount, Double::sum);
     }
 
+    /**
+     * Withdraws (subtracts) from the markt balance without transferring to a bank.
+     * Used by ChestShop to pay a buyer when they sell an item back to the shop.
+     * Returns true if the balance was sufficient and the withdrawal succeeded.
+     */
+    public boolean withdrawMarktBalance(UUID uuid, double amount) {
+        initPlayer(uuid);
+        double current = marktBalance.getOrDefault(uuid, 0.0);
+        if (current < amount) return false;
+        marktBalance.put(uuid, current - amount);
+        return true;
+    }
+
     /** Transfers markt balance to the player's active bank. Returns amount transferred. */
     public double collectMarktBalance(UUID uuid) {
         initPlayer(uuid);

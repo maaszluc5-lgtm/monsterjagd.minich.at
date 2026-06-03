@@ -1,5 +1,7 @@
 package at.minich.opserver;
 
+import at.minich.opserver.chestshop.ChestShopListener;
+import at.minich.opserver.chestshop.ChestShopManager;
 import at.minich.opserver.ah.AuctionGUI;
 import at.minich.opserver.ah.AuctionGUIListener;
 import at.minich.opserver.ah.AuctionManager;
@@ -77,6 +79,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private MarktManager marktManager;
     private AuctionManager auctionManager;
     private ClanManager clanManager;
+    private ChestShopManager chestShopManager;
     private JackpotTask jackpotTask;
 
     // Track login times to compute playtime on quit
@@ -123,6 +126,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         marktManager = new MarktManager(this);
         auctionManager = new AuctionManager(this);
         clanManager = new ClanManager(this);
+        chestShopManager = new ChestShopManager(this);
 
         // Register Vault economy
         registerVaultEconomy();
@@ -150,6 +154,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
         // Clan chat listener
         getServer().getPluginManager().registerEvents(new ClanChatListener(clanManager), this);
+
+        // Chest shops
+        getServer().getPluginManager().registerEvents(new ChestShopListener(this, chestShopManager), this);
 
         BankGUI bankGUI = new BankGUI(this);
         getServer().getPluginManager().registerEvents(new BankGUIListener(this, bankGUI), this);
@@ -284,6 +291,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         if (economyManager != null) economyManager.save();
         if (bankManager != null) bankManager.save();
         if (clanManager != null) clanManager.save();
+        if (chestShopManager != null) chestShopManager.save();
         savePlayerData();
         getLogger().info("OpServer plugin disabled. Data saved.");
     }
@@ -446,6 +454,10 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public ClanManager getClanManager() {
         return clanManager;
+    }
+
+    public ChestShopManager getChestShopManager() {
+        return chestShopManager;
     }
 
     public JackpotTask getJackpotTask() {

@@ -135,6 +135,17 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
         getServer().getPluginManager().registerEvents(new TrashListener(this), this);
 
+        // Duel listener (shared state with DuelCommand)
+        DuelListener duelListener = new DuelListener(this);
+        getServer().getPluginManager().registerEvents(duelListener, this);
+
+        // Trade GUI listener
+        java.util.Map<java.util.UUID, TradeGUI> activeTrades = new java.util.HashMap<>();
+        getServer().getPluginManager().registerEvents(new TradeGUIListener(this, activeTrades), this);
+
+        // Clan chat listener
+        getServer().getPluginManager().registerEvents(new ClanChatListener(clanManager), this);
+
         BankGUI bankGUI = new BankGUI(this);
         getServer().getPluginManager().registerEvents(new BankGUIListener(this, bankGUI), this);
 
@@ -229,6 +240,24 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("msg").setExecutor(msgCommand);
         getCommand("r").setExecutor(new ReplyCommand(this));
 
+        // Fun/social commands
+        getCommand("cf").setExecutor(new CfCommand(this));
+
+        jackpotTask = new JackpotTask(this);
+        jackpotTask.runTaskTimer(this, 20L * 60 * 5, 20L * 60 * 5); // every 5 minutes
+        getCommand("jackpot").setExecutor(new JackpotCommand(this, jackpotTask));
+
+        getCommand("duel").setExecutor(new DuelCommand(this, duelListener));
+
+        getCommand("trade").setExecutor(new TradeCommand(this, activeTrades));
+
+        getCommand("report").setExecutor(new ReportCommand(this));
+        getCommand("helpop").setExecutor(new HelpopCommand(this));
+
+        ClanCommand clanCommand = new ClanCommand(this, clanManager);
+        getCommand("clan").setExecutor(clanCommand);
+        getCommand("cc").setExecutor(clanCommand);
+
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);
         new SalaryTask(economyManager, rankManager, dataManager, coinsPerMinute)
@@ -248,6 +277,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     public void onDisable() {
         if (economyManager != null) economyManager.save();
         if (bankManager != null) bankManager.save();
+        if (clanManager != null) clanManager.save();
         savePlayerData();
         getLogger().info("OpServer plugin disabled. Data saved.");
     }
@@ -406,6 +436,14 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public AuctionManager getAuctionManager() {
         return auctionManager;
+    }
+
+    public ClanManager getClanManager() {
+        return clanManager;
+    }
+
+    public JackpotTask getJackpotTask() {
+        return jackpotTask;
     }
 
     // -------------------------------------------------------------------------

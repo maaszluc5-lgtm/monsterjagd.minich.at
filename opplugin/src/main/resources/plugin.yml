@@ -215,6 +215,18 @@ commands:
     description: Schreibe im Clan-Chat.
     usage: /cc <message>
     aliases: [clanchat]
+  kristalle:
+    description: Zeigt dein Kristall-Guthaben.
+    usage: /kristalle [player]
+    aliases: [crystals, kr]
+  givekristalle:
+    description: Gibt einem Spieler Kristalle.
+    usage: /givekristalle <player> <amount>
+    permission: opserver.admin
+  givecrate:
+    description: Gibt einem Spieler eine Loot-Kiste.
+    usage: /givecrate <player> <type> [amount]
+    permission: opserver.admin
 
 permissions:
   opserver.giveitem:

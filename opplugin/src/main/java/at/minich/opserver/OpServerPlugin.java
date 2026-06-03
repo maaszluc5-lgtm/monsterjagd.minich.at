@@ -2,6 +2,12 @@ package at.minich.opserver;
 
 import at.minich.opserver.chestshop.ChestShopListener;
 import at.minich.opserver.chestshop.ChestShopManager;
+import at.minich.opserver.commands.CrystalsCommand;
+import at.minich.opserver.commands.GiveCrateCommand;
+import at.minich.opserver.commands.GiveCrystalsCommand;
+import at.minich.opserver.crates.CrateListener;
+import at.minich.opserver.crates.CrateManager;
+import at.minich.opserver.currency.CrystalManager;
 import at.minich.opserver.ah.AuctionGUI;
 import at.minich.opserver.ah.AuctionGUIListener;
 import at.minich.opserver.ah.AuctionManager;
@@ -81,6 +87,8 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private ClanManager clanManager;
     private ChestShopManager chestShopManager;
     private JackpotTask jackpotTask;
+    private CrystalManager crystalManager;
+    private CrateManager crateManager;
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
@@ -127,6 +135,8 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         auctionManager = new AuctionManager(this);
         clanManager = new ClanManager(this);
         chestShopManager = new ChestShopManager(this);
+        crystalManager = new CrystalManager(this);
+        crateManager = new CrateManager(this);
 
         // Register Vault economy
         registerVaultEconomy();
@@ -157,6 +167,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
         // Chest shops
         getServer().getPluginManager().registerEvents(new ChestShopListener(this, chestShopManager), this);
+        getServer().getPluginManager().registerEvents(new CrateListener(this), this);
 
         BankGUI bankGUI = new BankGUI(this);
         getServer().getPluginManager().registerEvents(new BankGUIListener(this, bankGUI), this);
@@ -270,6 +281,10 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         ClanCommand clanCommand = new ClanCommand(this, clanManager);
         getCommand("clan").setExecutor(clanCommand);
         getCommand("cc").setExecutor(clanCommand);
+
+        getCommand("kristalle").setExecutor(new CrystalsCommand(this));
+        getCommand("givekristalle").setExecutor(new GiveCrystalsCommand(this));
+        getCommand("givecrate").setExecutor(new GiveCrateCommand(this));
 
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);
@@ -462,6 +477,14 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public JackpotTask getJackpotTask() {
         return jackpotTask;
+    }
+
+    public CrystalManager getCrystalManager() {
+        return crystalManager;
+    }
+
+    public CrateManager getCrateManager() {
+        return crateManager;
     }
 
     // -------------------------------------------------------------------------

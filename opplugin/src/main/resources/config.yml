@@ -943,3 +943,96 @@ jobs:
           - GOD_SWORD
           - GOD_ARMOR_SET
         message: "§e§l<player> ist der ultimative Baumeister!"
+
+# ---------------------------------------------------------------------------
+# Loot Crates
+# ---------------------------------------------------------------------------
+crates:
+  common:
+    rewards:
+      - type: COINS
+        amount: 500
+        weight: 40
+        display: "§e500 Coins"
+        display-material: GOLD_NUGGET
+      - type: COINS
+        amount: 1000
+        weight: 25
+        display: "§e1.000 Coins"
+        display-material: GOLD_INGOT
+      - type: CRYSTALS
+        amount: 5
+        weight: 20
+        display: "§b5 Kristalle"
+        display-material: PRISMARINE_CRYSTALS
+      - type: COINS
+        amount: 100
+        weight: 15
+        display: "§7100 Coins §8(Pech)"
+        display-material: IRON_NUGGET
+  rare:
+    rewards:
+      - type: COINS
+        amount: 5000
+        weight: 35
+        display: "§e5.000 Coins"
+        display-material: GOLD_BLOCK
+      - type: CRYSTALS
+        amount: 25
+        weight: 30
+        display: "§b25 Kristalle"
+        display-material: PRISMARINE_CRYSTALS
+      - type: COINS
+        amount: 10000
+        weight: 20
+        display: "§610.000 Coins"
+        display-material: EMERALD
+      - type: COINS
+        amount: 500
+        weight: 15
+        display: "§7500 Coins §8(Pech)"
+        display-material: IRON_INGOT
+  epic:
+    rewards:
+      - type: COINS
+        amount: 25000
+        weight: 30
+        display: "§e25.000 Coins"
+        display-material: EMERALD_BLOCK
+      - type: CRYSTALS
+        amount: 100
+        weight: 30
+        display: "§b100 Kristalle"
+        display-material: PRISMARINE_CRYSTALS
+      - type: COINS
+        amount: 50000
+        weight: 20
+        display: "§650.000 Coins"
+        display-material: DIAMOND
+      - type: COINS
+        amount: 5000
+        weight: 20
+        display: "§75.000 Coins §8(Pech)"
+        display-material: IRON_BLOCK
+  legendary:
+    rewards:
+      - type: COINS
+        amount: 100000
+        weight: 25
+        display: "§6100.000 Coins"
+        display-material: DIAMOND_BLOCK
+      - type: CRYSTALS
+        amount: 500
+        weight: 25
+        display: "§b500 Kristalle"
+        display-material: PRISMARINE_CRYSTALS
+      - type: COINS
+        amount: 250000
+        weight: 20
+        display: "§c250.000 Coins §l★"
+        display-material: NETHERITE_INGOT
+      - type: COINS
+        amount: 10000
+        weight: 30
+        display: "§710.000 Coins §8(Pech)"
+        display-material: GOLD_BLOCK

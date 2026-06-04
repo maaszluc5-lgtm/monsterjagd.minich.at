@@ -215,8 +215,4 @@ public class RankManager {
         }
         return 0;
     }
-
-    public List<RankInfo> getRanks() {
-        return Collections.unmodifiableList(ranks);
-    }
 }

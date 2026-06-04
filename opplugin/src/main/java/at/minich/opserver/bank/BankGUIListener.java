@@ -37,7 +37,7 @@ public class BankGUIListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         Inventory inv = event.getInventory();
-        String title = inv.getTitle();
+        String title = event.getView().getTitle();
         boolean isPage1 = BankGUI.GUI_TITLE.equals(title);
         boolean isPage2 = BankGUI.GUI_TITLE_P2.equals(title);
         if (!isPage1 && !isPage2) return;

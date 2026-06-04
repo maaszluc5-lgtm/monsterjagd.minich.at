@@ -14,7 +14,7 @@ public class TrophyGUIListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         Inventory inv = event.getInventory();
         if (inv.getHolder() != null) return; // has a holder — not our GUI
-        if (inv.getView().getTitle().startsWith("§6§lPokale von ")) {
+        if (event.getView().getTitle().startsWith("§6§lPokale von ")) {
             event.setCancelled(true);
 
             // Close on barrier click

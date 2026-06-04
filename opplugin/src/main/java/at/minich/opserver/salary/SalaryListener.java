@@ -21,7 +21,7 @@ public class SalaryListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         Inventory inv = event.getInventory();
-        if (!GUI_TITLE.equals(inv.getTitle())) return;
+        if (!GUI_TITLE.equals(event.getView().getTitle())) return;
 
         event.setCancelled(true);
 

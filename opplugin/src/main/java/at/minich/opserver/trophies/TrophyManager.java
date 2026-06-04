@@ -181,7 +181,7 @@ public class TrophyManager {
         meta.setLore(lore);
 
         // Glow via LUCK enchant
-        meta.addEnchant(Enchantment.LUCK, 1, true);
+        meta.addEnchant(Enchantment.UNBREAKING, 1, true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 
         // Store trophy data in PDC

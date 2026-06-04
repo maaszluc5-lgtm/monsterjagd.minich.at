@@ -38,9 +38,9 @@ public class CrateManager {
                 if (!(obj instanceof Map<?, ?> map)) continue;
                 try {
                     String rewardType = (String) map.get("type");
-                    int weight = (int) map.getOrDefault("weight", 10);
-                    String display = (String) map.getOrDefault("display", "Reward");
-                    Material displayMat = parseMaterial((String) map.getOrDefault("display-material", "PAPER"));
+                    int weight = toInt(map.getOrDefault("weight", 10));
+                    String display = String.valueOf(map.getOrDefault("display", "Reward"));
+                    Material displayMat = parseMaterial(String.valueOf(map.getOrDefault("display-material", "PAPER")));
 
                     CrateReward reward = switch (rewardType.toUpperCase()) {
                         case "COINS" -> {
@@ -57,7 +57,10 @@ public class CrateManager {
                             yield new CrateReward(mat, amount, weight, display, displayMat);
                         }
                         case "CUSTOM_ITEM" -> {
-                            String id = (String) map.get("id");
+                            // support both "id" and "custom-item-id" keys
+                            String id = map.containsKey("custom-item-id")
+                                    ? (String) map.get("custom-item-id")
+                                    : (String) map.get("id");
                             yield new CrateReward(id, weight, display, displayMat);
                         }
                         default -> null;
@@ -81,6 +84,11 @@ public class CrateManager {
     private long toLong(Object obj) {
         if (obj instanceof Number n) return n.longValue();
         return 0L;
+    }
+
+    private int toInt(Object obj) {
+        if (obj instanceof Number n) return n.intValue();
+        return 0;
     }
 
     /** Build a crate ItemStack for the given type with PDC tag. */

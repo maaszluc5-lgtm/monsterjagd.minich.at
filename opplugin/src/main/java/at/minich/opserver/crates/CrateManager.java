@@ -35,8 +35,10 @@ public class CrateManager {
             if (rewardList == null) continue;
 
             for (Object obj : rewardList) {
-                if (!(obj instanceof Map<?, ?> map)) continue;
+                if (!(obj instanceof Map<?, ?> mapRaw)) continue;
                 try {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> map = (Map<String, Object>) mapRaw;
                     String rewardType = (String) map.get("type");
                     int weight = toInt(map.getOrDefault("weight", 10));
                     String display = String.valueOf(map.getOrDefault("display", "Reward"));

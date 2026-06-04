@@ -42,29 +42,28 @@ public class CrateManager {
                     String display = String.valueOf(map.getOrDefault("display", "Reward"));
                     Material displayMat = parseMaterial(String.valueOf(map.getOrDefault("display-material", "PAPER")));
 
-                    CrateReward reward = switch (rewardType.toUpperCase()) {
+                    CrateReward reward = null;
+                    switch (rewardType.toUpperCase()) {
                         case "COINS" -> {
                             long amount = toLong(map.get("amount"));
-                            yield new CrateReward(CrateReward.RewardType.COINS, amount, weight, display, displayMat);
+                            reward = new CrateReward(CrateReward.RewardType.COINS, amount, weight, display, displayMat);
                         }
                         case "CRYSTALS" -> {
                             long amount = toLong(map.get("amount"));
-                            yield new CrateReward(CrateReward.RewardType.CRYSTALS, amount, weight, display, displayMat);
+                            reward = new CrateReward(CrateReward.RewardType.CRYSTALS, amount, weight, display, displayMat);
                         }
                         case "ITEM" -> {
-                            Material mat = parseMaterial((String) map.get("material"));
+                            Material mat = parseMaterial(String.valueOf(map.get("material")));
                             long amount = toLong(map.getOrDefault("amount", 1));
-                            yield new CrateReward(mat, amount, weight, display, displayMat);
+                            reward = new CrateReward(mat, amount, weight, display, displayMat);
                         }
                         case "CUSTOM_ITEM" -> {
-                            // support both "id" and "custom-item-id" keys
                             String id = map.containsKey("custom-item-id")
                                     ? (String) map.get("custom-item-id")
                                     : (String) map.get("id");
-                            yield new CrateReward(id, weight, display, displayMat);
+                            reward = new CrateReward(id, weight, display, displayMat);
                         }
-                        default -> null;
-                    };
+                    }
 
                     if (reward != null) list.add(reward);
                 } catch (Exception e) {

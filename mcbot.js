@@ -66,7 +66,7 @@ function connect() {
 
   bot.on('kicked', (reason) => {
     online = false;
-    log(`Bot wurde gekickt: ${reason}`);
+    log(`Bot wurde gekickt: ${JSON.stringify(reason)}`);
     emitter.emit('kicked', reason);
     scheduleReconnect();
   });

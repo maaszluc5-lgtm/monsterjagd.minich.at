@@ -105,10 +105,10 @@ function reconnect() {
 
 // watchdog: every 60s check if bot is connected, reconnect if not
 setInterval(() => {
-  if (!isOnline()) {
+  if (!isOnline() && !reconnectTimer) {
     log('Watchdog: Bot offline, reconnecte...');
     emitter.emit('watchdog_reconnect');
-    reconnect();
+    connect();
   }
 }, 60_000);
 

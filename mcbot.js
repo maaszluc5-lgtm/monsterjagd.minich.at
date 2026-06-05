@@ -85,7 +85,7 @@ function connect() {
   });
 }
 
-function scheduleReconnect(delay = 5000) {
+function scheduleReconnect(delay = 30000) {
   if (reconnectTimer) return;
   log(`Reconnect in ${delay / 1000}s...`);
   reconnectTimer = setTimeout(() => {

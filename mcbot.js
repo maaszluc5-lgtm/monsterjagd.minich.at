@@ -45,17 +45,15 @@ function connect() {
     username: process.env.MC_USERNAME,
     version: '1.21.4',
     auth: 'offline',
-    physicsEnabled: false,
   });
 
   bot.once('spawn', () => {
     online = true;
     log('Bot ist online');
     emitter.emit('online');
-    // Set spectator mode and prevent death
     setTimeout(() => {
-      try { bot.chat('/gamemode spectator'); } catch (_) {}
-    }, 1000);
+      try { bot.chat('/gamemode spectator @s'); } catch (_) {}
+    }, 2000);
   });
 
   bot.on('chat', (username, message) => {

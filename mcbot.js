@@ -43,9 +43,9 @@ function connect() {
     host: process.env.MC_HOST,
     port: parseInt(process.env.MC_PORT) || 25565,
     username: process.env.MC_USERNAME,
-    password: process.env.MC_PASSWORD || undefined,
     version: '1.21.4',
-    auth: process.env.MC_PASSWORD ? 'microsoft' : 'offline',
+    auth: 'offline',
+    physicsEnabled: false,
   });
 
   bot.once('spawn', () => {

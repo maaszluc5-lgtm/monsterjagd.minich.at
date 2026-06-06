@@ -288,3 +288,8 @@ function start() {
 }
 
 module.exports = { start };
+
+// Auto-start when run directly
+if (require.main === module) {
+  start();
+}

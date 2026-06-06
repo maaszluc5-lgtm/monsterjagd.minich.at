@@ -52,6 +52,10 @@ function connect() {
     online = true;
     log('Bot ist online');
     emitter.emit('online');
+    // Set spectator mode and prevent death
+    setTimeout(() => {
+      try { bot.chat('/gamemode spectator'); } catch (_) {}
+    }, 1000);
   });
 
   bot.on('chat', (username, message) => {

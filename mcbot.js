@@ -2,6 +2,10 @@ require('dotenv').config();
 const mineflayer = require('mineflayer');
 const { EventEmitter } = require('events');
 
+process.on('uncaughtException', (err) => {
+  console.error('[mcbot] Uncaught exception (ignored):', err.message);
+});
+
 const emitter = new EventEmitter();
 const MAX_LOGS = 200;
 const logs = [];
@@ -77,6 +81,7 @@ function connect() {
     online = false;
     log(`Bot Fehler: ${err.message}`);
     emitter.emit('error', err);
+    scheduleReconnect();
   });
 
   bot.on('end', (reason) => {

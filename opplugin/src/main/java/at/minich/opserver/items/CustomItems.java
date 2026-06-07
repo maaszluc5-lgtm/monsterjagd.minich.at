@@ -88,6 +88,7 @@ public enum CustomItems {
     MAGNET("§b§l🧲 Magnet", Material.COMPASS),
     BOHRER("§7§l⚙ Bohrer", Material.NETHERITE_PICKAXE),
     EFFICIENCY_PICKAXE("§e§l⛏ Effizienz-Spitzhacke", Material.NETHERITE_PICKAXE),
+    VIERDIMENSIONALE_KISTE("§6§l📦 4D-Kiste", Material.ENDER_CHEST),
 
     // -------------------------------------------------------------------------
     // Starter kit items
@@ -345,6 +346,10 @@ public enum CustomItems {
                     "§cEinzel-Block Abbau mit maximaler Geschwindigkeit"
                 );
             }
+            case VIERDIMENSIONALE_KISTE -> setLore(item,
+                "§7Öffne eine persönliche §654-Slot §7Truhe",
+                "§7Rechtsklick zum Öffnen"
+            );
 
             // -----------------------------------------------------------------
             // Starter kit

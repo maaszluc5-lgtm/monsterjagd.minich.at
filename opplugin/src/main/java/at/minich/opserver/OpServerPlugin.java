@@ -154,6 +154,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         AbilityItemListener abilityItemListener = new AbilityItemListener(this);
         getServer().getPluginManager().registerEvents(abilityItemListener, this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.MagnetListener(this), this);
+        getServer().getPluginManager().registerEvents(new at.minich.opserver.items.VierDKListener(this), this);
 
         // Duel listener (shared state with DuelCommand)
         DuelListener duelListener = new DuelListener(this);
@@ -286,6 +287,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("kristalle").setExecutor(new CrystalsCommand(this));
         getCommand("givekristalle").setExecutor(new GiveCrystalsCommand(this));
         getCommand("givecrate").setExecutor(new GiveCrateCommand(this));
+        getCommand("signieren").setExecutor(new at.minich.opserver.commands.SignierenCommand(this));
 
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);

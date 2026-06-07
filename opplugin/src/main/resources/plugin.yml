@@ -227,6 +227,9 @@ commands:
     description: Gibt einem Spieler eine Loot-Kiste.
     usage: /givecrate <player> <type> [amount]
     permission: opserver.admin
+  signieren:
+    description: Signiert das gehaltene Item mit einem Text.
+    usage: /signieren <text>
 
 permissions:
   opserver.giveitem:

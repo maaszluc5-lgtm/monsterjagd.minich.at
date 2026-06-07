@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,16 +127,19 @@ public class JobGUI {
     }
 
     private ItemStack makeStatsItem(UUID uuid, Job job, int level, long actions, long total) {
-        ItemStack item = new ItemStack(job.getIcon());
-        ItemMeta meta = item.getItemMeta();
+        Player p = Bukkit.getPlayer(uuid);
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) item.getItemMeta();
         if (meta == null) return item;
 
-        meta.setDisplayName("§6§lDein Beruf: " + job.getDisplayName());
+        if (p != null) meta.setOwningPlayer(p);
+        meta.setDisplayName("§6§l" + (p != null ? p.getName() : "Spieler"));
         List<String> lore = new ArrayList<>();
+        lore.add("§7Beruf: " + job.getDisplayName());
         lore.add("§7Level: §e" + level + " §8/ §e100");
         long required = level < 100 ? jobManager.getRequiredActions(level) : 0;
         if (level < 100) {
-            lore.add("§7Aktionen: §e" + actions + " §8/ §e" + required);
+            lore.add("§7Fortschritt: §e" + actions + " §8/ §e" + required);
             lore.add("§7" + buildProgressBar(actions, required));
         } else {
             lore.add("§a§lMAX LEVEL!");

@@ -35,6 +35,12 @@ public class MarktManager {
      * Charges a listing fee. Returns the listing ID on success, or null on failure (message sent).
      */
     public String createListing(Player seller, ItemStack item, int amount, double price) {
+        // Only OP can list items on the Markt
+        if (!seller.isOp()) {
+            seller.sendMessage("§cNur Admins dürfen Sachen im Markt einstellen!");
+            return null;
+        }
+
         UUID uuid = seller.getUniqueId();
 
         // Validate price bounds

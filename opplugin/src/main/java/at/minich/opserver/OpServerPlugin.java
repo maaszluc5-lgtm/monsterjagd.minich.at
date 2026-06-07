@@ -288,6 +288,10 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("givekristalle").setExecutor(new GiveCrystalsCommand(this));
         getCommand("givecrate").setExecutor(new GiveCrateCommand(this));
         getCommand("signieren").setExecutor(new at.minich.opserver.commands.SignierenCommand(this));
+        ItemEffektCommand itemEffektCmd = new at.minich.opserver.commands.ItemEffektCommand(this);
+        getCommand("itemeffekt").setExecutor(itemEffektCmd);
+        getCommand("itemeffekt").setTabCompleter(itemEffektCmd);
+        new at.minich.opserver.listeners.ItemEffektListener(this);
 
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);

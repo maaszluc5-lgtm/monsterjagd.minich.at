@@ -230,6 +230,9 @@ commands:
   signieren:
     description: Signiert das gehaltene Item mit einem Text.
     usage: /signieren <text>
+  itemeffekt:
+    description: Gibt einem Item einen passiven Effekt.
+    usage: /itemeffekt <effekt> <stufe> [hand|offhand|both]
 
 permissions:
   opserver.giveitem:

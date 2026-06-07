@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  */
 public class ItemEffektCommand implements CommandExecutor, TabCompleter {
 
-    static final String PDC_KEY_PREFIX = "item_effect_";
+    public static final String PDC_KEY_PREFIX = "item_effect_";
     private final JavaPlugin plugin;
     private final NamespacedKey slotKey;
 

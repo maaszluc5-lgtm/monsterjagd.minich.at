@@ -153,6 +153,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
         AbilityItemListener abilityItemListener = new AbilityItemListener(this);
         getServer().getPluginManager().registerEvents(abilityItemListener, this);
+        getServer().getPluginManager().registerEvents(new at.minich.opserver.items.MagnetListener(this), this);
 
         // Duel listener (shared state with DuelCommand)
         DuelListener duelListener = new DuelListener(this);

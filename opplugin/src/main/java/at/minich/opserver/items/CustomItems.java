@@ -85,6 +85,9 @@ public enum CustomItems {
     HEALING_WAND("§a§lHeilstab", Material.BLAZE_ROD),
     XP_BOTTLE_STACK("§5§lXP-Paket", Material.EXPERIENCE_BOTTLE),
     WAENDEZERSTOERER("§4§l⚡ Wändezerstörer", Material.NETHERITE_PICKAXE),
+    MAGNET("§b§l🧲 Magnet", Material.COMPASS),
+    BOHRER("§7§l⚙ Bohrer", Material.NETHERITE_PICKAXE),
+    EFFICIENCY_PICKAXE("§e§l⛏ Effizienz-Spitzhacke", Material.NETHERITE_PICKAXE),
 
     // -------------------------------------------------------------------------
     // Starter kit items
@@ -306,6 +309,40 @@ public enum CustomItems {
                     "§7Veinminer V",
                     "",
                     "§cHauptgewinn der §6Legendären Kiste§c!"
+                );
+            }
+
+            case MAGNET -> {
+                setLore(item,
+                    "§7Zieht Items in einem §b5 Block §7Radius an",
+                    "§7Halte es in der Hand um den Magneten zu aktivieren",
+                    "",
+                    "§8Custom Item"
+                );
+                meta = item.getItemMeta();
+                if (meta != null) { meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS); item.setItemMeta(meta); }
+            }
+            case BOHRER -> {
+                setLore(item,
+                    "§7Ein massiver Bohrer aus reinem Netherit",
+                    "§7Sieht beeindruckend aus",
+                    "",
+                    "§8Custom Item | §cKeine Verzauberungen"
+                );
+                meta = item.getItemMeta();
+                if (meta != null) {
+                    meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+                    meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES);
+                    item.setItemMeta(meta);
+                }
+            }
+            case EFFICIENCY_PICKAXE -> {
+                applyVanillaEnchant(item, Enchantment.EFFICIENCY, 100);
+                applyVanillaEnchant(item, Enchantment.UNBREAKING, 10);
+                applyVanillaEnchant(item, Enchantment.MENDING, 1);
+                setLore(item,
+                    "§7Effizienz §6C §7| Haltbarkeit X | Reparatur",
+                    "§cEinzel-Block Abbau mit maximaler Geschwindigkeit"
                 );
             }
 

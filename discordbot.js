@@ -1,8 +1,9 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits, Events, EmbedBuilder } = require('discord.js');
 const mcbot = require('./mcbot');
+const { handleVoiceCreate, handleVoiceLeave, handleVoiceCommand, voiceCommands, isVoiceCommand } = require('./voicesystem');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
 
 const OWNER_ID = '1447174849628868681';
 const LIVE_CHANNEL_ID = process.env.DISCORD_LIVE_CHANNEL_ID || '1511341355647893667';
@@ -63,9 +64,28 @@ mcbot.emitter.on('watchdog_reconnect', () => {
   sendToLive('🔄 **Watchdog:** Bot offline erkannt, verbinde neu...');
 });
 
+// ── Voice State Updates ───────────────────────────────────────────────────────
+client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+  try {
+    if (newState.channel && (!oldState.channel || oldState.channelId !== newState.channelId)) {
+      await handleVoiceCreate(newState.member, newState.channel);
+    }
+    if (oldState.channel && (!newState.channel || oldState.channelId !== newState.channelId)) {
+      await handleVoiceLeave(oldState.member, oldState.channel);
+    }
+  } catch (e) {
+    console.error('VoiceStateUpdate error:', e);
+  }
+});
+
 // ── Commands ──────────────────────────────────────────────────────────────────
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
+
+  // Route voice commands to voicesystem handler (no owner check needed, it has its own logic)
+  if (isVoiceCommand(interaction.commandName)) {
+    return handleVoiceCommand(interaction);
+  }
 
   if (!isOwner(interaction)) return deny(interaction);
 

@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
+const { voiceCommands } = require('./voicesystem');
 
 const GAMEMODES = ['survival', 'creative', 'adventure', 'spectator'];
 const DIFFICULTIES = ['peaceful', 'easy', 'normal', 'hard'];
@@ -186,4 +187,4 @@ module.exports = [
     .addStringOption(o =>
       o.setName('rang').setDescription('Rang').setRequired(true)
         .addChoices(...RANKS.map(r => ({ name: r, value: r.toLowerCase() })))),
-].map(c => c.toJSON());
+].map(c => c.toJSON()).concat(voiceCommands);

@@ -14,13 +14,13 @@ const client = new Client({
 });
 
 client.once(Events.ClientReady, async () => {
-  console.log(`[VoiceBot] Eingeloggt als ${client.user.tag}`);
+  console.log(`[VoiceBot] Eingeloggt als ${client.user.tag} (ID: ${client.user.id})`);
 
-  // Auto-register slash commands on startup
+  // Auto-register slash commands on startup using bot's own ID
   try {
     const rest = new REST({ version: '10' }).setToken(TOKEN);
     await rest.put(
-      Routes.applicationGuildCommands(CLIENT_ID || client.user.id, GUILD_ID),
+      Routes.applicationGuildCommands(client.user.id, GUILD_ID),
       { body: voiceCommands },
     );
     console.log(`[VoiceBot] ${voiceCommands.length} Voice-Commands registriert.`);

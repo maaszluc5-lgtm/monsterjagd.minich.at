@@ -4,7 +4,8 @@
   "description": "Microsoft Teams Bot - Duolingo Updates, Schimpfwort-Filter, Chat-Logging",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "manifest": "node create-manifest.js"
   },
   "dependencies": {
     "botbuilder": "^4.22.0",

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "{{MICROSOFT_APP_ID}}",
+  "developer": {
+    "name": "Monsterjagd",
+    "websiteUrl": "https://monsterjagd.minich.at",
+    "privacyUrl": "https://monsterjagd.minich.at/privacy",
+    "termsOfUseUrl": "https://monsterjagd.minich.at/terms"
+  },
+  "name": {
+    "short": "Monsterjagd Bot",
+    "full": "Monsterjagd Teams Bot - Duolingo, Sicherheit & Chat"
+  },
+  "description": {
+    "short": "Duolingo Updates, Phishing-Schutz und Chat-Logging",
+    "full": "Der Monsterjagd Teams Bot bietet tägliche Duolingo Streak-Updates, automatische Phishing/Hacker-Erkennung, Schimpfwort-Filter und Chat-Logging."
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "color.png"
+  },
+  "accentColor": "#4B0082",
+  "bots": [
+    {
+      "botId": "{{MICROSOFT_APP_ID}}",
+      "scopes": ["personal", "team", "groupChat"],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": ["personal", "team", "groupChat"],
+          "commands": [
+            {
+              "title": "!duolingo",
+              "description": "Zeigt Duolingo-Fortschritt aller User"
+            },
+            {
+              "title": "!check",
+              "description": "Prüft eine Nachricht auf Phishing/Hacking"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": ["{{BOT_HOSTNAME}}"]
+}

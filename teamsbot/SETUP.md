@@ -1,146 +1,140 @@
-# Monsterjagd Teams Bot - Self-Hosting auf Windows Server
+# Monsterjagd Teams Bot - Azure Deployment
 
 ## Voraussetzungen
 
-- Windows Server / Windows 10/11
-- Node.js 18+ (https://nodejs.org)
-- PowerShell 5.1+
-- Eigener Server mit öffentlicher Domain (z.B. `bot.monsterjagd.minich.at`)
+- Node.js 18+
+- Azure Account (https://portal.azure.com)
 - Microsoft 365 Tenant (Schule/Organisation)
 
-## 1. Bot bei Microsoft registrieren (OHNE Azure Hosting)
+## 1. Azure Bot erstellen
 
-1. Gehe zu https://dev.teams.microsoft.com/bots
-2. Klick **+ New Bot**
-3. Name: `Monsterjagd Bot`
-4. Endpoint: `https://bot.monsterjagd.minich.at/api/messages`
-5. Notiere dir die **App ID** und erstelle ein **Client Secret** (Password)
+1. Gehe zu https://portal.azure.com
+2. **Ressource erstellen** → Suche nach **Azure Bot**
+3. Ausfüllen:
+   - **Bot-Handle**: `monsterjagd-bot`
+   - **Abonnement**: Dein Azure-Abo
+   - **Ressourcengruppe**: Neue erstellen → `monsterjagd-rg`
+   - **Tarif**: F0 (kostenlos)
+   - **App-Typ**: Single Tenant
+   - **Erstellungstyp**: Neue Microsoft App-ID erstellen
+4. **Erstellen** klicken
+5. Unter **Konfiguration** → Notiere **Microsoft App ID** und **App Password**
 
-## 2. Bot einrichten
+## 2. Azure App Service erstellen
 
-### PowerShell:
+```powershell
+# Azure CLI installieren: https://aka.ms/installazurecli
+
+# Einloggen
+az login
+
+# Ressourcengruppe (falls noch nicht vorhanden)
+az group create --name monsterjagd-rg --location westeurope
+
+# App Service Plan (kostenlos)
+az appservice plan create --name monsterjagd-plan --resource-group monsterjagd-rg --sku F1 --is-linux
+
+# Web App erstellen
+az webapp create --name monsterjagd-teamsbot --resource-group monsterjagd-rg --plan monsterjagd-plan --runtime "NODE:18-lts"
+
+# Umgebungsvariablen setzen
+az webapp config appsettings set --name monsterjagd-teamsbot --resource-group monsterjagd-rg --settings ^
+  MICROSOFT_APP_ID=deine-app-id ^
+  MICROSOFT_APP_PASSWORD=dein-app-password ^
+  DUOLINGO_USERS=username1,username2 ^
+  DUOLINGO_CRON="0 20 * * *" ^
+  WEBSITE_NODE_DEFAULT_VERSION=18-lts
+```
+
+## 3. Bot Endpoint konfigurieren
+
+1. Azure Portal → **Azure Bot** Ressource öffnen
+2. **Konfiguration** → **Messaging-Endpunkt**:
+   ```
+   https://monsterjagd-teamsbot.azurewebsites.net/api/messages
+   ```
+3. **Übernehmen**
+
+## 4. Code deployen
+
+### Option A: Git Deploy (einfachste)
+
+```powershell
+# Deployment-User einrichten (einmalig)
+az webapp deployment user set --user-name monsterjagd-deploy --password DEIN_PASSWORT
+
+# Git Remote hinzufügen
+cd teamsbot
+az webapp deployment source config-local-git --name monsterjagd-teamsbot --resource-group monsterjagd-rg
+
+# URL aus dem Output kopieren und als Remote hinzufügen
+git remote add azure https://monsterjagd-deploy@monsterjagd-teamsbot.scm.azurewebsites.net/monsterjagd-teamsbot.git
+
+# Deployen
+git push azure main
+```
+
+### Option B: ZIP Deploy
+
 ```powershell
 cd teamsbot
-Copy-Item .env.example .env
-notepad .env   # App ID, Password, Hostname eintragen
-npm install
+npm install --production
+
+# Alles zippen (ohne node_modules bei Bedarf - Azure installiert sie)
+Compress-Archive -Path * -DestinationPath deploy.zip -Force
+
+az webapp deploy --name monsterjagd-teamsbot --resource-group monsterjagd-rg --src-path deploy.zip --type zip
 ```
 
-### Oder einfach:
-Doppelklick auf `start.bat` - das Script macht alles automatisch.
+### Option C: GitHub Actions (automatisch bei jedem Push)
 
-## 3. HTTPS einrichten
+Im Repo unter `.github/workflows/azure-deploy.yml`:
+```yaml
+name: Deploy Teams Bot to Azure
 
-Teams akzeptiert NUR HTTPS. Optionen auf Windows:
+on:
+  push:
+    paths:
+      - 'teamsbot/**'
+    branches: [main]
 
-### Option A: IIS Reverse Proxy (empfohlen auf Windows Server)
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-1. IIS installieren (Server Manager → Rollen hinzufügen → Web Server IIS)
-2. **URL Rewrite** installieren: https://www.iis.net/downloads/microsoft/url-rewrite
-3. **ARR (Application Request Routing)** installieren: https://www.iis.net/downloads/microsoft/application-request-routing
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
-IIS Reverse Proxy Konfiguration (`web.config`):
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <system.webServer>
-        <rewrite>
-            <rules>
-                <rule name="TeamsBot" stopProcessing="true">
-                    <match url="(.*)" />
-                    <action type="Rewrite" url="http://localhost:3978/{R:1}" />
-                </rule>
-            </rules>
-        </rewrite>
-    </system.webServer>
-</configuration>
+      - run: |
+          cd teamsbot
+          npm install --production
+
+      - uses: azure/webapps-deploy@v3
+        with:
+          app-name: monsterjagd-teamsbot
+          package: teamsbot
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
 ```
 
-SSL-Zertifikat in IIS:
+Publish Profile holen:
 ```powershell
-# Let's Encrypt mit win-acme
-# Download: https://www.win-acme.com/
-winacme.exe --target iis --siteid 1 --installation iis
+az webapp deployment list-publishing-profiles --name monsterjagd-teamsbot --resource-group monsterjagd-rg --xml
 ```
+→ Output als GitHub Secret `AZURE_WEBAPP_PUBLISH_PROFILE` speichern
 
-### Option B: Caddy (einfachste Lösung - automatisches HTTPS)
+## 5. Teams Channel aktivieren
 
-```powershell
-# Caddy installieren: https://caddyserver.com/download
-# Caddyfile erstellen:
-```
+1. Azure Portal → **Azure Bot** → **Channels**
+2. **Microsoft Teams** aktivieren
+3. Nutzungsbedingungen akzeptieren
 
-Caddyfile:
-```
-bot.monsterjagd.minich.at {
-    reverse_proxy localhost:3978
-}
-```
-
-```powershell
-caddy run
-```
-
-Caddy holt sich automatisch ein SSL-Zertifikat!
-
-### Option C: nginx für Windows
-
-```nginx
-server {
-    listen 443 ssl;
-    server_name bot.monsterjagd.minich.at;
-
-    ssl_certificate     certs/fullchain.pem;
-    ssl_certificate_key certs/privkey.pem;
-
-    location / {
-        proxy_pass http://localhost:3978;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-## 4. Bot starten
-
-### Einfach (PowerShell):
-```powershell
-.\start.ps1
-```
-
-### Oder Doppelklick:
-`start.bat`
-
-### Als Windows-Dienst (läuft im Hintergrund, startet automatisch):
-```powershell
-# NSSM installieren: https://nssm.cc/download
-# nssm.exe nach C:\Windows\System32\ kopieren
-
-# Dienst installieren
-.\install-service.ps1 -Action install
-
-# Dienst starten
-.\install-service.ps1 -Action start
-
-# Status prüfen
-.\install-service.ps1 -Action status
-
-# Dienst stoppen
-.\install-service.ps1 -Action stop
-
-# Dienst entfernen
-.\install-service.ps1 -Action remove
-```
-
-## 5. Teams App Manifest erstellen & hochladen
+## 6. Teams App Manifest hochladen
 
 ```powershell
-# Icons vorbereiten (in manifest\ Ordner):
-# - color.png: 192x192 px
-# - outline.png: 32x32 px
-
+cd teamsbot
 npm run manifest
 ```
 
@@ -150,13 +144,14 @@ Die generierte `monsterjagd-bot.zip` in Teams hochladen:
 3. ZIP auswählen
 4. Bot zum gewünschten Team/Chat hinzufügen
 
-## 6. Testen
+## 7. Testen
 
 ```powershell
 # Health-Check
-Invoke-RestMethod https://bot.monsterjagd.minich.at/api/health
+Invoke-RestMethod https://monsterjagd-teamsbot.azurewebsites.net/api/health
 
-# Sollte zurückgeben: status: ok, bot: MonsterjagdTeamsBot
+# Logs anschauen
+az webapp log tail --name monsterjagd-teamsbot --resource-group monsterjagd-rg
 ```
 
 Im Teams Chat:
@@ -176,16 +171,10 @@ Im Teams Chat:
 - **Phishing-Erkennung**: Jede Nachricht wird automatisch gescannt
 - **Schimpfwort-Filter**: Unangemessene Sprache wird erkannt und gewarnt
 - **Chat-Logging**: Alle Nachrichten werden in `logs/` als JSON gespeichert
-- **Duolingo Cron**: Tägliches Update um 20:00 (konfigurierbar via `DUOLINGO_CRON`)
+- **Duolingo Cron**: Tägliches Update um 20:00 (konfigurierbar)
 
-## Firewall
+## Kosten
 
-Port 3978 muss intern erreichbar sein (nur für den Reverse Proxy, nicht von außen):
-```powershell
-New-NetFirewallRule -DisplayName "Teams Bot" -Direction Inbound -LocalPort 3978 -Protocol TCP -Action Allow
-```
-
-Port 443 muss von außen erreichbar sein (für Teams):
-```powershell
-New-NetFirewallRule -DisplayName "HTTPS" -Direction Inbound -LocalPort 443 -Protocol TCP -Action Allow
-```
+- **Azure Bot Service**: Kostenlos (F0 Tier, unbegrenzte Nachrichten in Teams)
+- **App Service F1**: Kostenlos (60 Min CPU/Tag, 1 GB RAM)
+- Für mehr Leistung: B1 Tier (~11€/Monat)

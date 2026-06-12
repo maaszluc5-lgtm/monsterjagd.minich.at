@@ -238,6 +238,10 @@ commands:
     usage: /ve <enchant> <stufe>
     aliases: [vanillaenchant]
     permission: opserver.admin
+  plot:
+    description: Plot-System verwalten.
+    usage: /plot <auto|home|info|trust|untrust|buy>
+    aliases: [grundstueck]
   shop:
     description: Öffnet den Server-Shop.
     usage: /shop

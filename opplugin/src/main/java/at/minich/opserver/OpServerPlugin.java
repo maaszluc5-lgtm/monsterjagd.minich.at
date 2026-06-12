@@ -301,6 +301,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("itemeffekt").setTabCompleter(itemEffektCmd);
         new at.minich.opserver.listeners.ItemEffektListener(this);
         getCommand("shop").setExecutor(new ShopCommand(this, shopGUI));
+        at.minich.opserver.plots.PlotManager plotManager = new at.minich.opserver.plots.PlotManager(this);
+        getServer().getPluginManager().registerEvents(new at.minich.opserver.plots.PlotListener(plotManager), this);
+        getCommand("plot").setExecutor(new at.minich.opserver.commands.PlotCommand(this, plotManager));
         PerkCommand perkCmd = new PerkCommand(this);
         getCommand("perks").setExecutor(perkCmd);
         RangCommand rangCmd = new RangCommand(this);

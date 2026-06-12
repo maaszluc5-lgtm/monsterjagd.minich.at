@@ -238,6 +238,13 @@ commands:
     usage: /ve <enchant> <stufe>
     aliases: [vanillaenchant]
     permission: opserver.admin
+  perks:
+    description: Zeige deine aktiven Perks.
+    usage: /perks [give <spieler> <perk>]
+  rang:
+    description: Setze den Rang eines Spielers.
+    usage: /rang <spieler> <rang>
+    permission: opserver.admin
 
 permissions:
   opserver.giveitem:

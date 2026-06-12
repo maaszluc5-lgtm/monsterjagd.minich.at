@@ -89,6 +89,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private JackpotTask jackpotTask;
     private CrystalManager crystalManager;
     private CrateManager crateManager;
+    private at.minich.opserver.perks.PerkManager perkManager;
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
@@ -137,6 +138,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         chestShopManager = new ChestShopManager(this);
         crystalManager = new CrystalManager(this);
         crateManager = new CrateManager(this);
+        perkManager = new at.minich.opserver.perks.PerkManager(this);
 
         // Register Vault economy
         registerVaultEconomy();
@@ -154,6 +156,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         AbilityItemListener abilityItemListener = new AbilityItemListener(this);
         getServer().getPluginManager().registerEvents(abilityItemListener, this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.MagnetListener(this), this);
+        getServer().getPluginManager().registerEvents(new at.minich.opserver.perks.PerkListener(this), this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.VierDKListener(this), this);
 
         // Duel listener (shared state with DuelCommand)
@@ -292,6 +295,11 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("itemeffekt").setExecutor(itemEffektCmd);
         getCommand("itemeffekt").setTabCompleter(itemEffektCmd);
         new at.minich.opserver.listeners.ItemEffektListener(this);
+        PerkCommand perkCmd = new PerkCommand(this);
+        getCommand("perks").setExecutor(perkCmd);
+        RangCommand rangCmd = new RangCommand(this);
+        getCommand("rang").setExecutor(rangCmd);
+        getCommand("rang").setTabCompleter(rangCmd);
         VanillaEnchantCommand vanillaEnchantCmd = new VanillaEnchantCommand();
         getCommand("ve").setExecutor(vanillaEnchantCmd);
         getCommand("ve").setTabCompleter(vanillaEnchantCmd);
@@ -495,6 +503,10 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public CrateManager getCrateManager() {
         return crateManager;
+    }
+
+    public at.minich.opserver.perks.PerkManager getPerkManager() {
+        return perkManager;
     }
 
     // -------------------------------------------------------------------------

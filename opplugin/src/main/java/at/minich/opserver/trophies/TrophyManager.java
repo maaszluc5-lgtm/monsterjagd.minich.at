@@ -202,7 +202,7 @@ public class TrophyManager {
     public void checkAndGiveJobTrophy(Player player, Job job) {
         TrophyType type = jobToTrophyType(job);
         if (type == null) return;
-        int level = plugin.getJobManager().getLevel(player.getUniqueId());
+        int level = plugin.getJobManager().getLevel(player.getUniqueId(), job);
         if (level >= 100) {
             awardTrophy(player, type);
         }

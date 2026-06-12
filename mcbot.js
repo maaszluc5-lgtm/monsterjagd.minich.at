@@ -109,13 +109,16 @@ function reconnect() {
   connect();
 }
 
-// watchdog: every 60s check if bot is connected, reconnect if not
-setInterval(() => {
-  if (!isOnline() && !reconnectTimer) {
-    log('Watchdog: Bot offline, reconnecte...');
-    emitter.emit('watchdog_reconnect');
-    connect();
-  }
-}, 60_000);
+if (require.main === module) {
+  // watchdog: every 60s check if bot is connected, reconnect if not
+  setInterval(() => {
+    if (!isOnline() && !reconnectTimer) {
+      log('Watchdog: Bot offline, reconnecte...');
+      emitter.emit('watchdog_reconnect');
+      connect();
+    }
+  }, 60_000);
+  connect();
+}
 
 module.exports = { connect, reconnect, sendCommand, isOnline, getLogs, emitter };

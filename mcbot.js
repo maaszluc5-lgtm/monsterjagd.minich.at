@@ -47,7 +47,7 @@ function connect() {
     host: process.env.MC_HOST,
     port: parseInt(process.env.MC_PORT) || 25565,
     username: process.env.MC_USERNAME,
-    version: '1.21.8',
+    version: '1.21.4',
     auth: 'offline',
   });
 

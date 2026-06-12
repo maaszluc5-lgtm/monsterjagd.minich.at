@@ -18,12 +18,8 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Listens to game events and forwards action counts to JobManager.
- */
 public class JobListener implements Listener {
 
-    // ---- GRAEBER: blocks to dig ----
     private static final Set<Material> GRAEBER_BLOCKS = EnumSet.of(
             Material.DIRT, Material.GRAVEL, Material.SAND, Material.COARSE_DIRT,
             Material.GRASS_BLOCK, Material.CLAY, Material.SOUL_SAND,
@@ -31,7 +27,6 @@ public class JobListener implements Listener {
             Material.PODZOL, Material.MUD, Material.ROOTED_DIRT
     );
 
-    // ---- MIENENARBEITER: blocks to mine ----
     private static final Set<Material> MINER_BLOCKS = EnumSet.of(
             Material.STONE, Material.COBBLESTONE, Material.DEEPSLATE,
             Material.COBBLED_DEEPSLATE, Material.OBSIDIAN, Material.CRYING_OBSIDIAN,
@@ -48,14 +43,12 @@ public class JobListener implements Listener {
             Material.TUFF, Material.CALCITE, Material.DRIPSTONE_BLOCK
     );
 
-    // ---- FARMER: harvestable crops ----
     private static final Set<Material> FARMER_CROPS = EnumSet.of(
             Material.WHEAT, Material.CARROTS, Material.POTATOES,
             Material.BEETROOTS, Material.MELON, Material.PUMPKIN,
             Material.SUGAR_CANE, Material.NETHER_WART, Material.COCOA
     );
 
-    // ---- BUILDER: blocks to place ----
     private static final Set<Material> BUILDER_BLOCKS;
 
     static {
@@ -82,108 +75,53 @@ public class JobListener implements Listener {
         this.jobManager = plugin.getJobManager();
     }
 
-    // -------------------------------------------------------------------------
-    // GRAEBER + MIENENARBEITER + FARMER
-    // -------------------------------------------------------------------------
-
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        Job job = jobManager.getJob(uuid);
-        if (job == null) return;
-
         Block block = event.getBlock();
         Material mat = block.getType();
 
-        switch (job) {
-            case GRAEBER -> {
-                if (GRAEBER_BLOCKS.contains(mat)) {
-                    jobManager.addActions(uuid, 1);
-                }
-            }
-            case MIENENARBEITER -> {
-                if (MINER_BLOCKS.contains(mat)) {
-                    jobManager.addActions(uuid, 1);
-                }
-            }
-            case FARMER -> {
-                if (FARMER_CROPS.contains(mat)) {
-                    // Only count fully grown crops
-                    if (isFullyGrown(block)) {
-                        jobManager.addActions(uuid, 1);
-                    }
-                }
-            }
-            default -> { /* other jobs handled elsewhere */ }
+        // All jobs active simultaneously
+        if (GRAEBER_BLOCKS.contains(mat)) {
+            jobManager.addActions(uuid, Job.GRAEBER, 1);
+        }
+        if (MINER_BLOCKS.contains(mat)) {
+            jobManager.addActions(uuid, Job.MIENENARBEITER, 1);
+        }
+        if (FARMER_CROPS.contains(mat) && isFullyGrown(block)) {
+            jobManager.addActions(uuid, Job.FARMER, 1);
         }
     }
 
     private boolean isFullyGrown(Block block) {
-        // Melon/Pumpkin/Sugar Cane/Nether Wart as placed blocks are always "harvestable"
         Material mat = block.getType();
-        if (mat == Material.MELON || mat == Material.PUMPKIN
-                || mat == Material.SUGAR_CANE || mat == Material.NETHER_WART) {
-            // NETHER_WART uses Ageable too, but we treat its presence as harvestable
-        }
         if (block.getBlockData() instanceof Ageable ageable) {
             return ageable.getAge() >= ageable.getMaximumAge();
         }
-        // Melon, Pumpkin, Sugar Cane blocks themselves = harvestable
         return mat == Material.MELON || mat == Material.PUMPKIN || mat == Material.SUGAR_CANE;
     }
-
-    // -------------------------------------------------------------------------
-    // FISHER
-    // -------------------------------------------------------------------------
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFish(PlayerFishEvent event) {
         if (event.getState() != PlayerFishEvent.State.CAUGHT_FISH) return;
-        Player player = event.getPlayer();
-        UUID uuid = player.getUniqueId();
-        Job job = jobManager.getJob(uuid);
-        if (job == Job.FISHER) {
-            jobManager.addActions(uuid, 1);
-        }
+        jobManager.addActions(event.getPlayer().getUniqueId(), Job.FISHER, 1);
     }
-
-    // -------------------------------------------------------------------------
-    // JAEGER
-    // -------------------------------------------------------------------------
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
-        Entity entity = event.getEntity();
         Player killer = event.getEntity().getKiller();
         if (killer == null) return;
-
         UUID uuid = killer.getUniqueId();
-        Job job = jobManager.getJob(uuid);
-        if (job != Job.JAEGER) return;
-
-        // PvP kills count as 10 actions, mob kills as 1
-        if (entity instanceof Player) {
-            jobManager.addActions(uuid, 10);
-        } else {
-            jobManager.addActions(uuid, 1);
-        }
+        int amount = event.getEntity() instanceof Player ? 10 : 1;
+        jobManager.addActions(uuid, Job.JAEGER, amount);
     }
-
-    // -------------------------------------------------------------------------
-    // BUILDER
-    // -------------------------------------------------------------------------
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
-        Player player = event.getPlayer();
-        UUID uuid = player.getUniqueId();
-        Job job = jobManager.getJob(uuid);
-        if (job != Job.BUILDER) return;
-
         Material mat = event.getBlock().getType();
         if (BUILDER_BLOCKS.contains(mat)) {
-            jobManager.addActions(uuid, 1);
+            jobManager.addActions(event.getPlayer().getUniqueId(), Job.BUILDER, 1);
         }
     }
 }

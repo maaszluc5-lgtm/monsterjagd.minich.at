@@ -14,23 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Builds and opens the 54-slot Jobs GUI.
- *
- * Layout (slot indices, 0-based):
- *   Row 0 (slots 0-8):   decorative glass pane
- *   Row 1 (slots 9-17):  glass | GRAEBER(10) | glass | MIENENARBEITER(12) | glass | FARMER(14) | glass | FISHER(16) | glass
- *   Row 2 (slots 18-26): glass | JAEGER(19) | glass | BUILDER(21) | ... | glass
- *   Row 3 (slots 27-35): current job stats
- *   Row 4 (slots 36-44): next upcoming rewards
- *   Row 5 (slots 45-53): glass ... close button (49)
- */
 public class JobGUI {
 
-    private static final String GUI_TITLE = "§6§lBerufe";
+    public static final String GUI_TITLE = "§6§lBerufe";
     private static final Material GLASS = Material.GRAY_STAINED_GLASS_PANE;
 
-    // Job icon slots
+    // All 6 jobs shown — slots 10,12,14,16,19,21
     private static final int[] JOB_SLOTS = {10, 12, 14, 16, 19, 21};
     private static final Job[] JOB_ORDER = {
             Job.GRAEBER, Job.MIENENARBEITER, Job.FARMER,
@@ -48,118 +37,104 @@ public class JobGUI {
     public void open(Player player) {
         Inventory inv = Bukkit.createInventory(null, 54, GUI_TITLE);
         UUID uuid = player.getUniqueId();
-        Job currentJob = jobManager.getJob(uuid);
-        int currentLevel = jobManager.getLevel(uuid);
-        long currentActions = jobManager.getActions(uuid);
-        long totalActions = jobManager.getTotalActions(uuid);
 
-        // Fill all slots with glass pane by default
         ItemStack glass = makeGlass();
-        for (int i = 0; i < 54; i++) {
-            inv.setItem(i, glass);
-        }
+        for (int i = 0; i < 54; i++) inv.setItem(i, glass);
 
-        // ---- Row 1 & 2: Job icons ----
+        // All jobs shown with their individual levels
         for (int i = 0; i < JOB_ORDER.length; i++) {
             Job job = JOB_ORDER[i];
-            inv.setItem(JOB_SLOTS[i], makeJobIcon(job, currentJob, currentLevel, currentActions));
+            int level = jobManager.getLevel(uuid, job);
+            long actions = jobManager.getActions(uuid, job);
+            inv.setItem(JOB_SLOTS[i], makeJobIcon(job, level, actions));
         }
 
-        // ---- Row 3: Current job stats (slots 27-35) ----
-        if (currentJob != null) {
-            inv.setItem(28, makeStatsItem(uuid, currentJob, currentLevel, currentActions, totalActions));
-        } else {
-            inv.setItem(28, makeNoJobItem());
-        }
+        // Player stats head (slot 28) — shows total earnings
+        inv.setItem(28, makeStatsItem(uuid));
 
-        // ---- Row 4: Next 3 rewards (slots 37,40,43) ----
-        if (currentJob != null) {
-            List<int[]> upcoming = getUpcomingRewards(currentJob, currentLevel);
-            int[] rewardSlots = {37, 40, 43};
-            for (int i = 0; i < Math.min(3, upcoming.size()); i++) {
-                inv.setItem(rewardSlots[i], makeRewardItem(currentJob, upcoming.get(i)[0]));
+        // Upcoming rewards for each job (slots 36-44)
+        int[] rewardSlots = {36, 37, 38, 39, 40, 41};
+        for (int i = 0; i < JOB_ORDER.length; i++) {
+            Job job = JOB_ORDER[i];
+            int level = jobManager.getLevel(uuid, job);
+            int nextRewardLevel = nextRewardLevel(level);
+            if (nextRewardLevel > 0 && i < rewardSlots.length) {
+                inv.setItem(rewardSlots[i], makeRewardItem(job, nextRewardLevel));
             }
         }
 
-        // ---- Row 5: Close button (slot 49) ----
-        inv.setItem(49, makeCloseButton());
+        // Coins per action info (slot 49)
+        inv.setItem(49, makeEarningsInfo(uuid));
 
         player.openInventory(inv);
     }
 
-    // -------------------------------------------------------------------------
-    // Icon builders
-    // -------------------------------------------------------------------------
-
     private ItemStack makeGlass() {
         ItemStack item = new ItemStack(GLASS);
         ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(" ");
-            item.setItemMeta(meta);
-        }
+        if (meta != null) { meta.setDisplayName(" "); item.setItemMeta(meta); }
         return item;
     }
 
-    private ItemStack makeJobIcon(Job job, Job currentJob, int currentLevel, long currentActions) {
+    private ItemStack makeJobIcon(Job job, int level, long actions) {
         ItemStack item = new ItemStack(job.getIcon());
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item;
 
-        meta.setDisplayName(job.getDisplayName());
+        meta.setDisplayName(job.getDisplayName() + " §8| §7Level §e" + level);
         List<String> lore = new ArrayList<>();
         lore.add("§7" + job.getDescription());
         lore.add("");
-
-        if (job == currentJob) {
-            lore.add("§aAktiver Beruf");
-            lore.add("§7Level: §e" + currentLevel);
-            long required = jobManager.getRequiredActions(currentLevel);
-            lore.add("§7Fortschritt: §e" + currentActions + " §7/ §e" + required);
-            lore.add("§7" + buildProgressBar(currentActions, required));
-        } else {
-            lore.add("§7Klicken zum Wählen");
-        }
-
-        meta.setLore(lore);
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private ItemStack makeStatsItem(UUID uuid, Job job, int level, long actions, long total) {
-        Player p = Bukkit.getPlayer(uuid);
-        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta meta = (SkullMeta) item.getItemMeta();
-        if (meta == null) return item;
-
-        if (p != null) meta.setOwningPlayer(p);
-        meta.setDisplayName("§6§l" + (p != null ? p.getName() : "Spieler"));
-        List<String> lore = new ArrayList<>();
-        lore.add("§7Beruf: " + job.getDisplayName());
-        lore.add("§7Level: §e" + level + " §8/ §e100");
-        long required = level < 100 ? jobManager.getRequiredActions(level) : 0;
+        long required = jobManager.getRequiredActions(level);
         if (level < 100) {
             lore.add("§7Fortschritt: §e" + actions + " §8/ §e" + required);
             lore.add("§7" + buildProgressBar(actions, required));
         } else {
-            lore.add("§a§lMAX LEVEL!");
+            lore.add("§a§lMAX LEVEL erreicht!");
         }
-        lore.add("§7Gesamt-Aktionen: §e" + total);
+        lore.add("");
+        double coinsPerAction = jobManager.getCoinsPerAction(level);
+        lore.add("§7Verdienst pro Aktion: §e" + String.format("%.2f", coinsPerAction) + " Coins");
         meta.setLore(lore);
         item.setItemMeta(meta);
         return item;
     }
 
-    private ItemStack makeNoJobItem() {
-        ItemStack item = new ItemStack(Material.BARRIER);
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName("§cKein Beruf gewählt");
-            List<String> lore = new ArrayList<>();
-            lore.add("§7Klicke auf einen Beruf, um ihn zu wählen.");
-            meta.setLore(lore);
-            item.setItemMeta(meta);
+    private ItemStack makeStatsItem(UUID uuid) {
+        Player p = Bukkit.getPlayer(uuid);
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) item.getItemMeta();
+        if (meta == null) return item;
+        if (p != null) meta.setOwningPlayer(p);
+        meta.setDisplayName("§6§l" + (p != null ? p.getName() : "Spieler") + " §7— Statistiken");
+        List<String> lore = new ArrayList<>();
+        lore.add("");
+        for (Job job : JOB_ORDER) {
+            int level = jobManager.getLevel(uuid, job);
+            lore.add(job.getDisplayName() + " §8» §7Level §e" + level);
         }
+        lore.add("");
+        lore.add("§7Alle Jobs sind gleichzeitig aktiv!");
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private ItemStack makeEarningsInfo(UUID uuid) {
+        ItemStack item = new ItemStack(Material.GOLD_INGOT);
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return item;
+        meta.setDisplayName("§6Coins pro Aktion");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7Formel: §e2.00 + Level × 0.10");
+        lore.add("");
+        for (Job job : JOB_ORDER) {
+            int level = jobManager.getLevel(uuid, job);
+            double coins = jobManager.getCoinsPerAction(level);
+            lore.add(job.getDisplayName() + " §8» §e" + String.format("%.2f", coins) + " Coins");
+        }
+        meta.setLore(lore);
+        item.setItemMeta(meta);
         return item;
     }
 
@@ -167,17 +142,14 @@ public class JobGUI {
         ItemStack item = new ItemStack(Material.CHEST);
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item;
-
-        meta.setDisplayName("§6Belohnung bei Level " + rewardLevel);
+        meta.setDisplayName(job.getDisplayName() + " §8| §6Nächste Belohnung: Level " + rewardLevel);
         List<String> lore = new ArrayList<>();
-
         ConfigurationSection rewardsSec = plugin.getConfig()
                 .getConfigurationSection("jobs.rewards." + job.name().toLowerCase());
         if (rewardsSec != null) {
             for (String key : rewardsSec.getKeys(false)) {
                 ConfigurationSection entry = rewardsSec.getConfigurationSection(key);
-                if (entry == null) continue;
-                if (entry.getInt("level", -1) != rewardLevel) continue;
+                if (entry == null || entry.getInt("level", -1) != rewardLevel) continue;
                 double coins = entry.getDouble("coins", 0);
                 if (coins > 0) lore.add("§e+" + String.format("%.0f", coins) + " Coins");
                 for (String s : entry.getStringList("items")) {
@@ -188,74 +160,37 @@ public class JobGUI {
                 for (String ci : entry.getStringList("custom-items")) {
                     lore.add("§6★ " + ci.replace("_", " "));
                 }
-                String msg = entry.getString("message", null);
-                if (msg != null && !msg.isEmpty()) lore.add("§b[Broadcast]");
             }
         }
-
-        if (lore.isEmpty()) lore.add("§7Keine Belohnungsdaten gefunden.");
+        if (lore.isEmpty()) lore.add("§7Münzen + Items");
         meta.setLore(lore);
         item.setItemMeta(meta);
         return item;
     }
 
-    private ItemStack makeCloseButton() {
-        ItemStack item = new ItemStack(Material.BARRIER);
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName("§cSchließen");
-            item.setItemMeta(meta);
+    private int nextRewardLevel(int currentLevel) {
+        for (int lvl = 5; lvl <= 100; lvl += 5) {
+            if (lvl > currentLevel) return lvl;
         }
-        return item;
+        return -1;
     }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
 
     private String buildProgressBar(long current, long max) {
         int totalBars = 20;
         int filled = max > 0 ? (int) Math.round((double) current / max * totalBars) : 0;
         filled = Math.min(filled, totalBars);
         StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < totalBars; i++) {
-            sb.append(i < filled ? "§a|" : "§8|");
-        }
+        for (int i = 0; i < totalBars; i++) sb.append(i < filled ? "§a|" : "§8|");
         sb.append("§7]");
         return sb.toString();
     }
 
-    /** Returns list of [level] for the next up-to-3 reward levels. */
-    private List<int[]> getUpcomingRewards(Job job, int currentLevel) {
-        List<int[]> result = new ArrayList<>();
-        for (int lvl = 5; lvl <= 100; lvl += 5) {
-            if (lvl > currentLevel) {
-                result.add(new int[]{lvl});
-                if (result.size() >= 3) break;
-            }
-        }
-        return result;
-    }
-
     private String formatMaterial(String mat) {
-        return mat.replace("_", " ").toLowerCase()
-                .substring(0, 1).toUpperCase()
-                + mat.replace("_", " ").toLowerCase().substring(1);
+        String lower = mat.replace("_", " ").toLowerCase();
+        return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
     }
 
-    // -------------------------------------------------------------------------
-    // Public helpers used by listener
-    // -------------------------------------------------------------------------
-
-    public static String getGuiTitle() {
-        return GUI_TITLE;
-    }
-
-    public static int[] getJobSlots() {
-        return JOB_SLOTS;
-    }
-
-    public static Job[] getJobOrder() {
-        return JOB_ORDER;
-    }
+    public static int[] getJobSlots() { return JOB_SLOTS; }
+    public static Job[] getJobOrder() { return JOB_ORDER; }
+    public static String getGuiTitle() { return GUI_TITLE; }
 }

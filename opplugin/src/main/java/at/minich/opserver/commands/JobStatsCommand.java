@@ -50,37 +50,27 @@ public class JobStatsCommand implements CommandExecutor {
             targetName = player.getName();
         }
 
-        Job job = jobManager.getJob(targetUuid);
-        int level = jobManager.getLevel(targetUuid);
-        long actions = jobManager.getActions(targetUuid);
-        long total = jobManager.getTotalActions(targetUuid);
-
         String prefix = plugin.getConfig().getString("messages.prefix", "§8[§6OpServer§8] §r");
 
         sender.sendMessage(prefix + "§6§lBerufsstatus von §e" + targetName);
         sender.sendMessage("§7────────────────────────────");
+        sender.sendMessage("§7Alle Jobs sind gleichzeitig aktiv:");
+        sender.sendMessage("");
 
-        if (job == null) {
-            sender.sendMessage("§7Beruf: §cKein Beruf gewählt");
-        } else {
-            sender.sendMessage("§7Beruf:   " + job.getDisplayName());
-            sender.sendMessage("§7Level:   §e" + level + " §8/ §e100");
-
+        for (Job job : Job.values()) {
+            int level = jobManager.getLevel(targetUuid, job);
+            long actions = jobManager.getActions(targetUuid, job);
+            long total = jobManager.getTotalActions(targetUuid, job);
+            double coins = jobManager.getCoinsPerAction(level);
+            sender.sendMessage(job.getDisplayName() + " §8| §7Level §e" + level
+                    + " §8| §e" + String.format("%.2f", coins) + " §7Coins/Aktion");
             if (level < 100) {
                 long required = jobManager.getRequiredActions(level);
-                sender.sendMessage("§7Aktionen: §e" + actions + " §8/ §e" + required);
-                sender.sendMessage("§7Fortschritt: " + buildBar(actions, required));
-
-                // Next reward level
-                int nextReward = nextRewardLevel(level);
-                if (nextReward != -1) {
-                    sender.sendMessage("§7Nächste Belohnung: §eLevel " + nextReward);
-                }
+                sender.sendMessage("  §7" + buildBar(actions, required)
+                        + " §e" + actions + "§8/§e" + required);
             } else {
-                sender.sendMessage("§a§lMAX LEVEL ERREICHT!");
+                sender.sendMessage("  §a§lMAX LEVEL!");
             }
-
-            sender.sendMessage("§7Gesamt-Aktionen: §e" + total);
         }
 
         sender.sendMessage("§7────────────────────────────");

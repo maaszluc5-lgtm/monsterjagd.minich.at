@@ -62,7 +62,7 @@ public class MagnetListener implements Listener {
             @Override
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    ItemStack hand = player.getInventory().getItemInMainHand();
+                    ItemStack hand = player.getInventory().getItemInOffHand();
                     if (!isMagnetItem(hand)) continue;
 
                     ItemMeta meta = hand.getItemMeta();

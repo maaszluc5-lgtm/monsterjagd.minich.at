@@ -315,8 +315,8 @@ public enum CustomItems {
 
             case MAGNET -> {
                 setLore(item,
-                    "§7Zieht Items in einem §b5 Block §7Radius an",
-                    "§7Halte es in der Hand um den Magneten zu aktivieren",
+                    "§7Zieht Items in einem §b8 Block §7Radius an",
+                    "§7In die §bOffhand §7legen um den Magneten zu aktivieren",
                     "",
                     "§8Custom Item"
                 );

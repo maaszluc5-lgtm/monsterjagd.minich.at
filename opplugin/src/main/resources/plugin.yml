@@ -233,6 +233,11 @@ commands:
   itemeffekt:
     description: Gibt einem Item einen passiven Effekt.
     usage: /itemeffekt <effekt> <stufe> [hand|offhand|both]
+  ve:
+    description: Vanilla Enchant bis Stufe 200 auf gehaltenes Item setzen.
+    usage: /ve <enchant> <stufe>
+    aliases: [vanillaenchant]
+    permission: opserver.admin
 
 permissions:
   opserver.giveitem:

@@ -292,6 +292,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("itemeffekt").setExecutor(itemEffektCmd);
         getCommand("itemeffekt").setTabCompleter(itemEffektCmd);
         new at.minich.opserver.listeners.ItemEffektListener(this);
+        VanillaEnchantCommand vanillaEnchantCmd = new VanillaEnchantCommand();
+        getCommand("ve").setExecutor(vanillaEnchantCmd);
+        getCommand("ve").setTabCompleter(vanillaEnchantCmd);
 
         // Scheduled tasks
         double coinsPerMinute = getConfig().getDouble("salary.coins-per-minute", 10.0);

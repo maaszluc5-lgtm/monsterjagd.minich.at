@@ -1,10 +1,11 @@
-# Monsterjagd Teams Bot - Self-Hosting Setup
+# Monsterjagd Teams Bot - Self-Hosting auf Windows Server
 
 ## Voraussetzungen
 
-- Node.js 18+
+- Windows Server / Windows 10/11
+- Node.js 18+ (https://nodejs.org)
+- PowerShell 5.1+
 - Eigener Server mit öffentlicher Domain (z.B. `bot.monsterjagd.minich.at`)
-- HTTPS (z.B. via nginx + Let's Encrypt)
 - Microsoft 365 Tenant (Schule/Organisation)
 
 ## 1. Bot bei Microsoft registrieren (OHNE Azure Hosting)
@@ -15,69 +16,132 @@
 4. Endpoint: `https://bot.monsterjagd.minich.at/api/messages`
 5. Notiere dir die **App ID** und erstelle ein **Client Secret** (Password)
 
-Alternative: Über https://portal.azure.com → **Bot Services** → **Azure Bot** erstellen
-(nur die Bot-Registration, NICHT das Hosting - der Bot läuft auf deinem Server!)
+## 2. Bot einrichten
 
-## 2. Server einrichten
-
-```bash
+### PowerShell:
+```powershell
 cd teamsbot
-cp .env.example .env
-nano .env   # App ID, Password, Hostname eintragen
+Copy-Item .env.example .env
+notepad .env   # App ID, Password, Hostname eintragen
 npm install
 ```
 
-## 3. Nginx Reverse Proxy (HTTPS)
+### Oder einfach:
+Doppelklick auf `start.bat` - das Script macht alles automatisch.
 
-Teams erfordert HTTPS. Beispiel nginx-Config:
+## 3. HTTPS einrichten
+
+Teams akzeptiert NUR HTTPS. Optionen auf Windows:
+
+### Option A: IIS Reverse Proxy (empfohlen auf Windows Server)
+
+1. IIS installieren (Server Manager → Rollen hinzufügen → Web Server IIS)
+2. **URL Rewrite** installieren: https://www.iis.net/downloads/microsoft/url-rewrite
+3. **ARR (Application Request Routing)** installieren: https://www.iis.net/downloads/microsoft/application-request-routing
+
+IIS Reverse Proxy Konfiguration (`web.config`):
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <system.webServer>
+        <rewrite>
+            <rules>
+                <rule name="TeamsBot" stopProcessing="true">
+                    <match url="(.*)" />
+                    <action type="Rewrite" url="http://localhost:3978/{R:1}" />
+                </rule>
+            </rules>
+        </rewrite>
+    </system.webServer>
+</configuration>
+```
+
+SSL-Zertifikat in IIS:
+```powershell
+# Let's Encrypt mit win-acme
+# Download: https://www.win-acme.com/
+winacme.exe --target iis --siteid 1 --installation iis
+```
+
+### Option B: Caddy (einfachste Lösung - automatisches HTTPS)
+
+```powershell
+# Caddy installieren: https://caddyserver.com/download
+# Caddyfile erstellen:
+```
+
+Caddyfile:
+```
+bot.monsterjagd.minich.at {
+    reverse_proxy localhost:3978
+}
+```
+
+```powershell
+caddy run
+```
+
+Caddy holt sich automatisch ein SSL-Zertifikat!
+
+### Option C: nginx für Windows
 
 ```nginx
 server {
     listen 443 ssl;
     server_name bot.monsterjagd.minich.at;
 
-    ssl_certificate /etc/letsencrypt/live/bot.monsterjagd.minich.at/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/bot.monsterjagd.minich.at/privkey.pem;
+    ssl_certificate     certs/fullchain.pem;
+    ssl_certificate_key certs/privkey.pem;
 
     location / {
         proxy_pass http://localhost:3978;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 ```
 
-Let's Encrypt einrichten:
-```bash
-sudo certbot --nginx -d bot.monsterjagd.minich.at
-```
-
 ## 4. Bot starten
 
-```bash
-# Direkt
-npm start
+### Einfach (PowerShell):
+```powershell
+.\start.ps1
+```
 
-# Oder mit pm2 (empfohlen)
-npm install -g pm2
-pm2 start index.js --name teamsbot
-pm2 save
-pm2 startup
+### Oder Doppelklick:
+`start.bat`
+
+### Als Windows-Dienst (läuft im Hintergrund, startet automatisch):
+```powershell
+# NSSM installieren: https://nssm.cc/download
+# nssm.exe nach C:\Windows\System32\ kopieren
+
+# Dienst installieren
+.\install-service.ps1 -Action install
+
+# Dienst starten
+.\install-service.ps1 -Action start
+
+# Status prüfen
+.\install-service.ps1 -Action status
+
+# Dienst stoppen
+.\install-service.ps1 -Action stop
+
+# Dienst entfernen
+.\install-service.ps1 -Action remove
 ```
 
 ## 5. Teams App Manifest erstellen & hochladen
 
-```bash
-# Icons vorbereiten (in manifest/ Ordner):
+```powershell
+# Icons vorbereiten (in manifest\ Ordner):
 # - color.png: 192x192 px
 # - outline.png: 32x32 px
 
-node create-manifest.js
+npm run manifest
 ```
 
 Die generierte `monsterjagd-bot.zip` in Teams hochladen:
@@ -88,11 +152,11 @@ Die generierte `monsterjagd-bot.zip` in Teams hochladen:
 
 ## 6. Testen
 
-```bash
+```powershell
 # Health-Check
-curl https://bot.monsterjagd.minich.at/api/health
+Invoke-RestMethod https://bot.monsterjagd.minich.at/api/health
 
-# Sollte zurückgeben: {"status":"ok","bot":"MonsterjagdTeamsBot"}
+# Sollte zurückgeben: status: ok, bot: MonsterjagdTeamsBot
 ```
 
 Im Teams Chat:
@@ -113,3 +177,15 @@ Im Teams Chat:
 - **Schimpfwort-Filter**: Unangemessene Sprache wird erkannt und gewarnt
 - **Chat-Logging**: Alle Nachrichten werden in `logs/` als JSON gespeichert
 - **Duolingo Cron**: Tägliches Update um 20:00 (konfigurierbar via `DUOLINGO_CRON`)
+
+## Firewall
+
+Port 3978 muss intern erreichbar sein (nur für den Reverse Proxy, nicht von außen):
+```powershell
+New-NetFirewallRule -DisplayName "Teams Bot" -Direction Inbound -LocalPort 3978 -Protocol TCP -Action Allow
+```
+
+Port 443 muss von außen erreichbar sein (für Teams):
+```powershell
+New-NetFirewallRule -DisplayName "HTTPS" -Direction Inbound -LocalPort 443 -Protocol TCP -Action Allow
+```

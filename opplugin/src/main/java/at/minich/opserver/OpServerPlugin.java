@@ -90,6 +90,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private CrystalManager crystalManager;
     private CrateManager crateManager;
     private at.minich.opserver.perks.PerkManager perkManager;
+    private at.minich.opserver.shop.ShopGUI shopGUI;
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
@@ -139,6 +140,10 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         crystalManager = new CrystalManager(this);
         crateManager = new CrateManager(this);
         perkManager = new at.minich.opserver.perks.PerkManager(this);
+        at.minich.opserver.shop.ShopGUI shopGUI = new at.minich.opserver.shop.ShopGUI(this);
+        getServer().getPluginManager().registerEvents(new at.minich.opserver.shop.ShopGUIListener(this, shopGUI), this);
+        // Store for command registration
+        this.shopGUI = shopGUI;
 
         // Register Vault economy
         registerVaultEconomy();
@@ -295,6 +300,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("itemeffekt").setExecutor(itemEffektCmd);
         getCommand("itemeffekt").setTabCompleter(itemEffektCmd);
         new at.minich.opserver.listeners.ItemEffektListener(this);
+        getCommand("shop").setExecutor(new ShopCommand(this, shopGUI));
         PerkCommand perkCmd = new PerkCommand(this);
         getCommand("perks").setExecutor(perkCmd);
         RangCommand rangCmd = new RangCommand(this);

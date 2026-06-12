@@ -238,6 +238,10 @@ commands:
     usage: /ve <enchant> <stufe>
     aliases: [vanillaenchant]
     permission: opserver.admin
+  shop:
+    description: Öffnet den Server-Shop.
+    usage: /shop
+    aliases: [markt2, kaufen]
   perks:
     description: Zeige deine aktiven Perks.
     usage: /perks [give <spieler> <perk>]

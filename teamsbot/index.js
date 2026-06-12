@@ -10,11 +10,11 @@ const MonsterjagdTeamsBot = require('./bot');
 const server = restify.createServer();
 server.use(restify.plugins.bodyParser());
 
-const botFrameworkAuth = new ConfigurationBotFrameworkAuthentication({
-  MicrosoftAppId: process.env.MICROSOFT_APP_ID,
-  MicrosoftAppPassword: process.env.MICROSOFT_APP_PASSWORD,
-  MicrosoftAppType: 'SingleTenant',
-});
+const appId = process.env.MICROSOFT_APP_ID;
+const authConfig = appId && appId !== 'your-app-id-here'
+  ? { MicrosoftAppId: appId, MicrosoftAppPassword: process.env.MICROSOFT_APP_PASSWORD, MicrosoftAppType: 'SingleTenant' }
+  : {};
+const botFrameworkAuth = new ConfigurationBotFrameworkAuthentication(authConfig);
 
 const adapter = new CloudAdapter(botFrameworkAuth);
 

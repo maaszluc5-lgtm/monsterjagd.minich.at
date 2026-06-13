@@ -42,7 +42,7 @@ public class PlotManager {
         creator.environment(World.Environment.NORMAL);
         World w = creator.createWorld();
         if (w != null) {
-            w.setSpawnLocation(0, 65, 0);
+            w.setSpawnLocation(0, 5, 0);
             w.setTime(6000);
             w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
             w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
@@ -120,7 +120,7 @@ public class PlotManager {
         int minZ = plot.getWorldMinZ();
         int maxX = plot.getWorldMaxX();
         int maxZ = plot.getWorldMaxZ();
-        int y = Plot.Y_MIN - 1; // y=63, one below grass
+        int y = Plot.GROUND_Y; // y=4, grass level = stair level
 
         // Corners - gold block
         w.getBlockAt(minX - 1, y, minZ - 1).setType(Material.GOLD_BLOCK);

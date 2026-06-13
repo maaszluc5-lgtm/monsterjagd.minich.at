@@ -13,7 +13,8 @@ public class Plot {
     public static final int PLOT_SIZE = 32;
     public static final int ROAD_WIDTH = 3;
     public static final int GRID_STEP = PLOT_SIZE + ROAD_WIDTH; // 35
-    public static final int Y_MIN = 64;
+    public static final int GROUND_Y = 4;  // grass block y in flat world
+    public static final int Y_MIN = 5;     // first buildable layer
     public static final int Y_MAX = 256;
 
     private final int id;

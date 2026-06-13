@@ -112,13 +112,10 @@ public class InfiniteItemListener implements Listener {
         savedTotem.setAmount(1);
 
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            // Check if totem is gone and restore
-            ItemStack h = player.getInventory().getItemInMainHand();
+            // Restore directly to offhand
             ItemStack o = player.getInventory().getItemInOffHand();
-            boolean stillHas = (h.getType() == Material.TOTEM_OF_UNDYING && isInfinite(h))
-                    || (o.getType() == Material.TOTEM_OF_UNDYING && isInfinite(o));
-            if (!stillHas) {
-                player.getInventory().addItem(savedTotem);
+            if (o.getType() != Material.TOTEM_OF_UNDYING || !isInfinite(o)) {
+                player.getInventory().setItemInOffHand(savedTotem);
             }
         }, 2L);
     }

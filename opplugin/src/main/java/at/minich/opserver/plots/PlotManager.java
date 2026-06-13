@@ -38,7 +38,8 @@ public class PlotManager {
 
         WorldCreator creator = new WorldCreator(WORLD_NAME);
         creator.type(WorldType.FLAT);
-        creator.generatorSettings("{\"layers\":[{\"block\":\"minecraft:bedrock\",\"height\":1},{\"block\":\"minecraft:dirt\",\"height\":3},{\"block\":\"minecraft:grass_block\",\"height\":1}],\"biome\":\"minecraft:plains\",\"structures\":{},\"features\":false,\"decoration\":false}");
+        creator.generatorSettings("{\"layers\":[{\"block\":\"minecraft:bedrock\",\"height\":1},{\"block\":\"minecraft:dirt\",\"height\":3},{\"block\":\"minecraft:grass_block\",\"height\":1}],\"biome\":\"minecraft:plains\"}");
+        creator.generateStructures(false);
         creator.environment(World.Environment.NORMAL);
         World w = creator.createWorld();
         if (w != null) {

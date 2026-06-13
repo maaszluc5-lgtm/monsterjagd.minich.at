@@ -128,8 +128,13 @@ public class PlotListener implements Listener {
         if (player.hasPermission("opserver.admin")) return false;
         World plotWorld = plotManager.getPlotWorld();
         if (!block.getWorld().equals(plotWorld)) return false;
+        // In plot world: only allowed to build on your own/trusted plot
         Plot plot = plotManager.getPlotAt(block.getX(), block.getZ());
-        if (plot == null) return false;
+        if (plot == null) {
+            // Road / unclaimed area - nobody can build here
+            player.sendMessage("§cDu kannst hier nicht bauen (kein Grundstück).");
+            return true;
+        }
         return !plot.isTrusted(player.getUniqueId());
     }
 }

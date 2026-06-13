@@ -44,7 +44,7 @@ public class PlotManager {
             w.setTime(6000);
             w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
             w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-            w.setGameRule(GameRule.MOB_SPAWNING, false);
+            w.setGameRule(GameRule.DO_MOB_SPAWNING, false);
             w.setGameRule(GameRule.DO_FIRE_TICK, false);
             plugin.getLogger().info("[Plots] Flat plot world created.");
         }

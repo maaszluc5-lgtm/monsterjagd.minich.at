@@ -141,7 +141,11 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         crateManager = new CrateManager(this);
         perkManager = new at.minich.opserver.perks.PerkManager(this);
         at.minich.opserver.shop.ShopGUI shopGUI = new at.minich.opserver.shop.ShopGUI(this);
-        getServer().getPluginManager().registerEvents(new at.minich.opserver.shop.ShopGUIListener(this, shopGUI), this);
+        at.minich.opserver.shop.SellInventoryGUI sellInventoryGUI = new at.minich.opserver.shop.SellInventoryGUI(this);
+        at.minich.opserver.shop.ShopGUIListener shopGUIListener = new at.minich.opserver.shop.ShopGUIListener(this, shopGUI);
+        shopGUIListener.setSellInventoryGUI(sellInventoryGUI);
+        getServer().getPluginManager().registerEvents(shopGUIListener, this);
+        getServer().getPluginManager().registerEvents(new at.minich.opserver.shop.SellInventoryListener(this, sellInventoryGUI, shopGUI), this);
         // Store for command registration
         this.shopGUI = shopGUI;
 

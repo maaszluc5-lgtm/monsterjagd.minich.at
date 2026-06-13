@@ -14,10 +14,15 @@ public class ShopGUIListener implements Listener {
 
     private final OpServerPlugin plugin;
     private final ShopGUI shopGUI;
+    private SellInventoryGUI sellInventoryGUI;
 
     public ShopGUIListener(OpServerPlugin plugin, ShopGUI shopGUI) {
         this.plugin = plugin;
         this.shopGUI = shopGUI;
+    }
+
+    public void setSellInventoryGUI(SellInventoryGUI sellInventoryGUI) {
+        this.sellInventoryGUI = sellInventoryGUI;
     }
 
     @EventHandler
@@ -35,9 +40,9 @@ public class ShopGUIListener implements Listener {
 
         // Category overview
         if (title.equals(ShopGUI.CATEGORY_TITLE)) {
-            // Sell item
+            // Open sell inventory GUI
             if (event.getSlot() == 49) {
-                sellHeldItem(player);
+                if (sellInventoryGUI != null) sellInventoryGUI.open(player);
                 return;
             }
             // Find clicked category

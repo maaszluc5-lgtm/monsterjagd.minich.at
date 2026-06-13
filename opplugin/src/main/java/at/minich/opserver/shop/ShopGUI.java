@@ -34,14 +34,14 @@ public class ShopGUI {
         }
 
         // Sell info
-        ItemStack info = new ItemStack(Material.GOLD_INGOT);
+        ItemStack info = new ItemStack(Material.EMERALD);
         ItemMeta m = info.getItemMeta();
         if (m != null) {
-            m.setDisplayName("§e§lVerkaufen");
+            m.setDisplayName("§a§lInventar verkaufen");
             List<String> lore = new ArrayList<>();
-            lore.add("§7Halte ein Item in der Hand");
-            lore.add("§7und klicke hier um es zu verkaufen.");
-            lore.add("§7Verkaufspreis = §e50% §7des Kaufpreises");
+            lore.add("§7Klicke um dein Inventar zu öffnen");
+            lore.add("§7und Items schnell zu verkaufen.");
+            lore.add("§7§oDu kannst alles in 3 Klicks leeren!");
             m.setLore(lore);
             info.setItemMeta(m);
         }

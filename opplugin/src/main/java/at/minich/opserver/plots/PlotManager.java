@@ -126,7 +126,7 @@ public class PlotManager {
         int minZ = plot.getWorldMinZ();
         int maxX = plot.getWorldMaxX();
         int maxZ = plot.getWorldMaxZ();
-        int y = Plot.GROUND_Y; // y=4, grass level = stair level
+        int y = Plot.Y_MIN; // y=64, on top of grass block
 
         // Corners - gold block
         w.getBlockAt(minX - 1, y, minZ - 1).setType(Material.GOLD_BLOCK);

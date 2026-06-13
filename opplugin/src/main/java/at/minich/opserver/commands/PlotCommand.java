@@ -3,7 +3,12 @@ package at.minich.opserver.commands;
 import at.minich.opserver.OpServerPlugin;
 import at.minich.opserver.plots.Plot;
 import at.minich.opserver.plots.PlotManager;
-import org.bukkit.*;
+import org.bukkit.World;
+import org.bukkit.WeatherType;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
@@ -347,16 +352,19 @@ public class PlotCommand implements CommandExecutor, TabCompleter {
         if (args.length < 2) { p.sendMessage("§cVerwendung: /plot biome <biome>"); return; }
         Plot plot = getOwnPlotOrCurrent(p);
         if (plot == null) { p.sendMessage("§cDu stehst nicht auf deinem Grundstück."); return; }
-        Biome biome;
-        try { biome = Biome.valueOf(args[1].toUpperCase()); }
-        catch (IllegalArgumentException e) { p.sendMessage("§cUnbekanntes Biom: " + args[1]); return; }
+        org.bukkit.block.Biome biome = null;
+        for (org.bukkit.block.Biome b : org.bukkit.block.Biome.values()) {
+            if (b.name().equalsIgnoreCase(args[1])) { biome = b; break; }
+        }
+        if (biome == null) { p.sendMessage("§cUnbekanntes Biom: " + args[1]); return; }
         World w = pm.getPlotWorld();
+        final org.bukkit.block.Biome finalBiome = biome;
         for (int x = plot.getWorldMinX(); x <= plot.getWorldMaxX(); x++) {
             for (int z = plot.getWorldMinZ(); z <= plot.getWorldMaxZ(); z++) {
-                w.setBiome(x, Plot.Y_MIN, z, biome);
+                w.setBiome(x, Plot.Y_MIN, z, finalBiome);
             }
         }
-        p.sendMessage("§aBiom auf §e" + biome.name() + " §agesetzt.");
+        p.sendMessage("§aBiom auf §e" + finalBiome.name() + " §agesetzt.");
     }
 
     // ── weather ──────────────────────────────────────────────────────────────

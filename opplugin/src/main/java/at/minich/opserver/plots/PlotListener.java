@@ -33,7 +33,13 @@ public class PlotListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        if (isProtected(event.getPlayer(), event.getBlock())) {
+        Block block = event.getBlock();
+        // Protect border blocks always
+        if (isBorderBlock(block)) {
+            event.setCancelled(true);
+            return;
+        }
+        if (isProtected(event.getPlayer(), block)) {
             event.setCancelled(true);
             event.getPlayer().sendMessage("§cDu hast keine Erlaubnis, hier Blöcke abzubauen.");
         }
@@ -41,7 +47,12 @@ public class PlotListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
-        if (isProtected(event.getPlayer(), event.getBlock())) {
+        Block block = event.getBlock();
+        if (isBorderBlock(block)) {
+            event.setCancelled(true);
+            return;
+        }
+        if (isProtected(event.getPlayer(), block)) {
             event.setCancelled(true);
             event.getPlayer().sendMessage("§cDu hast keine Erlaubnis, hier Blöcke zu setzen.");
         }
@@ -105,6 +116,12 @@ public class PlotListener implements Listener {
                 }
             }
         }.runTaskTimer(plugin, 0L, 10L);
+    }
+
+    private boolean isBorderBlock(Block block) {
+        if (!block.getWorld().equals(plotManager.getPlotWorld())) return false;
+        Material type = block.getType();
+        return type == Material.QUARTZ_STAIRS || type == Material.GOLD_BLOCK || type == Material.QUARTZ_BLOCK;
     }
 
     private boolean isProtected(Player player, Block block) {

@@ -77,7 +77,11 @@ public class PlotManager {
     }
 
     public Plot claimNextPlot(UUID uuid) {
-        if (getPlotCount(uuid) >= MAX_PLOTS_PER_PLAYER) return null;
+        return claimNextPlot(uuid, false);
+    }
+
+    public Plot claimNextPlot(UUID uuid, boolean bypass) {
+        if (!bypass && getPlotCount(uuid) >= MAX_PLOTS_PER_PLAYER) return null;
         int id = nextId++;
         int[] grid = idToGrid(id);
         Plot plot = new Plot(id, grid[0], grid[1], uuid);

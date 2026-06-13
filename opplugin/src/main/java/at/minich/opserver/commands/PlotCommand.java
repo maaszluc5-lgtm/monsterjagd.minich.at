@@ -83,10 +83,10 @@ public class PlotCommand implements CommandExecutor, TabCompleter {
     // ── auto / claim ─────────────────────────────────────────────────────────
 
     private void handleAuto(Player p) {
-        if (pm.getPlotCount(p.getUniqueId()) >= PlotManager.MAX_PLOTS_PER_PLAYER) {
+        if (!p.hasPermission("opserver.admin") && pm.getPlotCount(p.getUniqueId()) >= PlotManager.MAX_PLOTS_PER_PLAYER) {
             p.sendMessage("§cDu hast bereits die maximale Anzahl an Grundstücken (" + PlotManager.MAX_PLOTS_PER_PLAYER + ")."); return;
         }
-        Plot plot = pm.claimNextPlot(p.getUniqueId());
+        Plot plot = pm.claimNextPlot(p.getUniqueId(), p.hasPermission("opserver.admin"));
         if (plot == null) { p.sendMessage("§cKein Grundstück verfügbar."); return; }
         p.sendMessage("§a✔ Grundstück §e#" + plot.getId() + " §abeansprucht!");
         teleport(p, plot);

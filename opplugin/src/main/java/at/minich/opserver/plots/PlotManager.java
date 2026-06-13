@@ -147,7 +147,7 @@ public class PlotManager {
         int minZ = plot.getWorldMinZ();
         int maxX = plot.getWorldMaxX();
         int maxZ = plot.getWorldMaxZ();
-        int y = Plot.GROUND_Y; // y=63, grass level border
+        int y = w.getHighestBlockYAt(minX, minZ) - 1; // grass level
 
         plugin.getLogger().info("[PlotBorder] Building borders for plot #" + plot.getId()
             + " world=" + w.getName() + " minX=" + minX + " maxX=" + maxX

@@ -173,6 +173,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new at.minich.opserver.perks.PerkListener(this), this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.VierDKListener(this), this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.TimberAxeListener(), this);
+        getServer().getPluginManager().registerEvents(new at.minich.opserver.items.InfiniteItemListener(), this);
 
         // Duel listener (shared state with DuelCommand)
         DuelListener duelListener = new DuelListener(this);
@@ -311,6 +312,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("itemeffekt").setTabCompleter(itemEffektCmd);
         new at.minich.opserver.listeners.ItemEffektListener(this);
         getCommand("shop").setExecutor(new ShopCommand(this, shopGUI, sellInventoryGUI));
+        getCommand("infiniteitem").setExecutor(new InfiniteItemCommand());
         VMagnetFilterCommand vMagnetFilterCmd = new VMagnetFilterCommand(sellMagnetListener);
         getCommand("vmagnetfilter").setExecutor(vMagnetFilterCmd);
         getCommand("vmagnetfilter").setTabCompleter(vMagnetFilterCmd);

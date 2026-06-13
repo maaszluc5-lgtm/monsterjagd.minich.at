@@ -246,6 +246,11 @@ commands:
     description: Öffnet den Server-Shop.
     usage: /shop
     aliases: [markt2, kaufen]
+  infiniteitem:
+    description: Markiert ein Item als unendlich (verbraucht sich nicht).
+    usage: /infiniteitem
+    aliases: [unendlich]
+    permission: opserver.admin
   vmagnetfilter:
     description: Setzt den Behalten-Filter des Verkaufs-Magneten.
     usage: /vmagnetfilter [item|clear]

@@ -154,7 +154,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         registerVaultEconomy();
 
         // Register event listeners
-        getServer().getPluginManager().registerEvents(new EnchantListener(this), this);
+        EnchantListener enchantListener = new EnchantListener(this);
+        getServer().getPluginManager().registerEvents(enchantListener, this);
+        enchantListener.startArmorCheckTask();
         getServer().getPluginManager().registerEvents(new StatsListener(this), this);
         getServer().getPluginManager().registerEvents(new SalaryListener(), this);
         getServer().getPluginManager().registerEvents(new AreaMineListener(this), this);

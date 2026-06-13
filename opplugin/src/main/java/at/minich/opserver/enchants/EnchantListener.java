@@ -9,7 +9,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerArmorChangeEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -122,9 +122,15 @@ public class EnchantListener implements Listener {
         Bukkit.getScheduler().runTask(plugin, () -> applyPassiveEffects(event.getPlayer()));
     }
 
-    @EventHandler
-    public void onArmorChange(PlayerArmorChangeEvent event) {
-        Bukkit.getScheduler().runTask(plugin, () -> applyPassiveEffects(event.getPlayer()));
+    public void startArmorCheckTask() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    applyPassiveEffects(player);
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
     }
 
     /**

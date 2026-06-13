@@ -175,6 +175,8 @@ public class BankGUIListener implements Listener {
                 if (bm.depositToBank(uuid, activeSlot, finalAmount, em)) {
                     player.sendMessage(prefix + "§a" + fmt(finalAmount)
                             + " Coins §7auf §9Bank " + activeSlot + " §7eingezahlt.");
+                    double tax = plugin.getBankManager().getLastTax(player.getUniqueId());
+                    if (tax > 0) player.sendMessage("§e-20% Steuer: §c-" + String.format("%.2f", tax) + " Coins");
                     bankGUI.open(player, page);
                 } else {
                     player.sendMessage(prefix + "§cEinzahlung fehlgeschlagen. Nicht genug Wallet-Guthaben?");

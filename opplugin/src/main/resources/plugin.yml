@@ -262,6 +262,13 @@ commands:
     description: Setze den Rang eines Spielers.
     usage: /rang <spieler> <rang>
     permission: opserver.admin
+  quest:
+    description: Zeige deine täglichen Quests.
+    usage: /quest
+  lootbox:
+    description: Öffne oder kaufe Lootboxen.
+    usage: /lootbox [open|buy|give] [type]
+    aliases: [kiste]
 
 permissions:
   opserver.giveitem:

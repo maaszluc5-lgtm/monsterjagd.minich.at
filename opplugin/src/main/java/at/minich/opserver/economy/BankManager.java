@@ -31,6 +31,7 @@ public class BankManager {
     private final Map<UUID, Double> zinsen = new HashMap<>();
     // uuid -> markt bank balance
     private final Map<UUID, Double> marktBalance = new HashMap<>();
+    private final Map<UUID, Double> lastTax = new HashMap<>();
 
     public BankManager(DataManager dataManager) {
         this.dataManager = dataManager;
@@ -191,7 +192,10 @@ public class BankManager {
         if (!isBankUnlocked(uuid, slot)) return false;
         if (!economy.has(uuid, amount)) return false;
         economy.withdraw(uuid, amount);
-        balances.get(uuid).merge(slot, amount, Double::sum);
+        double tax = amount * 0.2;
+        double net = amount - tax;
+        lastTax.put(uuid, tax);
+        balances.get(uuid).merge(slot, net, Double::sum);
         return true;
     }
 
@@ -297,5 +301,9 @@ public class BankManager {
     @Deprecated
     public double getTotalInterest(UUID uuid) {
         return getZinsen(uuid);
+    }
+
+    public double getLastTax(UUID uuid) {
+        return lastTax.getOrDefault(uuid, 0.0);
     }
 }

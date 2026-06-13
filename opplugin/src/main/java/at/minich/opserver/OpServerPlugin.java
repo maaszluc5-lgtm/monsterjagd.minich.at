@@ -7,6 +7,11 @@ import at.minich.opserver.commands.GiveCrateCommand;
 import at.minich.opserver.commands.GiveCrystalsCommand;
 import at.minich.opserver.crates.CrateListener;
 import at.minich.opserver.crates.CrateManager;
+import at.minich.opserver.quests.QuestManager;
+import at.minich.opserver.quests.QuestListener;
+import at.minich.opserver.commands.QuestCommand;
+import at.minich.opserver.lootbox.LootboxManager;
+import at.minich.opserver.commands.LootboxCommand;
 import at.minich.opserver.currency.CrystalManager;
 import at.minich.opserver.ah.AuctionGUI;
 import at.minich.opserver.ah.AuctionGUIListener;
@@ -92,6 +97,8 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private at.minich.opserver.perks.PerkManager perkManager;
     private at.minich.opserver.shop.ShopGUI shopGUI;
     private at.minich.opserver.shop.SellInventoryGUI sellInventoryGUI;
+    private QuestManager questManager;
+    private LootboxManager lootboxManager;
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
@@ -140,6 +147,8 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         chestShopManager = new ChestShopManager(this);
         crystalManager = new CrystalManager(this);
         crateManager = new CrateManager(this);
+        questManager = new QuestManager(this);
+        lootboxManager = new LootboxManager(this);
         perkManager = new at.minich.opserver.perks.PerkManager(this);
         at.minich.opserver.shop.ShopGUI shopGUI = new at.minich.opserver.shop.ShopGUI(this);
         at.minich.opserver.shop.SellInventoryGUI sellInventoryGUI = new at.minich.opserver.shop.SellInventoryGUI(this);
@@ -189,6 +198,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         // Chest shops
         getServer().getPluginManager().registerEvents(new ChestShopListener(this, chestShopManager), this);
         getServer().getPluginManager().registerEvents(new CrateListener(this), this);
+        getServer().getPluginManager().registerEvents(new QuestListener(this), this);
 
         BankGUI bankGUI = new BankGUI(this);
         getServer().getPluginManager().registerEvents(new BankGUIListener(this, bankGUI), this);
@@ -306,6 +316,8 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("kristalle").setExecutor(new CrystalsCommand(this));
         getCommand("givekristalle").setExecutor(new GiveCrystalsCommand(this));
         getCommand("givecrate").setExecutor(new GiveCrateCommand(this));
+        getCommand("quest").setExecutor(new QuestCommand(this));
+        getCommand("lootbox").setExecutor(new LootboxCommand(this));
         getCommand("signieren").setExecutor(new at.minich.opserver.commands.SignierenCommand(this));
         ItemEffektCommand itemEffektCmd = new at.minich.opserver.commands.ItemEffektCommand(this);
         getCommand("itemeffekt").setExecutor(itemEffektCmd);
@@ -531,6 +543,14 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
 
     public at.minich.opserver.perks.PerkManager getPerkManager() {
         return perkManager;
+    }
+
+    public QuestManager getQuestManager() {
+        return questManager;
+    }
+
+    public LootboxManager getLootboxManager() {
+        return lootboxManager;
     }
 
     // -------------------------------------------------------------------------

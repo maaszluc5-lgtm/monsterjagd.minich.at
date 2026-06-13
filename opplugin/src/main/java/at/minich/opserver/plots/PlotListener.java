@@ -2,6 +2,7 @@ package at.minich.opserver.plots;
 
 import at.minich.opserver.OpServerPlugin;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;

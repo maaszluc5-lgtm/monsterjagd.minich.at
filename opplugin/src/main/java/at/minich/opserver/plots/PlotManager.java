@@ -139,6 +139,7 @@ public class PlotManager {
         plugin.getLogger().info("[PlotBorder] Built at Y=" + y + " for plot #" + plot.getId());
     }
 
+    /** Places gold block corners and quartz stair borders around the plot. */
     public void buildPlotBorders(Plot plot) {
         World w = getPlotWorld();
         if (w == null) return;
@@ -147,43 +148,50 @@ public class PlotManager {
         int minZ = plot.getWorldMinZ();
         int maxX = plot.getWorldMaxX();
         int maxZ = plot.getWorldMaxZ();
-        int y = w.getHighestBlockYAt(minX, minZ) - 1; // grass level
+        int yBottom = 63;
+        int yTop = 100;
 
         plugin.getLogger().info("[PlotBorder] Building borders for plot #" + plot.getId()
-            + " world=" + w.getName() + " minX=" + minX + " maxX=" + maxX
-            + " minZ=" + minZ + " maxZ=" + maxZ + " y=" + y);
+            + " world=" + w.getName() + " y=" + yBottom + "-" + yTop);
 
         // Force-load all border chunks
-        for (int x = minX - 2; x <= maxX + 2; x += 16) {
-            for (int z = minZ - 2; z <= maxZ + 2; z += 16) {
+        for (int x = minX - 2; x <= maxX + 2; x += 16)
+            for (int z = minZ - 2; z <= maxZ + 2; z += 16)
                 w.loadChunk(x >> 4, z >> 4, true);
+
+        // Build vertical wall from yBottom to yTop-1 (quartz blocks), top row = quartz stairs
+        for (int y = yBottom; y <= yTop; y++) {
+            boolean isTop = (y == yTop);
+            // Corners - gold block at bottom, quartz at top
+            if (y == yBottom) {
+                w.getBlockAt(minX - 1, y, minZ - 1).setType(Material.GOLD_BLOCK);
+                w.getBlockAt(maxX + 1, y, minZ - 1).setType(Material.GOLD_BLOCK);
+                w.getBlockAt(minX - 1, y, maxZ + 1).setType(Material.GOLD_BLOCK);
+                w.getBlockAt(maxX + 1, y, maxZ + 1).setType(Material.GOLD_BLOCK);
+            } else {
+                w.getBlockAt(minX - 1, y, minZ - 1).setType(Material.QUARTZ_BLOCK);
+                w.getBlockAt(maxX + 1, y, minZ - 1).setType(Material.QUARTZ_BLOCK);
+                w.getBlockAt(minX - 1, y, maxZ + 1).setType(Material.QUARTZ_BLOCK);
+                w.getBlockAt(maxX + 1, y, maxZ + 1).setType(Material.QUARTZ_BLOCK);
             }
-        }
-
-        // Corners - gold block
-        w.getBlockAt(minX - 1, y, minZ - 1).setType(Material.GOLD_BLOCK);
-        w.getBlockAt(maxX + 1, y, minZ - 1).setType(Material.GOLD_BLOCK);
-        w.getBlockAt(minX - 1, y, maxZ + 1).setType(Material.GOLD_BLOCK);
-        w.getBlockAt(maxX + 1, y, maxZ + 1).setType(Material.GOLD_BLOCK);
-
-        // North border (minZ-1): stairs facing SOUTH (pointing into plot)
-        for (int x = minX; x <= maxX; x++) setStair(w, x, y, minZ - 1, BlockFace.SOUTH);
-        // South border (maxZ+1): stairs facing NORTH
-        for (int x = minX; x <= maxX; x++) setStair(w, x, y, maxZ + 1, BlockFace.NORTH);
-        // West border (minX-1): stairs facing EAST
-        for (int z = minZ; z <= maxZ; z++) setStair(w, minX - 1, y, z, BlockFace.EAST);
-        // East border (maxX+1): stairs facing WEST
-        for (int z = minZ; z <= maxZ; z++) setStair(w, maxX + 1, y, z, BlockFace.WEST);
-
-        // Road fill (remaining gap blocks) with quartz blocks
-        for (int rx = maxX + 2; rx <= maxX + Plot.ROAD_WIDTH - 1; rx++) {
-            for (int z = minZ - 1; z <= maxZ + 1; z++) {
-                setRoadFill(w, rx, y, z);
+            // North/South/West/East borders
+            for (int x = minX; x <= maxX; x++) {
+                if (isTop) {
+                    setStair(w, x, y, minZ - 1, BlockFace.SOUTH);
+                    setStair(w, x, y, maxZ + 1, BlockFace.NORTH);
+                } else {
+                    w.getBlockAt(x, y, minZ - 1).setType(Material.QUARTZ_BLOCK);
+                    w.getBlockAt(x, y, maxZ + 1).setType(Material.QUARTZ_BLOCK);
+                }
             }
-        }
-        for (int rz = maxZ + 2; rz <= maxZ + Plot.ROAD_WIDTH - 1; rz++) {
-            for (int x = minX - 1; x <= maxX + 1; x++) {
-                setRoadFill(w, x, y, rz);
+            for (int z = minZ; z <= maxZ; z++) {
+                if (isTop) {
+                    setStair(w, minX - 1, y, z, BlockFace.EAST);
+                    setStair(w, maxX + 1, y, z, BlockFace.WEST);
+                } else {
+                    w.getBlockAt(minX - 1, y, z).setType(Material.QUARTZ_BLOCK);
+                    w.getBlockAt(maxX + 1, y, z).setType(Material.QUARTZ_BLOCK);
+                }
             }
         }
     }

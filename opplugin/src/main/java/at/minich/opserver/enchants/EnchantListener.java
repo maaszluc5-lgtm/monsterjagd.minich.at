@@ -9,6 +9,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerArmorChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -121,22 +122,34 @@ public class EnchantListener implements Listener {
         Bukkit.getScheduler().runTask(plugin, () -> applyPassiveEffects(event.getPlayer()));
     }
 
+    @EventHandler
+    public void onArmorChange(PlayerArmorChangeEvent event) {
+        Bukkit.getScheduler().runTask(plugin, () -> applyPassiveEffects(event.getPlayer()));
+    }
+
     /**
-     * Apply passive effects (speed, jump, titan health) based on held item.
+     * Apply passive effects (speed, jump, titan health) based on held item and armor.
      */
     public void applyPassiveEffects(Player player) {
         ItemStack held = player.getInventory().getItemInMainHand();
+        ItemStack[] armor = player.getInventory().getArmorContents();
 
-        // --- SPEED_BOOST ---
+        // --- SPEED_BOOST --- (held item OR boots)
         int speedLevel = em.getLevel(held, CustomEnchant.SPEED_BOOST);
+        for (ItemStack piece : armor) {
+            if (piece != null) speedLevel = Math.max(speedLevel, em.getLevel(piece, CustomEnchant.SPEED_BOOST));
+        }
         if (speedLevel > 0) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, speedLevel - 1, false, false, false));
         } else {
             player.removePotionEffect(PotionEffectType.SPEED);
         }
 
-        // --- JUMP_BOOST ---
+        // --- JUMP_BOOST --- (held item OR armor)
         int jumpLevel = em.getLevel(held, CustomEnchant.JUMP_BOOST);
+        for (ItemStack piece : armor) {
+            if (piece != null) jumpLevel = Math.max(jumpLevel, em.getLevel(piece, CustomEnchant.JUMP_BOOST));
+        }
         if (jumpLevel > 0) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, Integer.MAX_VALUE, jumpLevel - 1, false, false, false));
         } else {

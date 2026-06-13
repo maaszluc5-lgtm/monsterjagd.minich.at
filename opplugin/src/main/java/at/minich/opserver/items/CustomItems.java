@@ -94,6 +94,11 @@ public enum CustomItems {
     // -------------------------------------------------------------------------
     // Starter kit items
     // -------------------------------------------------------------------------
+    SPEED_SCHUHE("§b§l⚡ Speed Schuhe", Material.GOLDEN_BOOTS),
+
+    // -------------------------------------------------------------------------
+    // Starter kit items
+    // -------------------------------------------------------------------------
     STARTER_SWORD("Starter Sword", Material.STONE_SWORD),
     STARTER_PICKAXE("Starter Pickaxe", Material.IRON_PICKAXE);
 
@@ -368,6 +373,16 @@ public enum CustomItems {
             // -----------------------------------------------------------------
             // Starter kit
             // -----------------------------------------------------------------
+            case SPEED_SCHUHE -> {
+                applyVanillaEnchant(item, Enchantment.PROTECTION, 4);
+                applyVanillaEnchant(item, Enchantment.UNBREAKING, 10);
+                applyVanillaEnchant(item, Enchantment.MENDING, 1);
+                item = em.setEnchant(item, CustomEnchant.SPEED_BOOST, 10);
+                setLore(item,
+                    "§7Macht dich §b200% §7schneller",
+                    "§7Anziehen um den Effekt zu aktivieren"
+                );
+            }
             case STARTER_SWORD -> {
                 applyVanillaEnchant(item, Enchantment.SHARPNESS, 1);
                 item = em.setEnchant(item, CustomEnchant.LIFESTEAL, 5);

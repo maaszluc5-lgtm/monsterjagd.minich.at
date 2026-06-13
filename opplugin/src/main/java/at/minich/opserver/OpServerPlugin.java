@@ -91,6 +91,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
     private CrateManager crateManager;
     private at.minich.opserver.perks.PerkManager perkManager;
     private at.minich.opserver.shop.ShopGUI shopGUI;
+    private at.minich.opserver.shop.SellInventoryGUI sellInventoryGUI;
 
     // Track login times to compute playtime on quit
     private final Map<UUID, Long> loginTimes = new HashMap<>();
@@ -304,7 +305,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("itemeffekt").setExecutor(itemEffektCmd);
         getCommand("itemeffekt").setTabCompleter(itemEffektCmd);
         new at.minich.opserver.listeners.ItemEffektListener(this);
-        getCommand("shop").setExecutor(new ShopCommand(this, shopGUI));
+        getCommand("shop").setExecutor(new ShopCommand(this, shopGUI, sellInventoryGUI));
         at.minich.opserver.plots.PlotManager plotManager = new at.minich.opserver.plots.PlotManager(this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.plots.PlotListener(this, plotManager), this);
         getCommand("plot").setExecutor(new at.minich.opserver.commands.PlotCommand(this, plotManager));

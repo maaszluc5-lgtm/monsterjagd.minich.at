@@ -42,7 +42,7 @@ public class InfiniteItemListener implements Listener {
         }
     }
 
-    // --- Rechtsklick: Item merken und 1 Tick später wiedergeben ---
+    // --- Rechtsklick: Vorher zählen, nachher vergleichen ---
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInteract(PlayerInteractEvent event) {
         if (event.getItem() == null) return;
@@ -52,20 +52,32 @@ public class InfiniteItemListener implements Listener {
         if (!isInfinite(item)) return;
 
         Player player = event.getPlayer();
+        Material type = item.getType();
         ItemStack saved = item.clone();
         saved.setAmount(1);
 
+        // Count before
+        int before = countInfinite(player, type);
+
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            // Check if the item is still in inventory
-            for (ItemStack inv : player.getInventory().getContents()) {
-                if (inv != null && inv.getType() == saved.getType() && isInfinite(inv)) return;
+            int after = countInfinite(player, type);
+            if (after < before) {
+                // Restore what was lost
+                for (int i = 0; i < (before - after); i++) {
+                    player.getInventory().addItem(saved.clone());
+                }
             }
-            // Also check offhand
-            ItemStack offhand = player.getInventory().getItemInOffHand();
-            if (offhand.getType() == saved.getType() && isInfinite(offhand)) return;
-            // Item was consumed — restore it
-            player.getInventory().addItem(saved);
         }, 1L);
+    }
+
+    private int countInfinite(Player player, Material type) {
+        int count = 0;
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv != null && inv.getType() == type && isInfinite(inv)) count += inv.getAmount();
+        }
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+        if (offhand.getType() == type && isInfinite(offhand)) count += offhand.getAmount();
+        return count;
     }
 
     // --- Tod: Totem wiedergeben ---

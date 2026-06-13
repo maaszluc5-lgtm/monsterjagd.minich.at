@@ -4,6 +4,8 @@ import at.minich.opserver.OpServerPlugin;
 import at.minich.opserver.util.DataManager;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.type.Stairs;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.generator.ChunkGenerator;
 
@@ -36,7 +38,7 @@ public class PlotManager {
 
         WorldCreator creator = new WorldCreator(WORLD_NAME);
         creator.type(WorldType.FLAT);
-        creator.generatorSettings("{\"layers\":[{\"block\":\"minecraft:bedrock\",\"height\":1},{\"block\":\"minecraft:dirt\",\"height\":3},{\"block\":\"minecraft:grass_block\",\"height\":1}],\"biome\":\"minecraft:plains\"}");
+        creator.generatorSettings("{\"layers\":[{\"block\":\"minecraft:bedrock\",\"height\":1},{\"block\":\"minecraft:dirt\",\"height\":3},{\"block\":\"minecraft:grass_block\",\"height\":1}],\"biome\":\"minecraft:plains\",\"structures\":{},\"features\":false}");
         creator.environment(World.Environment.NORMAL);
         World w = creator.createWorld();
         if (w != null) {
@@ -109,7 +111,7 @@ public class PlotManager {
     // Plot border building
     // -------------------------------------------------------------------------
 
-    /** Places gold block corners and quartz slab/stone road around the plot. */
+    /** Places gold block corners and quartz stair borders around the plot. */
     public void buildPlotBorders(Plot plot) {
         World w = getPlotWorld();
         if (w == null) return;
@@ -118,7 +120,7 @@ public class PlotManager {
         int minZ = plot.getWorldMinZ();
         int maxX = plot.getWorldMaxX();
         int maxZ = plot.getWorldMaxZ();
-        int y = Plot.Y_MIN - 1; // border at ground level (y=63)
+        int y = Plot.Y_MIN - 1; // y=63, one below grass
 
         // Corners - gold block
         w.getBlockAt(minX - 1, y, minZ - 1).setType(Material.GOLD_BLOCK);
@@ -126,35 +128,41 @@ public class PlotManager {
         w.getBlockAt(minX - 1, y, maxZ + 1).setType(Material.GOLD_BLOCK);
         w.getBlockAt(maxX + 1, y, maxZ + 1).setType(Material.GOLD_BLOCK);
 
-        // Border edges - quartz slabs
-        for (int x = minX; x <= maxX; x++) {
-            setRoadBlock(w, x, y, minZ - 1);
-            setRoadBlock(w, x, y, maxZ + 1);
-        }
-        for (int z = minZ; z <= maxZ; z++) {
-            setRoadBlock(w, minX - 1, y, z);
-            setRoadBlock(w, maxX + 1, y, z);
-        }
+        // North border (minZ-1): stairs facing SOUTH (pointing into plot)
+        for (int x = minX; x <= maxX; x++) setStair(w, x, y, minZ - 1, BlockFace.SOUTH);
+        // South border (maxZ+1): stairs facing NORTH
+        for (int x = minX; x <= maxX; x++) setStair(w, x, y, maxZ + 1, BlockFace.NORTH);
+        // West border (minX-1): stairs facing EAST
+        for (int z = minZ; z <= maxZ; z++) setStair(w, minX - 1, y, z, BlockFace.EAST);
+        // East border (maxX+1): stairs facing WEST
+        for (int z = minZ; z <= maxZ; z++) setStair(w, maxX + 1, y, z, BlockFace.WEST);
 
-        // Road fill between plots (the 3-block gap)
-        // Fill road to the right (positive X)
-        for (int rx = maxX + 2; rx < maxX + Plot.ROAD_WIDTH; rx++) {
+        // Road fill (remaining gap blocks) with quartz blocks
+        for (int rx = maxX + 2; rx <= maxX + Plot.ROAD_WIDTH - 1; rx++) {
             for (int z = minZ - 1; z <= maxZ + 1; z++) {
-                setRoadBlock(w, rx, y, z);
+                setRoadFill(w, rx, y, z);
             }
         }
-        // Fill road downward (positive Z)
-        for (int rz = maxZ + 2; rz < maxZ + Plot.ROAD_WIDTH; rz++) {
+        for (int rz = maxZ + 2; rz <= maxZ + Plot.ROAD_WIDTH - 1; rz++) {
             for (int x = minX - 1; x <= maxX + 1; x++) {
-                setRoadBlock(w, x, y, rz);
+                setRoadFill(w, x, y, rz);
             }
         }
     }
 
-    private void setRoadBlock(World w, int x, int y, int z) {
+    private void setStair(World w, int x, int y, int z, BlockFace facing) {
         Block b = w.getBlockAt(x, y, z);
         if (b.getType() == Material.GOLD_BLOCK) return;
-        b.setType(Material.QUARTZ_SLAB);
+        b.setType(Material.QUARTZ_STAIRS);
+        Stairs stairData = (Stairs) b.getBlockData();
+        stairData.setFacing(facing);
+        b.setBlockData(stairData);
+    }
+
+    private void setRoadFill(World w, int x, int y, int z) {
+        Block b = w.getBlockAt(x, y, z);
+        if (b.getType() == Material.GOLD_BLOCK || b.getType() == Material.QUARTZ_STAIRS) return;
+        b.setType(Material.QUARTZ_BLOCK);
     }
 
     // -------------------------------------------------------------------------

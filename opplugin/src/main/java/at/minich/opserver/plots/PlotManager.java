@@ -38,12 +38,12 @@ public class PlotManager {
 
         WorldCreator creator = new WorldCreator(WORLD_NAME);
         creator.type(WorldType.FLAT);
-        creator.generatorSettings("{\"layers\":[{\"block\":\"minecraft:bedrock\",\"height\":1},{\"block\":\"minecraft:dirt\",\"height\":3},{\"block\":\"minecraft:grass_block\",\"height\":1}],\"biome\":\"minecraft:plains\"}");
+        creator.generatorSettings("{\"layers\":[{\"block\":\"minecraft:bedrock\",\"height\":1},{\"block\":\"minecraft:stone\",\"height\":62},{\"block\":\"minecraft:grass_block\",\"height\":1}],\"biome\":\"minecraft:plains\"}");
         creator.generateStructures(false);
         creator.environment(World.Environment.NORMAL);
         World w = creator.createWorld();
         if (w != null) {
-            w.setSpawnLocation(0, 5, 0);
+            w.setSpawnLocation(0, 64, 0);
             w.setTime(6000);
             w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
             w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);

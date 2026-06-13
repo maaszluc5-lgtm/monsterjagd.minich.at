@@ -1,26 +1,23 @@
 package at.minich.opserver.items;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class InfiniteItemListener implements Listener {
 
     private final Plugin plugin;
-    private final Map<UUID, ItemStack> savedTotems = new HashMap<>();
 
     public InfiniteItemListener(Plugin plugin) {
         this.plugin = plugin;
@@ -49,6 +46,7 @@ public class InfiniteItemListener implements Listener {
         if (!event.getAction().name().contains("RIGHT")) return;
 
         ItemStack item = event.getItem();
+        if (item.getType() == Material.TNT) return; // handled by BlockPlaceEvent
         if (!isInfinite(item)) return;
 
         Player player = event.getPlayer();
@@ -56,18 +54,73 @@ public class InfiniteItemListener implements Listener {
         ItemStack saved = item.clone();
         saved.setAmount(1);
 
-        // Count before
         int before = countInfinite(player, type);
 
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             int after = countInfinite(player, type);
-            if (after < before) {
-                // Restore what was lost
-                for (int i = 0; i < (before - after); i++) {
-                    player.getInventory().addItem(saved.clone());
-                }
+            for (int i = 0; i < (before - after); i++) {
+                player.getInventory().addItem(saved.clone());
             }
         }, 1L);
+    }
+
+    // --- TNT: automatisch zünden + wiedergeben ---
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTNTPlace(BlockPlaceEvent event) {
+        if (event.getBlock().getType() != Material.TNT) return;
+        ItemStack item = event.getItemInHand();
+        if (!isInfinite(item)) return;
+
+        Player player = event.getPlayer();
+        Location loc = event.getBlock().getLocation();
+        ItemStack saved = item.clone();
+        saved.setAmount(1);
+
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            // Replace TNT block with primed TNT
+            if (loc.getBlock().getType() == Material.TNT) {
+                loc.getBlock().setType(Material.AIR);
+                loc.getWorld().spawn(loc.add(0.5, 0, 0.5), TNTPrimed.class, tnt -> {
+                    tnt.setFuseTicks(80);
+                    tnt.setSource(player);
+                });
+            }
+            // Restore item
+            int after = countInfinite(player, Material.TNT);
+            int before = countInfinite(player, Material.TNT) + 1;
+            for (ItemStack inv : player.getInventory().getContents()) {
+                if (inv != null && inv.getType() == Material.TNT && isInfinite(inv)) return;
+            }
+            player.getInventory().addItem(saved);
+        }, 1L);
+    }
+
+    // --- Totem: EntityResurrectEvent (aktiviert sich beim fast-Tod) ---
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onResurrect(EntityResurrectEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        ItemStack hand = player.getInventory().getItemInMainHand();
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+
+        ItemStack totem = null;
+        if (hand.getType() == Material.TOTEM_OF_UNDYING && isInfinite(hand)) totem = hand.clone();
+        else if (offhand.getType() == Material.TOTEM_OF_UNDYING && isInfinite(offhand)) totem = offhand.clone();
+
+        if (totem == null) return;
+        final ItemStack savedTotem = totem;
+        savedTotem.setAmount(1);
+
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            // Check if totem is gone and restore
+            ItemStack h = player.getInventory().getItemInMainHand();
+            ItemStack o = player.getInventory().getItemInOffHand();
+            boolean stillHas = (h.getType() == Material.TOTEM_OF_UNDYING && isInfinite(h))
+                    || (o.getType() == Material.TOTEM_OF_UNDYING && isInfinite(o));
+            if (!stillHas) {
+                player.getInventory().addItem(savedTotem);
+            }
+        }, 2L);
     }
 
     private int countInfinite(Player player, Material type) {
@@ -78,27 +131,5 @@ public class InfiniteItemListener implements Listener {
         ItemStack offhand = player.getInventory().getItemInOffHand();
         if (offhand.getType() == type && isInfinite(offhand)) count += offhand.getAmount();
         return count;
-    }
-
-    // --- Tod: Totem wiedergeben ---
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
-        ItemStack offhand = player.getInventory().getItemInOffHand();
-        if (offhand.getType() == Material.TOTEM_OF_UNDYING && isInfinite(offhand)) {
-            savedTotems.put(player.getUniqueId(), offhand.clone());
-        }
-        event.getDrops().removeIf(drop ->
-            drop != null && drop.getType() == Material.TOTEM_OF_UNDYING && isInfinite(drop)
-        );
-    }
-
-    @EventHandler
-    public void onRespawn(PlayerRespawnEvent event) {
-        ItemStack saved = savedTotems.remove(event.getPlayer().getUniqueId());
-        if (saved != null) {
-            plugin.getServer().getScheduler().runTaskLater(plugin,
-                () -> event.getPlayer().getInventory().addItem(saved), 1L);
-        }
     }
 }

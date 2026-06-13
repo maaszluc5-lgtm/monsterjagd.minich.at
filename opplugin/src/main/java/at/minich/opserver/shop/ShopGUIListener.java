@@ -95,6 +95,8 @@ public class ShopGUIListener implements Listener {
             }
 
             plugin.getEconomyManager().withdraw(player.getUniqueId(), totalCost);
+            plugin.getEconomyManager().initPlayer(at.minich.opserver.economy.ServerAccount.UUID);
+            plugin.getEconomyManager().deposit(at.minich.opserver.economy.ServerAccount.UUID, totalCost);
             ItemStack purchase = new ItemStack(shopItem.material(), amount);
             player.getInventory().addItem(purchase).values().forEach(
                     leftover -> player.getWorld().dropItemNaturally(player.getLocation(), leftover)

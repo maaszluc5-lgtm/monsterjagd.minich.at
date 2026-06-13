@@ -28,6 +28,12 @@ public class BalCommand implements CommandExecutor {
         String targetName;
 
         if (args.length >= 1) {
+            // Special: /bal server
+            if (args[0].equalsIgnoreCase("server")) {
+                double serverBal = plugin.getEconomyManager().getBalance(at.minich.opserver.economy.ServerAccount.UUID);
+                sender.sendMessage(prefix + "§6Server-Konto§7: §a¢" + String.format("%.2f", serverBal));
+                return true;
+            }
             // Look up another player
             @SuppressWarnings("deprecation")
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);

@@ -195,6 +195,8 @@ public class BankManager {
         double tax = amount * 0.2;
         double net = amount - tax;
         lastTax.put(uuid, tax);
+        economy.initPlayer(ServerAccount.UUID);
+        economy.deposit(ServerAccount.UUID, tax);
         balances.get(uuid).merge(slot, net, Double::sum);
         return true;
     }

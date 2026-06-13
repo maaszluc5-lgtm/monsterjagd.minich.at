@@ -9,6 +9,7 @@ import org.bukkit.event.block.TNTPrimeEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -41,32 +42,43 @@ public class InfiniteItemListener implements Listener {
         }
     }
 
-    // --- Enderperle: restore after throw ---
+    // --- Enderperle: restore after throw (via ProjectileLaunchEvent) ---
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPearlThrow(ProjectileLaunchEvent event) {
+        if (!(event.getEntity().getShooter() instanceof Player player)) return;
+        if (!(event.getEntity() instanceof org.bukkit.entity.EnderPearl)) return;
+
+        // Find the infinite ender pearl in inventory
+        ItemStack infinitePearl = null;
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv != null && inv.getType() == Material.ENDER_PEARL && isInfinite(inv)) {
+                infinitePearl = inv.clone();
+                break;
+            }
+        }
+        if (infinitePearl == null) return;
+
+        final ItemStack toRestore = infinitePearl;
+        org.bukkit.Bukkit.getScheduler().runTaskLater(
+            org.bukkit.Bukkit.getPluginManager().getPlugin("OpServer"),
+            () -> {
+                // Check if still has one, if not give back
+                for (ItemStack inv : player.getInventory().getContents()) {
+                    if (inv != null && inv.getType() == Material.ENDER_PEARL && isInfinite(inv)) return;
+                }
+                toRestore.setAmount(1);
+                player.getInventory().addItem(toRestore);
+            }, 1L
+        );
+    }
+
+    // --- Interact fallback (kept for other items) ---
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent event) {
         if (event.getItem() == null) return;
         ItemStack item = event.getItem();
-        if (item.getType() != Material.ENDER_PEARL) return;
-        if (!isInfinite(item)) return;
-
-        Player player = event.getPlayer();
-        // Schedule restore after the pearl is consumed
-        org.bukkit.Bukkit.getScheduler().runTaskLater(
-            org.bukkit.Bukkit.getPluginManager().getPlugin("OpServer"),
-            () -> {
-                // Give back 1 ender pearl if they now have less
-                ItemStack hand = player.getInventory().getItemInMainHand();
-                if (hand.getType() == Material.ENDER_PEARL) return; // still there
-                // Find infinite ender pearl in inventory and ensure it stays
-                for (ItemStack inv : player.getInventory().getContents()) {
-                    if (inv != null && inv.getType() == Material.ENDER_PEARL && isInfinite(inv)) return;
-                }
-                // Restore
-                ItemStack restored = item.clone();
-                restored.setAmount(1);
-                player.getInventory().addItem(restored);
-            }, 2L
-        );
+        // Ender pearl handled by ProjectileLaunchEvent
+        if (item.getType() == Material.ENDER_PEARL) return;
     }
 
     // --- TNT: restore after placing ---

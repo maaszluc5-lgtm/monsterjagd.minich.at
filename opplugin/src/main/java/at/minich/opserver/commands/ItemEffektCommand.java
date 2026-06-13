@@ -94,7 +94,7 @@ public class ItemEffektCommand implements CommandExecutor, TabCompleter {
         // Store in PDC: key = "item_effect_<EFFECT_NAME>", value = "<level>:<slot>"
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return true;
-        NamespacedKey key = new NamespacedKey(plugin, PDC_KEY_PREFIX + type.getName());
+        NamespacedKey key = new NamespacedKey(plugin, PDC_KEY_PREFIX + type.getName().replace(":", "_").replace(".", "_"));
         meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, level + ":" + slot);
 
         // Update lore
@@ -112,7 +112,7 @@ public class ItemEffektCommand implements CommandExecutor, TabCompleter {
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         boolean any = false;
         for (PotionEffectType type : PotionEffectType.values()) {
-            NamespacedKey key = new NamespacedKey(plugin, PDC_KEY_PREFIX + type.getName());
+            NamespacedKey key = new NamespacedKey(plugin, PDC_KEY_PREFIX + type.getName().replace(":", "_").replace(".", "_"));
             String val = pdc.get(key, PersistentDataType.STRING);
             if (val != null) {
                 String[] parts = val.split(":");
@@ -128,7 +128,7 @@ public class ItemEffektCommand implements CommandExecutor, TabCompleter {
         if (type == null) { player.sendMessage("§cUnbekannter Effekt!"); return; }
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
-        NamespacedKey key = new NamespacedKey(plugin, PDC_KEY_PREFIX + type.getName());
+        NamespacedKey key = new NamespacedKey(plugin, PDC_KEY_PREFIX + type.getName().replace(":", "_").replace(".", "_"));
         meta.getPersistentDataContainer().remove(key);
         updateEffectLore(meta, plugin);
         item.setItemMeta(meta);
@@ -143,7 +143,7 @@ public class ItemEffektCommand implements CommandExecutor, TabCompleter {
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         boolean addedSep = false;
         for (PotionEffectType type : PotionEffectType.values()) {
-            NamespacedKey key = new NamespacedKey(plugin, PDC_KEY_PREFIX + type.getName());
+            NamespacedKey key = new NamespacedKey(plugin, PDC_KEY_PREFIX + type.getName().replace(":", "_").replace(".", "_"));
             String val = pdc.get(key, PersistentDataType.STRING);
             if (val != null) {
                 if (!addedSep) { lore.add("§8§m------------"); addedSep = true; }

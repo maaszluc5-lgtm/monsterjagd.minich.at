@@ -39,6 +39,7 @@ public enum CustomItems {
     // Axes
     // -------------------------------------------------------------------------
     LUMBER_GOD("§a§lHolzgott-Axt", Material.NETHERITE_AXE),
+    TIMBER_AXE("§6§l🪓 Timber Axt", Material.NETHERITE_AXE),
     BATTLE_AXE("§c§lKampfaxt", Material.NETHERITE_AXE),
 
     // -------------------------------------------------------------------------
@@ -234,6 +235,17 @@ public enum CustomItems {
             // -----------------------------------------------------------------
             // Axes
             // -----------------------------------------------------------------
+            case TIMBER_AXE -> {
+                applyVanillaEnchant(item, Enchantment.EFFICIENCY, 10);
+                applyVanillaEnchant(item, Enchantment.UNBREAKING, 10);
+                applyVanillaEnchant(item, Enchantment.MENDING, 1);
+                setLore(item,
+                    "§7Fällt den §aganzen Baum §7auf einmal",
+                    "§7Stamm + Blätter werden abgebaut",
+                    "",
+                    "§8Custom Item"
+                );
+            }
             case LUMBER_GOD -> {
                 applyVanillaEnchant(item, Enchantment.EFFICIENCY, 200);
                 applyVanillaEnchant(item, Enchantment.FORTUNE, 10);

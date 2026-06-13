@@ -132,6 +132,13 @@ public class PlotManager {
         int maxZ = plot.getWorldMaxZ();
         int y = Plot.Y_MIN; // y=64, on top of grass block
 
+        // Force-load all border chunks
+        for (int x = minX - 2; x <= maxX + 2; x += 16) {
+            for (int z = minZ - 2; z <= maxZ + 2; z += 16) {
+                w.loadChunk(x >> 4, z >> 4, true);
+            }
+        }
+
         // Corners - gold block
         w.getBlockAt(minX - 1, y, minZ - 1).setType(Material.GOLD_BLOCK);
         w.getBlockAt(maxX + 1, y, minZ - 1).setType(Material.GOLD_BLOCK);

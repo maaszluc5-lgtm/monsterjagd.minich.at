@@ -194,7 +194,7 @@ public class PlotCommand implements CommandExecutor, TabCompleter {
 
     private void teleportToPlot(Player player, Plot plot) {
         World world = plotManager.getPlotWorld();
-        Location loc = new Location(world, plot.getTeleportX(), Plot.Y_MAX + 1, plot.getTeleportZ(), 0f, 0f);
+        Location loc = new Location(world, plot.getTeleportX(), Plot.Y_MIN + 1, plot.getTeleportZ(), 0f, 0f);
         player.teleport(loc);
     }
 

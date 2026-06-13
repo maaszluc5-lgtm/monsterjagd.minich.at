@@ -95,6 +95,7 @@ public enum CustomItems {
     // Starter kit items
     // -------------------------------------------------------------------------
     SPEED_SCHUHE("§b§l⚡ Speed Schuhe", Material.GOLDEN_BOOTS),
+    NACHTSICHT_HELM("§8§l🌙 Nachtsicht-Helm", Material.LEATHER_HELMET),
 
     // -------------------------------------------------------------------------
     // Starter kit items
@@ -373,6 +374,20 @@ public enum CustomItems {
             // -----------------------------------------------------------------
             // Starter kit
             // -----------------------------------------------------------------
+            case NACHTSICHT_HELM -> {
+                applyVanillaEnchant(item, Enchantment.PROTECTION, 4);
+                applyVanillaEnchant(item, Enchantment.UNBREAKING, 10);
+                applyVanillaEnchant(item, Enchantment.MENDING, 1);
+                setLore(item,
+                    "§7Gibt dir dauerhaft §eNachtsicht",
+                    "§7Anziehen um den Effekt zu aktivieren"
+                );
+                meta = item.getItemMeta();
+                if (meta instanceof org.bukkit.inventory.meta.LeatherArmorMeta lam) {
+                    lam.setColor(org.bukkit.Color.fromRGB(0x1a1a2e));
+                    item.setItemMeta(lam);
+                }
+            }
             case SPEED_SCHUHE -> {
                 applyVanillaEnchant(item, Enchantment.PROTECTION, 4);
                 applyVanillaEnchant(item, Enchantment.UNBREAKING, 10);

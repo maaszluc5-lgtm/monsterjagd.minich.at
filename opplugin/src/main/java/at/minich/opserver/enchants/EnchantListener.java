@@ -156,6 +156,17 @@ public class EnchantListener implements Listener {
             player.removePotionEffect(PotionEffectType.JUMP_BOOST);
         }
 
+        // --- NIGHT VISION --- (Nachtsicht-Helm)
+        ItemStack helmet = player.getInventory().getHelmet();
+        boolean hasNightVision = helmet != null && helmet.hasItemMeta()
+                && helmet.getItemMeta().hasDisplayName()
+                && helmet.getItemMeta().getDisplayName().contains("Nachtsicht");
+        if (hasNightVision) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false, false));
+        } else {
+            player.removePotionEffect(PotionEffectType.NIGHT_VISION);
+        }
+
         // --- TITAN — scan all armor + held item ---
         applyTitanHealth(player);
     }

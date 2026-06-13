@@ -86,7 +86,7 @@ public class PlotManager {
 
     public Plot getPlotAt(int worldX, int worldZ) {
         for (Plot p : plots.values()) {
-            if (p.contains(worldX, 65, worldZ)) return p;
+            if (p.contains(worldX, Plot.Y_MIN, worldZ)) return p;
         }
         return null;
     }

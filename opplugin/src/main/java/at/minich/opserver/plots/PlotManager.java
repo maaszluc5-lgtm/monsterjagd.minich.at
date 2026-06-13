@@ -130,7 +130,7 @@ public class PlotManager {
         int minZ = plot.getWorldMinZ();
         int maxX = plot.getWorldMaxX();
         int maxZ = plot.getWorldMaxZ();
-        int y = Plot.Y_MIN; // y=64, on top of grass block
+        int y = Plot.GROUND_Y; // y=63, grass level border
 
         plugin.getLogger().info("[PlotBorder] Building borders for plot #" + plot.getId()
             + " world=" + w.getName() + " minX=" + minX + " maxX=" + maxX

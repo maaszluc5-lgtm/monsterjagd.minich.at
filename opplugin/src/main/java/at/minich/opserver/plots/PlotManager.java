@@ -122,6 +122,23 @@ public class PlotManager {
     // -------------------------------------------------------------------------
 
     /** Places gold block corners and quartz stair borders around the plot. */
+    public void buildPlotBordersAtY(Plot plot, int y) {
+        World w = getPlotWorld();
+        if (w == null) return;
+        int minX = plot.getWorldMinX(); int minZ = plot.getWorldMinZ();
+        int maxX = plot.getWorldMaxX(); int maxZ = plot.getWorldMaxZ();
+        for (int x = minX - 2; x <= maxX + 2; x += 16)
+            for (int z = minZ - 2; z <= maxZ + 2; z += 16)
+                w.loadChunk(x >> 4, z >> 4, true);
+        w.getBlockAt(minX - 1, y, minZ - 1).setType(Material.GOLD_BLOCK);
+        w.getBlockAt(maxX + 1, y, minZ - 1).setType(Material.GOLD_BLOCK);
+        w.getBlockAt(minX - 1, y, maxZ + 1).setType(Material.GOLD_BLOCK);
+        w.getBlockAt(maxX + 1, y, maxZ + 1).setType(Material.GOLD_BLOCK);
+        for (int x = minX; x <= maxX; x++) { setStair(w, x, y, minZ - 1, BlockFace.SOUTH); setStair(w, x, y, maxZ + 1, BlockFace.NORTH); }
+        for (int z = minZ; z <= maxZ; z++) { setStair(w, minX - 1, y, z, BlockFace.EAST); setStair(w, maxX + 1, y, z, BlockFace.WEST); }
+        plugin.getLogger().info("[PlotBorder] Built at Y=" + y + " for plot #" + plot.getId());
+    }
+
     public void buildPlotBorders(Plot plot) {
         World w = getPlotWorld();
         if (w == null) return;

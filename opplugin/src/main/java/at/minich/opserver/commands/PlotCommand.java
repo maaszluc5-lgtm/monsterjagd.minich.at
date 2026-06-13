@@ -75,6 +75,7 @@ public class PlotCommand implements CommandExecutor, TabCompleter {
             case "weather"          -> handleWeather(p, args);
             case "time"             -> handleTime(p, args);
             case "rebuild"          -> handleRebuild(p);
+            case "testy"            -> handleTestY(p, args);
             default                 -> sendHelp(p);
         }
         return true;
@@ -396,6 +397,17 @@ public class PlotCommand implements CommandExecutor, TabCompleter {
     }
 
     // ── rating ───────────────────────────────────────────────────────────────
+
+    private void handleTestY(Player p, String[] args) {
+        if (!p.hasPermission("opserver.admin")) { p.sendMessage("§cKein Zugang."); return; }
+        if (args.length < 2) { p.sendMessage("§cVerwendung: /plot testy <y>"); return; }
+        int y;
+        try { y = Integer.parseInt(args[1]); } catch (NumberFormatException e) { p.sendMessage("§cUngültige Zahl."); return; }
+        Plot plot = pm.getPlotsOf(p.getUniqueId()).isEmpty() ? null : pm.getPlotsOf(p.getUniqueId()).get(0);
+        if (plot == null) { p.sendMessage("§cKein Plot."); return; }
+        pm.buildPlotBordersAtY(plot, y);
+        p.sendMessage("§aBorders bei Y=" + y + " gesetzt.");
+    }
 
     private void handleRebuild(Player p) {
         if (!p.hasPermission("opserver.admin")) { p.sendMessage("§cKein Zugang."); return; }

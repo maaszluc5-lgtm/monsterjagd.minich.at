@@ -173,7 +173,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new at.minich.opserver.perks.PerkListener(this), this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.VierDKListener(this), this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.TimberAxeListener(), this);
-        getServer().getPluginManager().registerEvents(new at.minich.opserver.items.InfiniteItemListener(), this);
+        getServer().getPluginManager().registerEvents(new at.minich.opserver.items.InfiniteItemListener(this), this);
 
         // Duel listener (shared state with DuelCommand)
         DuelListener duelListener = new DuelListener(this);

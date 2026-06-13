@@ -148,7 +148,7 @@ public class PlotManager {
         int minZ = plot.getWorldMinZ();
         int maxX = plot.getWorldMaxX();
         int maxZ = plot.getWorldMaxZ();
-        int yBottom = 63;
+        int yBottom = -63;
         int yTop = 100;
 
         plugin.getLogger().info("[PlotBorder] Building borders for plot #" + plot.getId()

@@ -121,7 +121,8 @@ public class PlotListener implements Listener {
     private boolean isBorderBlock(Block block) {
         if (!block.getWorld().equals(plotManager.getPlotWorld())) return false;
         Material type = block.getType();
-        return type == Material.QUARTZ_STAIRS || type == Material.GOLD_BLOCK || type == Material.QUARTZ_BLOCK || type == Material.SMOOTH_QUARTZ_STAIRS || type == Material.QUARTZ_BRICKS;
+        String typeName = type.name();
+        return typeName.contains("QUARTZ") || type == Material.GOLD_BLOCK;
     }
 
     private boolean isProtected(Player player, Block block) {

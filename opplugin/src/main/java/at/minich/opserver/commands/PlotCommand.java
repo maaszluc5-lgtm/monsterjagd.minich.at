@@ -74,7 +74,7 @@ public class PlotCommand implements CommandExecutor, TabCompleter {
             case "biome"            -> handleBiome(p, args);
             case "weather"          -> handleWeather(p, args);
             case "time"             -> handleTime(p, args);
-            case "rating"           -> handleRating(p, args);
+            case "rebuild"          -> handleRebuild(p);
             default                 -> sendHelp(p);
         }
         return true;
@@ -396,6 +396,18 @@ public class PlotCommand implements CommandExecutor, TabCompleter {
     }
 
     // ── rating ───────────────────────────────────────────────────────────────
+
+    private void handleRebuild(Player p) {
+        if (!p.hasPermission("opserver.admin")) { p.sendMessage("§cKein Zugang."); return; }
+        Plot plot = pm.getPlotAt(p.getLocation().getBlockX(), p.getLocation().getBlockZ());
+        if (plot == null) {
+            List<Plot> owned = pm.getPlotsOf(p.getUniqueId());
+            if (owned.isEmpty()) { p.sendMessage("§cKein Plot gefunden."); return; }
+            plot = owned.get(0);
+        }
+        pm.buildPlotBorders(plot);
+        p.sendMessage("§aUmrandung für Plot §e#" + plot.getId() + " §aneu gebaut bei Y=" + at.minich.opserver.plots.Plot.Y_MIN + ".");
+    }
 
     private void handleRating(Player p, String[] args) {
         Plot plot = pm.getPlotAt(p.getLocation().getBlockX(), p.getLocation().getBlockZ());

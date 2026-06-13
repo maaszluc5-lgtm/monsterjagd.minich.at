@@ -9,6 +9,7 @@ import org.bukkit.event.block.TNTPrimeEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -29,6 +30,15 @@ public class InfiniteItemListener implements Listener {
         ItemMeta meta = item.getItemMeta();
         if (meta == null || meta.getLore() == null) return false;
         return meta.getLore().stream().anyMatch(l -> l.contains("∞ Unendlich"));
+    }
+
+    // --- Drop-Schutz: unendliche Items können nicht weggeworfen werden ---
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onDrop(PlayerDropItemEvent event) {
+        if (isInfinite(event.getItemDrop().getItemStack())) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage("§c∞ §7Unendliche Items können nicht weggeworfen werden!");
+        }
     }
 
     // --- Enderperle: restore after throw ---

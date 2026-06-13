@@ -38,7 +38,7 @@ public class PlotManager {
 
         WorldCreator creator = new WorldCreator(WORLD_NAME);
         creator.type(WorldType.FLAT);
-        creator.generatorSettings("{\"layers\":[{\"block\":\"minecraft:bedrock\",\"height\":1},{\"block\":\"minecraft:dirt\",\"height\":3},{\"block\":\"minecraft:grass_block\",\"height\":1}],\"biome\":\"minecraft:plains\",\"structures\":{},\"features\":false}");
+        creator.generatorSettings("{\"layers\":[{\"block\":\"minecraft:bedrock\",\"height\":1},{\"block\":\"minecraft:dirt\",\"height\":3},{\"block\":\"minecraft:grass_block\",\"height\":1}],\"biome\":\"minecraft:plains\",\"structures\":{},\"features\":false,\"decoration\":false}");
         creator.environment(World.Environment.NORMAL);
         World w = creator.createWorld();
         if (w != null) {
@@ -48,6 +48,9 @@ public class PlotManager {
             w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
             w.setGameRule(GameRule.DO_MOB_SPAWNING, false);
             w.setGameRule(GameRule.DO_FIRE_TICK, false);
+            w.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
+            w.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
+            w.setGameRule(GameRule.DO_WARDEN_SPAWNING, false);
             plugin.getLogger().info("[Plots] Flat plot world created.");
         }
     }

@@ -91,6 +91,8 @@ public class PlotManager {
         return null;
     }
 
+    public Collection<Plot> getAllPlots() { return plots.values(); }
+
     public Plot getFirstPlot(UUID uuid) {
         List<Plot> owned = getPlotsOf(uuid);
         return owned.isEmpty() ? null : owned.get(0);

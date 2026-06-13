@@ -246,6 +246,10 @@ commands:
     description: Öffnet den Server-Shop.
     usage: /shop
     aliases: [markt2, kaufen]
+  vmagnetfilter:
+    description: Setzt den Behalten-Filter des Verkaufs-Magneten.
+    usage: /vmagnetfilter [item|clear]
+    aliases: [sellmagnetfilter]
   perks:
     description: Zeige deine aktiven Perks.
     usage: /perks [give <spieler> <perk>]

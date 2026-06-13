@@ -166,6 +166,8 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         AbilityItemListener abilityItemListener = new AbilityItemListener(this);
         getServer().getPluginManager().registerEvents(abilityItemListener, this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.MagnetListener(this), this);
+        at.minich.opserver.items.SellMagnetListener sellMagnetListener = new at.minich.opserver.items.SellMagnetListener(this);
+        getServer().getPluginManager().registerEvents(sellMagnetListener, this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.perks.PerkListener(this), this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.VierDKListener(this), this);
 
@@ -306,6 +308,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getCommand("itemeffekt").setTabCompleter(itemEffektCmd);
         new at.minich.opserver.listeners.ItemEffektListener(this);
         getCommand("shop").setExecutor(new ShopCommand(this, shopGUI, sellInventoryGUI));
+        VMagnetFilterCommand vMagnetFilterCmd = new VMagnetFilterCommand(sellMagnetListener);
+        getCommand("vmagnetfilter").setExecutor(vMagnetFilterCmd);
+        getCommand("vmagnetfilter").setTabCompleter(vMagnetFilterCmd);
         at.minich.opserver.plots.PlotManager plotManager = new at.minich.opserver.plots.PlotManager(this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.plots.PlotListener(this, plotManager), this);
         getCommand("plot").setExecutor(new at.minich.opserver.commands.PlotCommand(this, plotManager));

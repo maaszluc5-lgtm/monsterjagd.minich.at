@@ -86,6 +86,7 @@ public enum CustomItems {
     XP_BOTTLE_STACK("§5§lXP-Paket", Material.EXPERIENCE_BOTTLE),
     WAENDEZERSTOERER("§4§l⚡ Wändezerstörer", Material.NETHERITE_PICKAXE),
     MAGNET("§b§l🧲 Magnet", Material.COMPASS),
+    VERKAUFSMAGNET("§6§l💰 Verkaufs-Magnet", Material.HOPPER),
     BOHRER("§7§l⚙ Bohrer", Material.NETHERITE_PICKAXE),
     EFFICIENCY_PICKAXE("§e§l⛏ Effizienz-Spitzhacke", Material.NETHERITE_PICKAXE),
     VIERDIMENSIONALE_KISTE("§6§l📦 4D-Kiste", Material.ENDER_CHEST),
@@ -313,6 +314,19 @@ public enum CustomItems {
                 );
             }
 
+            case VERKAUFSMAGNET -> {
+                setLore(item,
+                    "§aAktiv §8| §7Rechtsklick zum Deaktivieren",
+                    "§7Radius: §b8 Blöcke",
+                    "§7Modus: §6Alles verkaufen",
+                    "§7Behalten-Filter: §eKeine Items",
+                    "",
+                    "§8/vmagnetfilter <item> §7- Behalten-Filter setzen",
+                    "§8Custom Item"
+                );
+                meta = item.getItemMeta();
+                if (meta != null) { meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS); item.setItemMeta(meta); }
+            }
             case MAGNET -> {
                 setLore(item,
                     "§7Zieht Items in einem §b8 Block §7Radius an",

@@ -119,8 +119,8 @@ public class ShopGUIListener implements Listener {
         int amount = held.getAmount();
         double total = shopItem.sellPrice() * amount;
         player.getInventory().setItemInMainHand(null);
-        plugin.getBankManager().addMarktBalance(player.getUniqueId(), total);
+        plugin.getEconomyManager().deposit(player.getUniqueId(), total);
         player.sendMessage("§a✔ §e" + amount + "x " + held.getType().name().replace("_", " ").toLowerCase()
-                + " §averkauft für §e" + String.format("%.1f", total) + " §aCoins! (→ §6Markt-Konto§a)");
+                + " §averkauft für §e" + String.format("%.1f", total) + " §aCoins!");
     }
 }

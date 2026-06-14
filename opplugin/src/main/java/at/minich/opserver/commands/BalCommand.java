@@ -28,10 +28,19 @@ public class BalCommand implements CommandExecutor {
         String targetName;
 
         if (args.length >= 1) {
-            // Special: /bal server
+            if (args[0].equalsIgnoreCase("bank")) {
+                double bal = plugin.getEconomyManager().getBalance(at.minich.opserver.economy.ServerAccount.BANK);
+                sender.sendMessage(prefix + "§6Bank-Konto§7: §a¢" + String.format("%.2f", bal));
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("markt")) {
+                double bal = plugin.getEconomyManager().getBalance(at.minich.opserver.economy.ServerAccount.MARKT);
+                sender.sendMessage(prefix + "§6Markt-Konto§7: §a¢" + String.format("%.2f", bal));
+                return true;
+            }
             if (args[0].equalsIgnoreCase("server")) {
-                double serverBal = plugin.getEconomyManager().getBalance(at.minich.opserver.economy.ServerAccount.UUID);
-                sender.sendMessage(prefix + "§6Server-Konto§7: §a¢" + String.format("%.2f", serverBal));
+                double bal = plugin.getEconomyManager().getBalance(at.minich.opserver.economy.ServerAccount.SERVER);
+                sender.sendMessage(prefix + "§6Server-Konto§7: §a¢" + String.format("%.2f", bal));
                 return true;
             }
             // Look up another player

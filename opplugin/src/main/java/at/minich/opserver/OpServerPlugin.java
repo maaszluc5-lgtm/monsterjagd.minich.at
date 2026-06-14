@@ -346,7 +346,7 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
                 .runTaskTimer(this, 20L * 60, 20L * 60); // every 60 seconds
 
         double interestRate = getConfig().getDouble("bank.interest-rate-percent", 1.0);
-        new BankInterestTask(bankManager, interestRate)
+        new BankInterestTask(bankManager, economyManager, interestRate)
                 .runTaskTimer(this, 20L * 3600, 20L * 3600); // every hour
 
         // Auction finalization — every 30 seconds

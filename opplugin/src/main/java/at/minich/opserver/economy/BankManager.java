@@ -195,8 +195,8 @@ public class BankManager {
         double tax = amount * 0.2;
         double net = amount - tax;
         lastTax.put(uuid, tax);
-        economy.initPlayer(ServerAccount.UUID);
-        economy.deposit(ServerAccount.UUID, tax);
+        economy.initPlayer(ServerAccount.BANK);
+        economy.deposit(ServerAccount.BANK, tax);
         balances.get(uuid).merge(slot, net, Double::sum);
         return true;
     }
@@ -260,6 +260,21 @@ public class BankManager {
      * Apply interest to all unlocked bank slots for all players,
      * routing all interest to the Zinsen-Konto. Called hourly.
      */
+    public double calculateTotalInterest(double ratePercent) {
+        double multiplier = ratePercent / 100.0;
+        double total = 0;
+        for (UUID uuid : balances.keySet()) {
+            Map<Integer, Double> bal = balances.get(uuid);
+            Map<Integer, Boolean> unl = unlocked.get(uuid);
+            for (int i = 1; i <= MAX_BANKS; i++) {
+                if (unl.getOrDefault(i, i == 1)) {
+                    total += bal.getOrDefault(i, 0.0) * multiplier;
+                }
+            }
+        }
+        return total;
+    }
+
     public void applyInterest(double ratePercent) {
         double multiplier = ratePercent / 100.0;
         for (UUID uuid : balances.keySet()) {

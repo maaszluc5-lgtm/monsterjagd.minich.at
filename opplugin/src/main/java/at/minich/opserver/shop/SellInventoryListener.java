@@ -45,8 +45,8 @@ public class SellInventoryListener implements Listener {
                 count += item.getAmount();
                 player.getInventory().setItem(i, null);
             }
-            plugin.getEconomyManager().deposit(player.getUniqueId(), total);
-            player.sendMessage("§a✔ §e" + count + " §aItems verkauft für §e" + String.format("%.1f", total) + " §aCoins!");
+            plugin.getBankManager().addMarktBalance(player.getUniqueId(), total);
+            player.sendMessage("§a✔ §e" + count + " §aItems verkauft für §e" + String.format("%.1f", total) + " §aCoins! (→ §6Markt-Konto§a)");
             player.closeInventory();
             return;
         }
@@ -70,18 +70,18 @@ public class SellInventoryListener implements Listener {
                     count += item.getAmount();
                     player.getInventory().setItem(i, null);
                 }
-                plugin.getEconomyManager().deposit(player.getUniqueId(), total);
+                plugin.getBankManager().addMarktBalance(player.getUniqueId(), total);
                 String name = clicked.getType().name().replace("_", " ").toLowerCase();
-                player.sendMessage("§a✔ §e" + count + "x " + name + " §averkauft für §e" + String.format("%.1f", total) + " §aCoins!");
+                player.sendMessage("§a✔ §e" + count + "x " + name + " §averkauft für §e" + String.format("%.1f", total) + " §aCoins! (→ §6Markt-Konto§a)");
             } else {
                 // Sell this stack only
                 ItemStack real = player.getInventory().getItem(slot);
                 if (real == null || real.getType() != clicked.getType()) return;
                 double total = shopItem.sellPrice() * real.getAmount();
                 player.getInventory().setItem(slot, null);
-                plugin.getEconomyManager().deposit(player.getUniqueId(), total);
+                plugin.getBankManager().addMarktBalance(player.getUniqueId(), total);
                 String name = real.getType().name().replace("_", " ").toLowerCase();
-                player.sendMessage("§a✔ §e" + real.getAmount() + "x " + name + " §averkauft für §e" + String.format("%.1f", total) + " §aCoins!");
+                player.sendMessage("§a✔ §e" + real.getAmount() + "x " + name + " §averkauft für §e" + String.format("%.1f", total) + " §aCoins! (→ §6Markt-Konto§a)");
             }
             // Refresh GUI
             gui.open(player);

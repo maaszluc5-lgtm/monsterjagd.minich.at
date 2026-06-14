@@ -78,16 +78,29 @@ public class BankGUI {
                     )));
         }
 
-        // Markt-Bank (always shown, slot 13 on page 1 / slot 13 on page 2)
+        // Markt-Bank — persönliche Verkaufseinnahmen (slot 13)
         double marktBal = bm.getMarktBalance(uuid);
         inv.setItem(13, makeItem(Material.ORANGE_STAINED_GLASS,
                 "§6§l🏪 Markt-Bank",
                 Arrays.asList(
-                        "§7Einnahmen aus §6/markt §7Verkäufen",
+                        "§7Einnahmen aus §6/shop §7Verkäufen",
                         "§7Guthaben: §a" + fmt(marktBal) + " Coins",
                         "",
                         "§aLinksklick: Auf aktive Bank übertragen"
                 )));
+
+        // Shop-Einnahmen (nur für Admins/OPs, slot 14)
+        if (player.isOp() || player.hasPermission("opserver.admin")) {
+            double shopEarnings = bm.getShopEarnings();
+            inv.setItem(14, makeItem(Material.GOLD_INGOT,
+                    "§e§l💰 Shop-Einnahmen",
+                    Arrays.asList(
+                            "§7Coins die Spieler im §6/shop §7ausgegeben haben",
+                            "§7Guthaben: §a" + fmt(shopEarnings) + " Coins",
+                            "",
+                            "§aLinksklick: Auf aktive Bank übertragen"
+                    )));
+        }
 
         // Einzahlen / Auszahlen (row 3)
         inv.setItem(22, makeItem(Material.EMERALD_BLOCK, "§6Einzahlen",

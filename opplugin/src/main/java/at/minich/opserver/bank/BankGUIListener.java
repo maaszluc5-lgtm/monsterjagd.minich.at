@@ -83,6 +83,21 @@ public class BankGUIListener implements Listener {
             return;
         }
 
+        // --- Shop-Einnahmen (slot 14, nur Admin) ---
+        if (slot == 14 && (player.isOp() || player.hasPermission("opserver.admin"))) {
+            double earnings = bm.getShopEarnings();
+            if (earnings > 0) {
+                bm.withdrawShopEarnings(earnings);
+                bm.depositToBank(uuid, bm.getActiveBank(uuid), earnings, plugin.getEconomyManager());
+                player.sendMessage(prefix + "§a§6" + fmt(earnings)
+                        + " Coins §7aus Shop-Einnahmen auf §9Bank " + bm.getActiveBank(uuid) + " §7übertragen.");
+                bankGUI.open(player, page);
+            } else {
+                player.sendMessage(prefix + "§7Keine Shop-Einnahmen vorhanden.");
+            }
+            return;
+        }
+
         // --- Bank slots ---
         int banksPerPage = maxBanks <= 5 ? 5 : 10;
         int startBank    = (page - 1) * banksPerPage + 1;

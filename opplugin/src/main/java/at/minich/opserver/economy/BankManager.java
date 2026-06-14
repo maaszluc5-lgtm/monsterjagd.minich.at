@@ -32,6 +32,7 @@ public class BankManager {
     // uuid -> markt bank balance
     private final Map<UUID, Double> marktBalance = new HashMap<>();
     private final Map<UUID, Double> lastTax = new HashMap<>();
+    private double shopEarnings = 0.0;
 
     public BankManager(DataManager dataManager) {
         this.dataManager = dataManager;
@@ -50,6 +51,7 @@ public class BankManager {
         marktBalance.clear();
 
         YamlConfiguration cfg = dataManager.loadYaml(FILE);
+        shopEarnings = cfg.getDouble("shop-earnings", 0.0);
         ConfigurationSection players = cfg.getConfigurationSection("players");
         if (players == null) return;
 
@@ -88,7 +90,20 @@ public class BankManager {
             cfg.set(base + ".zinsen", zinsen.getOrDefault(uuid, 0.0));
             cfg.set(base + ".markt-balance", marktBalance.getOrDefault(uuid, 0.0));
         }
+        cfg.set("shop-earnings", shopEarnings);
         dataManager.saveYaml(cfg, FILE);
+    }
+
+    public void addShopEarnings(double amount) {
+        shopEarnings += amount;
+    }
+
+    public double getShopEarnings() {
+        return shopEarnings;
+    }
+
+    public void withdrawShopEarnings(double amount) {
+        shopEarnings = Math.max(0, shopEarnings - amount);
     }
 
     // -------------------------------------------------------------------------

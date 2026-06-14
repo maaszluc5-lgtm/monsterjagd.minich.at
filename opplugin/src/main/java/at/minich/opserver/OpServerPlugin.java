@@ -179,6 +179,8 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.MagnetListener(this), this);
         at.minich.opserver.items.SellMagnetListener sellMagnetListener = new at.minich.opserver.items.SellMagnetListener(this);
         getServer().getPluginManager().registerEvents(sellMagnetListener, this);
+        at.minich.opserver.items.SellLeggingListener sellLeggingListener = new at.minich.opserver.items.SellLeggingListener(this);
+        getServer().getPluginManager().registerEvents(sellLeggingListener, this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.perks.PerkListener(this), this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.VierDKListener(this), this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.items.TimberAxeListener(), this);
@@ -328,6 +330,9 @@ public class OpServerPlugin extends JavaPlugin implements Listener {
         VMagnetFilterCommand vMagnetFilterCmd = new VMagnetFilterCommand(sellMagnetListener);
         getCommand("vmagnetfilter").setExecutor(vMagnetFilterCmd);
         getCommand("vmagnetfilter").setTabCompleter(vMagnetFilterCmd);
+        VLeggingFilterCommand vLeggingFilterCmd = new VLeggingFilterCommand(sellLeggingListener);
+        getCommand("vleggingfilter").setExecutor(vLeggingFilterCmd);
+        getCommand("vleggingfilter").setTabCompleter(vLeggingFilterCmd);
         at.minich.opserver.plots.PlotManager plotManager = new at.minich.opserver.plots.PlotManager(this);
         getServer().getPluginManager().registerEvents(new at.minich.opserver.plots.PlotListener(this, plotManager), this);
         getCommand("plot").setExecutor(new at.minich.opserver.commands.PlotCommand(this, plotManager));

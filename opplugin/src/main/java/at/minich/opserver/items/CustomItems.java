@@ -88,6 +88,7 @@ public enum CustomItems {
     WAENDEZERSTOERER("§4§l⚡ Wändezerstörer", Material.NETHERITE_PICKAXE),
     MAGNET("§b§l🧲 Magnet", Material.COMPASS),
     VERKAUFSMAGNET("§6§l💰 Verkaufs-Magnet", Material.HOPPER),
+    VERKAUFSLEGGING("§6§l💰 Verkaufs-Leggings", Material.GOLDEN_LEGGINGS),
     BOHRER("§7§l⚙ Bohrer", Material.NETHERITE_PICKAXE),
     EFFICIENCY_PICKAXE("§e§l⛏ Effizienz-Spitzhacke", Material.NETHERITE_PICKAXE),
     VIERDIMENSIONALE_KISTE("§6§l📦 4D-Kiste", Material.ENDER_CHEST),
@@ -332,6 +333,22 @@ public enum CustomItems {
                 );
             }
 
+            case VERKAUFSLEGGING -> {
+                applyVanillaEnchant(item, Enchantment.PROTECTION, 4);
+                applyVanillaEnchant(item, Enchantment.UNBREAKING, 10);
+                applyVanillaEnchant(item, Enchantment.MENDING, 1);
+                setLore(item,
+                    "§aAktiv §8| §7Anziehen zum Aktivieren",
+                    "§7Radius: §b8 Blöcke",
+                    "§7Modus: §6Alles verkaufen",
+                    "§7Behalten-Filter: §eKeine Items",
+                    "",
+                    "§8/vleggingfilter <item> §7- Behalten-Filter setzen",
+                    "§8Custom Item"
+                );
+                meta = item.getItemMeta();
+                if (meta != null) { meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS); item.setItemMeta(meta); }
+            }
             case VERKAUFSMAGNET -> {
                 setLore(item,
                     "§aAktiv §8| §7Rechtsklick zum Deaktivieren",

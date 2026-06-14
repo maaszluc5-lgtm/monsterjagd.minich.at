@@ -251,6 +251,9 @@ commands:
     usage: /infiniteitem
     aliases: [unendlich]
     permission: opserver.admin
+  vleggingfilter:
+    description: Setzt den Behalten-Filter der Verkaufs-Leggings.
+    usage: /vleggingfilter [item|clear]
   vmagnetfilter:
     description: Setzt den Behalten-Filter des Verkaufs-Magneten.
     usage: /vmagnetfilter [item|clear]
